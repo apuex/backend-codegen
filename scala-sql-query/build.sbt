@@ -1,6 +1,6 @@
 import Dependencies._
 
-name := "sql-runtime"
+name := "scala-sql-query"
 scalaVersion := scalaVersionNumber
 organization := artifactGroupName
 version      := artifactVersionNumber
