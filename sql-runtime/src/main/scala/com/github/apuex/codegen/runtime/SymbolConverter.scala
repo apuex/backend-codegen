@@ -27,6 +27,21 @@ object SymbolConverter {
       }).foldLeft("")(_ + _)
   }
 
+  val camelToShell: Converter = {
+    case name: String => name.map(
+      x => {
+        if (x.isUpper) {
+          s"-${x.toLower}"
+        } else {
+          x
+        }
+      }).foldLeft("")(_ + _)
+  }
+
+  val pascalToShell: Converter = {
+    case name => camelToShell(pascalToCamel(name))
+  }
+
   val pascalToCamel: Converter = {
     case name: String =>
       if (name.length > 1)
