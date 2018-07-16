@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
 )
 
 PB.targets in Compile := Seq(
-  scalapb.gen() -> (sourceManaged in Compile).value
+  scalapb.gen(javaConversions=true) -> (sourceManaged in Compile).value
 )
 
 publishTo := localRepo
