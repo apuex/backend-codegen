@@ -51,6 +51,6 @@ message LogicalConnectionVo {
 };
 
 message QueryCommand {
-  FilterPredicate predicate = 2;
+  FilterPredicate predicate = 1;
   map<string, string> params = 2;
 }
