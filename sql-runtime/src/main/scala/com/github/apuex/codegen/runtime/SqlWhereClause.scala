@@ -1,15 +1,36 @@
 package com.github.apuex.codegen.runtime
 
 import SymbolConverter._
-import anorm.NamedParameter
 import com.github.apuex.codegen.runtime.PredicateType._
 import com.github.apuex.codegen.runtime.LogicalConnectionType._
+import scala.collection.JavaConverters._
 
 object SqlWhereClause {
   def apply(convert: Converter): SqlWhereClause = new SqlWhereClause(convert)
 }
 
 class SqlWhereClause(convert: Converter) {
+  /**
+    * Generate SQL WHERE clause from query command.
+    *
+    * @param q
+    * @return
+    */
+  def toWhereClause(q: QueryCommand): String = {
+    toWhereClause(q.predicate, 0)
+  }
+
+  /**
+    * Generate SQL WHERE clause from query command.
+    *
+    * @param q
+    * @param indent
+    * @return
+    */
+  def toWhereClause(q: QueryCommand, indent: Int): String = {
+    toWhereClause(q.predicate, indent)
+  }
+
   /**
     * Generate SQL WHERE clause from query criteria.
     * @param criteria the criteria for filtering result sets.
@@ -43,7 +64,7 @@ class SqlWhereClause(convert: Converter) {
     * @param indent     indent count, in blank space character.
     * @return A compound predicates for SQL WHERE clause
     */
-  def toSql(connection: LogicalConnectionVo, indent:Int): String = {
+  private def toSql(connection: LogicalConnectionVo, indent:Int): String = {
     val indenting = s"${(0 until indent).map(_ => " ").foldLeft("")(_ + _)}"
     connection match {
       case LogicalConnectionVo(AND, predicates) =>
@@ -68,7 +89,7 @@ class SqlWhereClause(convert: Converter) {
     * @param indent    indent count, in blank space character.
     * @return A predicate for SQL WHERE clause
     */
-  def toSql(predicate: LogicalPredicateVo, indent: Int): String = predicate match {
+  private def toSql(predicate: LogicalPredicateVo, indent: Int): String = predicate match {
     case LogicalPredicateVo(EQ, fieldName, paramNames) => s"${convert(fieldName)} = {${paramNames(0)}}"
     case LogicalPredicateVo(NE, fieldName, paramNames) => s"${convert(fieldName)} <> {${paramNames(0)}}"
     case LogicalPredicateVo(LT, fieldName, paramNames) => s"${convert(fieldName)} < {${paramNames(0)}}"
@@ -82,9 +103,78 @@ class SqlWhereClause(convert: Converter) {
     case x@LogicalPredicateVo(_, _, _) => throw new IllegalArgumentException(x.toString)
   }
 
-  def toNamedParams(q: QueryCommand): Seq[NamedParameter] = {
-    q.params
-      .map(x => NamedParameter(x._1, x._2))
-      .asInstanceOf[Seq[NamedParameter]]
+  /**
+    * Generate unnamed parameters for using with '?' as place holders.
+    *
+    * Available for java & scala
+    *
+    * @param q
+    * @return
+    */
+  def toUnnamedParamList(q: QueryCommand): java.util.List[String] = {
+    toUnnamedParams(q).asJava
   }
+
+  /**
+    * Generate unnamed parameters for using with '?' as place holders.
+    *
+    * Available for scala
+    *
+    * @param q
+    * @return
+    */
+  def toUnnamedParams(q: QueryCommand): Seq[String] = {
+    toUnnamedParams(q.predicate)
+  }
+
+  /**
+    * Generate unnamed parameters for using with '?' as place holders.
+    *
+    * Available for scala
+    *
+    * @param criteria
+    * @return
+    */
+  def toUnnamedParams(criteria: FilterPredicate): Seq[String] = {
+    if(criteria.clause.isConnection) {
+      criteria.clause.connection.map(c => toUnnamedParams(c)).get
+    } else if(criteria.clause.isPredicate) {
+      criteria.clause.predicate.map(p => toUnnamedParams(p)).get
+    } else {
+      throw new IllegalArgumentException(criteria.clause.toString)
+    }
+  }
+
+  private def toUnnamedParams(connection: LogicalConnectionVo): Seq[String] = {
+    connection match {
+      case LogicalConnectionVo(AND, predicates) =>
+        if (predicates.isEmpty) {
+          Seq()
+        } else {
+          predicates.map(x => toUnnamedParams(x)).reduce((x, y) => x ++ y)
+        }
+      case LogicalConnectionVo(OR, predicates) =>
+        if (predicates.isEmpty) {
+          Seq()
+        } else {
+          predicates.map(x => toUnnamedParams(x)).reduce((x, y) => x ++ y)
+        }
+      case x@LogicalConnectionVo(_, _) => throw new IllegalArgumentException(x.toString)
+    }
+  }
+
+  private def toUnnamedParams(predicate: LogicalPredicateVo): Seq[String] = predicate match {
+    case LogicalPredicateVo(EQ, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(NE, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(LT, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(GT, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(LE, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(GE, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(BETWEEN, fieldName, paramNames) => Seq(paramNames(0), paramNames(1))
+    case LogicalPredicateVo(LIKE, fieldName, paramNames) => Seq(paramNames(0))
+    case LogicalPredicateVo(IS_NULL, fieldName, _) => Seq()
+    case LogicalPredicateVo(IS_NOT_NULL, fieldName, _) => Seq()
+    case x@LogicalPredicateVo(_, _, _) => throw new IllegalArgumentException(x.toString)
+  }
+
 }

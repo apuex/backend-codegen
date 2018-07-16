@@ -6,7 +6,6 @@ organization := artifactGroupName
 version      := artifactVersionNumber
 
 libraryDependencies ++= Seq(
-  playAnorm,
   scalapbCompiler,
   scalapbRuntime % "protobuf",
   slf4jApi % Test,

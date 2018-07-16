@@ -1,5 +1,14 @@
 package com.github.apuex.codegen.runtime
 
+import com.github.apuex.codegen.runtime.SymbolConverter.Converter
+
+trait SymbolConverter {
+  def convert(s: String): String
+  def converter: Converter = {
+    case x: String => convert(x)
+  }
+}
+
 object SymbolConverter {
   type Converter = PartialFunction[String, String]
 
