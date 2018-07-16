@@ -22,7 +22,7 @@ assemblyMergeStrategy in assembly := {
     oldStrategy(x)
 }
 
-mainClass in assembly := Some("com.wincom.mstar.util.codegen.Main")
+mainClass in assembly := Some("com.github.apuex.codegen.springboot.Main")
 assemblyJarName in assembly := s"${name.value}.jar"
 
 publishTo := localRepo

@@ -1,7 +1,6 @@
 package com.github.apuex.codegen.springboot
 
-import java.io.{File, FileOutputStream, PrintWriter}
-import java.nio.charset.Charset
+import java.io.{File, PrintWriter}
 
 import com.github.apuex.codegen.runtime.SymbolConverter._
 
