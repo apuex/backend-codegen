@@ -1,0 +1,63 @@
+/*****************************************************
+ ** This file is 100% ***GENERATED***, DO NOT EDIT! **
+ *****************************************************/
+syntax = "proto2";
+import "google/protobuf/timestamp.proto";
+
+import "scalapb/scalapb.proto";
+option (scalapb.options) = {
+  flat_package: true
+};
+package com.github.apuex.codegen.runtime;
+
+enum PredicateType {
+  EQ = 1;
+  LT = 2;
+  GT = 3;
+  LE = 4;
+  GE = 5;
+  BETWEEN = 6;
+  LIKE = 7;
+  NE = 8;
+  IS_NULL = 9;
+  IS_NOT_NULL = 10;
+};
+
+message PredicateTypeVo {
+  required int32 predicateTypeId = 1;
+  required string predicateTypeName = 2;
+  required string predicateTypeTitle = 3;
+};
+
+enum LogicalConnectionType {
+  AND = 1;
+  OR = 2;
+};
+
+message LogicalConnectionTypeVo {
+  required int32 logicalConnectionTypeId = 1;
+  required string logicalConnectionTypeName = 2;
+};
+
+message LogicalPredicateVo {
+  required PredicateType predicateType = 1;
+  required string fieldName = 2;
+  repeated string paramNames = 3;
+};
+
+message FilterPredicate {
+  oneof clause {
+    LogicalPredicateVo predicate = 1;
+    LogicalConnectionVo connection = 2;
+  }
+};
+
+message LogicalConnectionVo {
+  required LogicalConnectionType logicalConnectionType = 1;
+  repeated FilterPredicate predicates = 2;
+};
+
+message QueryCommand {
+  required FilterPredicate predicate = 1;
+  map<string, string> params = 2;
+}
