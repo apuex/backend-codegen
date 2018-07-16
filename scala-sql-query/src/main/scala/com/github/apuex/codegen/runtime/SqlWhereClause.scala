@@ -17,7 +17,7 @@ class SqlWhereClause(convert: Converter) {
     * @return
     */
   def toWhereClause(q: QueryCommand): String = {
-    toWhereClause(q.predicate, 0)
+    toWhereClause(q.predicate.get, 0)
   }
 
   /**
@@ -28,7 +28,7 @@ class SqlWhereClause(convert: Converter) {
     * @return
     */
   def toWhereClause(q: QueryCommand, indent: Int): String = {
-    toWhereClause(q.predicate, indent)
+    toWhereClause(q.predicate.get, indent)
   }
 
   /**
@@ -124,7 +124,7 @@ class SqlWhereClause(convert: Converter) {
     * @return
     */
   def toUnnamedParams(q: QueryCommand): Seq[String] = {
-    toUnnamedParams(q.predicate)
+    toUnnamedParams(q.predicate.get)
   }
 
   /**

@@ -1,10 +1,5 @@
 syntax = "proto3";
-import "google/protobuf/timestamp.proto";
 
-import "scalapb/scalapb.proto";
-option (scalapb.options) = {
-  flat_package: true
-};
 package com.github.apuex.codegen.runtime;
 
 enum PredicateType {
