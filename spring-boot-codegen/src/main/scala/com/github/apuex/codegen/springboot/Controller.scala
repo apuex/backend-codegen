@@ -10,7 +10,7 @@ object Controller extends App {
 
   val xml = ModelLoader(args(0)).xml
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
-  val srcDir = s"controller/src/main/java/${modelPackage.replace('.', '/')}/controller}"
+  val srcDir = s"controller/src/main/java/${modelPackage.replace('.', '/')}/controller"
 
   new File(srcDir).mkdirs()
 
@@ -21,13 +21,11 @@ object Controller extends App {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val prelude =
     s"""
-      |package ${modelPackage}.controller
+      |package ${modelPackage}.controller;
       |
-      |import ${modelPackage}.json.*
-      |import ${modelPackage}.message.ResponseType.*
-      |import ${modelPackage}.message.*
+      |import ${modelPackage}.message.*;
       |import java.util.*;
-      |import org.springframework.web.bind.annotation.*
+      |import org.springframework.web.bind.annotation.*;
       |
       |@RestController
       |@RequestMapping(value="${pascalToShell(entityName)}", method=RequestMethod.POST)
@@ -59,7 +57,7 @@ object Controller extends App {
         |}
         |""".stripMargin
 
-    val printWriter = new PrintWriter(s"${srcDir}/${entityName}.java", "utf-8")
+    val printWriter = new PrintWriter(s"${srcDir}/${entityName}Controller.java", "utf-8")
 
     printWriter.print(prelude)
     printWriter.print(end)
