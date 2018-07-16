@@ -2,12 +2,12 @@ import sbt._
 import scalapb.compiler.Version.scalapbVersion
 
 object Dependencies {
-  lazy val scalaVersionNumber    = "2.12.4"
+  lazy val scalaVersionNumber    = "2.12.6"
   lazy val akkaVersion           = "2.5.11"
   lazy val artifactVersionNumber = "1.0.0"
   lazy val artifactGroupName     = "com.github.apuex.springboot"
   lazy val sprayVersion          = "1.3.3"
-  lazy val playVersion           = "2.6.15"
+  lazy val playVersion           = "2.6.9"
   lazy val playSilhouetteVersion = "5.0.3"
 
   lazy val scalaXml        = "org.scala-lang.modules"    %%  "scala-xml"                          % "1.0.6"
