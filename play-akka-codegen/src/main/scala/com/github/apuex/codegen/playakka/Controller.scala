@@ -1,6 +1,6 @@
 package com.github.apuex.codegen.playakka
 
-import com.github.apuex.codegen.runtime.SymbolConverter._
+import com.github.apuex.codegen.runtime.SymbolConverters._
 
 import scala.xml._
 

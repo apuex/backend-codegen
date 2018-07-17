@@ -2,7 +2,7 @@ package com.github.apuex.codegen.springboot
 
 import java.io.{File, PrintWriter}
 
-import com.github.apuex.codegen.runtime.SymbolConverter._
+import com.github.apuex.codegen.runtime.SymbolConverters._
 
 import scala.xml._
 
