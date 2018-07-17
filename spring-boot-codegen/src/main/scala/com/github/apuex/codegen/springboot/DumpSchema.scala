@@ -49,7 +49,8 @@ object DumpSchema extends App {
 
     printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
     (1 to rsMeta.getColumnCount).foreach(i => {
-      printf("    <field name=\"%s\" type=\"%s\" %srequired=\"%s\"/>\n",
+      printf("    <field no=\"%s\" name=\"%s\" type=\"%s\" %srequired=\"%s\"/>\n",
+        i,
         rsMeta.getColumnName(i),
         typeConverter(rsMeta.getColumnTypeName(i)),
         lengthConverter(rsMeta.getColumnTypeName(i), rsMeta.getColumnDisplaySize(i)),
