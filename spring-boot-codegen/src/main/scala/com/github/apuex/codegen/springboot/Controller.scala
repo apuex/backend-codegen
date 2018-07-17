@@ -17,11 +17,10 @@ object Controller extends App {
   xml.child.filter(x => x.label == "entity")
     .foreach(x => controllerForEntity(modelPackage, x))
 
-  private def controllerForEntity(modelPackage: String, entity: Node) = {
+  private def controllerForEntity(modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val prelude =
-    s"""
-      |package ${modelPackage}.controller;
+    s"""package ${modelPackage}.controller;
       |
       |import ${modelPackage}.message.*;
       |import java.util.*;
@@ -50,11 +49,10 @@ object Controller extends App {
       |    return new ArrayList<>();
       |  }
       |
-    """.stripMargin
+      |""".stripMargin
 
     val end =
-      """
-        |}
+      """}
         |""".stripMargin
 
     val printWriter = new PrintWriter(s"${srcDir}/${entityName}Controller.java", "utf-8")
