@@ -16,7 +16,7 @@ object Message {
       .build()
   }
 
-  def createPredicate(predicateType: PredicateType, name: String, value: String): FilterPredicate = {
+  def createPredicate(predicateType: PredicateType, name: String, value: String, params: util.Map[String, String]): FilterPredicate = {
     val paramNames = new util.ArrayList[String]
     paramNames.add(name)
     val predicateVo = LogicalPredicateVo.newBuilder()
@@ -29,8 +29,8 @@ object Message {
       .setPredicate(predicateVo)
       .build()
 
-    val params = new util.HashMap[String, String]()
     params.put(name, value)
+
     predicate
   }
 }

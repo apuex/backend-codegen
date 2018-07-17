@@ -3,7 +3,7 @@ package com.github.apuex.codegen.runtime
 import com.github.apuex.codegen.runtime.Messages.LogicalConnectionType._
 import com.github.apuex.codegen.runtime.Messages.PredicateType._
 import com.github.apuex.codegen.runtime.Messages._
-import com.github.apuex.codegen.runtime.SymbolConverter._
+import com.github.apuex.codegen.runtime.SymbolConverters._
 
 import scala.collection.JavaConverters._
 

@@ -1,6 +1,6 @@
 package com.github.apuex.codegen.runtime
 
-import com.github.apuex.codegen.runtime.SymbolConverter._
+import com.github.apuex.codegen.runtime.SymbolConverters._
 
 trait SymbolConverter {
   def convert(s: String): String
@@ -30,7 +30,7 @@ class PascalToShellConverter extends SymbolConverter {
   override def convert(s: String): String = pascalToShell(s)
 }
 
-object SymbolConverter {
+object SymbolConverters {
   type Converter = PartialFunction[String, String]
 
   val identity: Converter = {

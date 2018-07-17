@@ -1,6 +1,6 @@
 package com.github.apuex.codegen.runtime
 
-import SymbolConverter._
+import SymbolConverters._
 import com.github.apuex.codegen.runtime.Messages._
 import com.github.apuex.codegen.runtime.Messages.PredicateType._
 import com.github.apuex.codegen.runtime.Messages.LogicalConnectionType._
@@ -8,6 +8,8 @@ import scala.collection.JavaConverters._
 
 object WhereClauseWithNamedParams {
   def apply(convert: Converter): WhereClauseWithNamedParams = new WhereClauseWithNamedParams(convert)
+  def apply(convert: SymbolConverter): WhereClauseWithNamedParams =
+    new WhereClauseWithNamedParams({ case s: String => convert.convert(s)})
 }
 
 class WhereClauseWithNamedParams(convert: Converter) {
