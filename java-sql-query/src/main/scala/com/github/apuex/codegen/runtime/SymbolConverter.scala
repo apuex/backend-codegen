@@ -1,12 +1,33 @@
 package com.github.apuex.codegen.runtime
 
-import com.github.apuex.codegen.runtime.SymbolConverter.Converter
+import com.github.apuex.codegen.runtime.SymbolConverter._
 
 trait SymbolConverter {
   def convert(s: String): String
-  def converter: Converter = {
-    case x: String => convert(x)
-  }
+}
+
+class CamelToCConverter extends SymbolConverter {
+  override def convert(s: String): String = camelToC(s)
+}
+
+class IdentityConverter extends SymbolConverter {
+  override def convert(s: String): String = s
+}
+
+class CamelToPascalConverter extends SymbolConverter {
+  override def convert(s: String): String = camelToPascal(s)
+}
+
+class CamelToShellConverter extends SymbolConverter {
+  override def convert(s: String): String = camelToPascal(s)
+}
+
+class PascalToCamelConverter extends SymbolConverter {
+  override def convert(s: String): String = pascalToCamel(s)
+}
+
+class PascalToShellConverter extends SymbolConverter {
+  override def convert(s: String): String = pascalToShell(s)
 }
 
 object SymbolConverter {
