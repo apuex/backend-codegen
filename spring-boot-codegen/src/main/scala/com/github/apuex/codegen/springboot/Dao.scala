@@ -24,7 +24,7 @@ object Dao extends App {
     val prelude =
       s"""package ${modelPackage}.dao;
          |
-         |import java.util.List;
+         |import java.util.*;
          |
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ object Dao extends App {
          |public class ${entityName}DAO {
          |
          |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
-         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(SymbolConverters.camelToPascal());
+         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new CamelToPascalConverter());
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
@@ -202,7 +202,7 @@ object Dao extends App {
 
     val out =
       s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
-         |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q));""".stripMargin
+         |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper));""".stripMargin
     out
   }
 
@@ -228,7 +228,7 @@ object Dao extends App {
   private def paramMapper(entity: Node): String = {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => "map.put(%s, TypeConverters.toJavaTypeConverter(\"%s\"))".format(camelToPascal(f._1), f._2))
+      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(camelToPascal(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =
