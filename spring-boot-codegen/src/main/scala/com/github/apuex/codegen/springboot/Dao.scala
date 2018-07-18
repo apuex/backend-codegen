@@ -3,7 +3,7 @@ package com.github.apuex.codegen.springboot
 import java.io.{File, PrintWriter}
 
 import com.github.apuex.codegen.runtime.SymbolConverters._
-import com.github.apuex.codegen.runtime.WhereClauseWithUnnamedParams
+import com.github.apuex.codegen.runtime.TextUtils._
 
 import scala.xml.{Node, Text}
 
@@ -15,7 +15,9 @@ object Dao extends App {
   new File(srcDir).mkdirs()
 
   xml.child.filter(x => x.label == "entity")
-    .foreach(x => daoForEntity(modelPackage, x))
+    .foreach(x => {
+      daoForEntity(modelPackage, x)
+    })
 
   def daoForEntity(modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
@@ -38,7 +40,7 @@ object Dao extends App {
          |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(SymbolConverters.camelToPascal());
          |  private final JdbcTemplate jdbcTemplate;
-         |  private final RowMapper rowMapper;
+         |  private final RowMapper rowMapper = ${indent(mapRow(entity), 2)};
          |
          |  public ${entityName}DAO(JdbcTemplate jdbcTemplate) {
          |    this.jdbcTemplate = jdbcTemplate;
@@ -60,7 +62,7 @@ object Dao extends App {
          |    ${delete(entity)}
          |  }
          |
-         |  public List<${entityName}> query(QueryCommand q) {
+         |  public List<${entityName}Vo> query(QueryCommand q) {
          |    ${query(entity)}
          |  }
          |
@@ -185,7 +187,7 @@ object Dao extends App {
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
-    val out = "jdbcTemplate.query(s\"%s\", %s, %s);".format(sql, rowMapper(entity), params)
+    val out = "jdbcTemplate.query(s\"%s\", rowMapper %s);".format(sql, params)
     out
   }
 
@@ -196,13 +198,27 @@ object Dao extends App {
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s, %s".format(x, y))
 
-  val out = s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));"
-    |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q));""".stripMargin
+    val out =
+      s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));"
+         |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q));""".stripMargin
     out
   }
 
-  private def rowMapper(entity: Node): String = {
+  private def mapRow(entity: Node): String = {
+    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val columns = entity.child.filter(x => x.label == "field")
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._2), camelToPascal(f._2), camelToPascal(f._1)))
+      .reduce((x, y) => "%s\n      %s".format(x, y))
 
-    "rowMapper"
+    val out =
+      s"""new RowMapper<${entityName}Vo> {
+         |  public ${entityName}Vo mapRow(java.sql.ResultSet rs, int rowNum) {
+         |    ${entityName}Vo row = ${entityName}Vo.newBuilder()
+         |      ${columns}
+         |      .build();
+         |  }
+         |}""".stripMargin
+    out
   }
 }
