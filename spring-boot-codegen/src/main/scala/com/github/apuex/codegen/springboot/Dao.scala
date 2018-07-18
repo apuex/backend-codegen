@@ -97,7 +97,7 @@ object Dao extends App {
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
 
-    val out = "jdbcTemplate.update(s\"%s\", %s);".format(sql, params)
+    val out = "jdbcTemplate.update(\"%s\", %s);".format(sql, params)
     out
   }
 
@@ -134,7 +134,7 @@ object Dao extends App {
 
     val sql = "UPDATE %s SET %s WHERE %s".format(entityName, columns, pkCriteria)
 
-    val out = "jdbcTemplate.update(s\"%s\", %s);".format(sql, params)
+    val out = "jdbcTemplate.update(\"%s\", %s);".format(sql, params)
     out
   }
 
@@ -160,7 +160,7 @@ object Dao extends App {
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
 
-    val out = "jdbcTemplate.update(s\"%s\", %s);".format(sql, params)
+    val out = "jdbcTemplate.update(\"%s\", %s);".format(sql, params)
     out
   }
 
@@ -189,7 +189,7 @@ object Dao extends App {
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
-    val out = "jdbcTemplate.query(s\"%s\", rowMapper %s);".format(sql, params)
+    val out = "jdbcTemplate.query(\"%s\", rowMapper, %s);".format(sql, params)
     out
   }
 
@@ -201,7 +201,7 @@ object Dao extends App {
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val out =
-      s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));"
+      s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
          |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q));""".stripMargin
     out
   }
@@ -235,13 +235,13 @@ object Dao extends App {
       s"""public static class ParamMapper implements QueryParamMapper {
          |  private final Map<String, TypeConverter> mappers;
          |
-         |  public ParamMap() {
+         |  public ParamMapper() {
          |    Map<String, TypeConverter> map = new HashMap<>();
-         |    ${columns}
+         |    ${columns};
          |    this.mappers = map;
          |  }
          |
-         |  public Object map(String name, value) {
+         |  public Object map(String name, String value) {
          |    return mappers.get(name).convert(value);
          |  }
          |}""".stripMargin

@@ -7,8 +7,6 @@ version      := artifactVersionNumber
 
 libraryDependencies ++= Seq(
   jodaTime,
-  scalapbCompiler,
-  scalapbRuntime % "protobuf",
   slf4jApi % Test,
   slf4jSimple % Test,
   scalaTestPlusPlay % Test
