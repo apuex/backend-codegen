@@ -21,10 +21,11 @@ object Controller extends App {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val prelude =
     s"""package ${modelPackage}.controller;
-      |
-      |import ${modelPackage}.message.*;
-      |import java.util.*;
+      |import com.github.apuex.codegen.runtime.Messages.*;
+      |import ${modelPackage}.message.Messages.*;
       |import org.springframework.web.bind.annotation.*;
+      |
+      |import java.util.*;
       |
       |@RestController
       |@RequestMapping(value="${pascalToShell(entityName)}", method=RequestMethod.POST)
@@ -45,7 +46,7 @@ object Controller extends App {
       |  }
       |
       |  @RequestMapping(value="query-${pascalToShell(entityName)}")
-      |  public List<${entityName}> query(QueryCommand q) {
+      |  public List<${entityName}Vo> query(QueryCommand q) {
       |    return new ArrayList<>();
       |  }
       |
