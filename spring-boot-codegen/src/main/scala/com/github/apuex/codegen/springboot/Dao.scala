@@ -40,7 +40,8 @@ object Dao extends App {
          |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(SymbolConverters.camelToPascal());
          |  private final JdbcTemplate jdbcTemplate;
-         |  private final QueryParamMapper paramMapper = ${indent(paramMapper(entity), 2)};
+         |  ${indent(paramMapper(entity), 2)};
+         |  private final QueryParamMapper paramMapper = new ParamMapper();
          |  private final RowMapper rowMapper = ${indent(mapRow(entity), 2)};
          |
          |  public ${entityName}DAO(JdbcTemplate jdbcTemplate) {
@@ -225,15 +226,23 @@ object Dao extends App {
 
 
   private def paramMapper(entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._2), camelToPascal(f._2), camelToPascal(f._1)))
-      .reduce((x, y) => "%s\n      %s".format(x, y))
+      .map(f => "map.put(%s, TypeConverters.toJavaTypeConverter(\"%s\"))".format(camelToPascal(f._1), f._2))
+      .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =
-      s"""new QueryParamMapper() {
-         |  public Object map(String s) {
+      s"""public static class ParamMapper implements QueryParamMapper {
+         |  private final Map<String, TypeConverter> mappers;
+         |
+         |  public ParamMap() {
+         |    Map<String, TypeConverter> map = new HashMap<>();
+         |    ${columns}
+         |    this.mappers = map;
+         |  }
+         |
+         |  public Object map(String name, value) {
+         |    return mappers.get(name).convert(value);
          |  }
          |}""".stripMargin
     out
