@@ -23,6 +23,22 @@ object TypeConverters {
       throw new IllegalArgumentException(x)
   }
 
+  def toProtobufType(typeName: String): String = typeName match {
+    case "bool" => typeName
+    case "short" => "int32"
+    case "byte" => "bytes"
+    case "int" => "int32"
+    case "long" => "int64"
+    case "decimal" => "double"
+    case "string" => typeName
+    case "timestamp" => "google.protobuf.Timestamp"
+    case "float" => typeName
+    case "double" => typeName
+    case "image" => "bytes"
+    case x =>
+      throw new IllegalArgumentException(x)
+  }
+
   def toModelTypeName(typeName: String): String = typeName match {
     case "bit" => "bool"
     case "smallint" => "short"

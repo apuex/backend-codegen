@@ -11,6 +11,7 @@ object Main extends App {
       case "generate-all" => GenerateAll.main(args.drop(1))
       case "generate-controller" => Controller.main(args.drop(1))
       case "generate-dao" => Dao.main(args.drop(1))
+      case "generate-message" => Message.main(args.drop(1))
       case "generate-entity" => Entity.main(args.drop(1))
       case "generate-json" => JsonSupport.main(args.drop(1))
       case "generate-router" => Router.main(args.drop(1))
