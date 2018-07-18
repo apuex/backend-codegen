@@ -24,15 +24,19 @@ object Dao extends App {
     val prelude =
       s"""package ${modelPackage}.dao;
          |
-         |import java.util.*;
-         |
+         |import com.github.apuex.codegen.runtime.*;
+         |import ${modelPackage}.message.Messages.*;
+         |import com.github.apuex.codegen.runtime.Messages.*;
          |import org.slf4j.Logger;
          |import org.slf4j.LoggerFactory;
          |import org.springframework.jdbc.core.JdbcTemplate;
          |import org.springframework.jdbc.core.RowMapper;
          |import org.springframework.stereotype.Component;
-         |import static com.github.apuex.codegen.runtime.Messages.*;
-         |import com.github.apuex.codegen.runtime.*;
+         |
+         |import java.sql.SQLException;
+         |import java.util.HashMap;
+         |import java.util.List;
+         |import java.util.Map;
          |
          |@Component
          |public class ${entityName}DAO {
@@ -52,7 +56,7 @@ object Dao extends App {
          |    ${create(entity)}
          |  }
          |
-         |  public ${entityName} retrieve(Retrieve${entityName}Cmd c) {
+         |  public ${entityName}Vo retrieve(Retrieve${entityName}Cmd c) {
          |    ${retrieve(entity)}
          |  }
          |
@@ -189,7 +193,7 @@ object Dao extends App {
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
-    val out = "jdbcTemplate.query(\"%s\", rowMapper, %s);".format(sql, params)
+    val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(entityName, sql, params)
     out
   }
 
@@ -210,15 +214,16 @@ object Dao extends App {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._2), camelToPascal(f._2), camelToPascal(f._1)))
+      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._1), camelToPascal(f._2), camelToPascal(f._1)))
       .reduce((x, y) => "%s\n      %s".format(x, y))
 
     val out =
       s"""new RowMapper<${entityName}Vo>() {
-         |  public ${entityName}Vo mapRow(java.sql.ResultSet rs, int rowNum) {
+         |  public ${entityName}Vo mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
          |    ${entityName}Vo row = ${entityName}Vo.newBuilder()
          |      ${columns}
          |      .build();
+         |    return row;
          |  }
          |}""".stripMargin
     out
