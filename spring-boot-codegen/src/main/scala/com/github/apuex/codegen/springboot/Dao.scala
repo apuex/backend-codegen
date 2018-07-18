@@ -40,6 +40,7 @@ object Dao extends App {
          |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(SymbolConverters.camelToPascal());
          |  private final JdbcTemplate jdbcTemplate;
+         |  private final QueryParamMapper paramMapper = ${indent(paramMapper(entity), 2)};
          |  private final RowMapper rowMapper = ${indent(mapRow(entity), 2)};
          |
          |  public ${entityName}DAO(JdbcTemplate jdbcTemplate) {
@@ -212,11 +213,27 @@ object Dao extends App {
       .reduce((x, y) => "%s\n      %s".format(x, y))
 
     val out =
-      s"""new RowMapper<${entityName}Vo> {
+      s"""new RowMapper<${entityName}Vo>() {
          |  public ${entityName}Vo mapRow(java.sql.ResultSet rs, int rowNum) {
          |    ${entityName}Vo row = ${entityName}Vo.newBuilder()
          |      ${columns}
          |      .build();
+         |  }
+         |}""".stripMargin
+    out
+  }
+
+
+  private def paramMapper(entity: Node): String = {
+    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val columns = entity.child.filter(x => x.label == "field")
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._2), camelToPascal(f._2), camelToPascal(f._1)))
+      .reduce((x, y) => "%s\n      %s".format(x, y))
+
+    val out =
+      s"""new QueryParamMapper() {
+         |  public Object map(String s) {
          |  }
          |}""".stripMargin
     out

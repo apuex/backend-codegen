@@ -52,6 +52,6 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
   }
 
   private val paramMapper: QueryParamMapper = {
-    case s => s
+    case (_, value) => value
   }
 }
