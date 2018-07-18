@@ -3,15 +3,14 @@ package com.github.apuex.codegen.runtime
 import com.github.apuex.codegen.runtime.Messages.LogicalConnectionType._
 import com.github.apuex.codegen.runtime.Messages.PredicateType._
 import com.github.apuex.codegen.runtime.Messages._
-import com.github.apuex.codegen.runtime.SymbolConverters._
 
 import scala.collection.JavaConverters._
 
 object WhereClauseWithUnnamedParams {
-  def apply(convert: Converter): WhereClauseWithUnnamedParams = new WhereClauseWithUnnamedParams(convert)
+  def apply(convert: SymbolConverter): WhereClauseWithUnnamedParams = new WhereClauseWithUnnamedParams(convert)
 }
 
-class WhereClauseWithUnnamedParams(convert: Converter) {
+class WhereClauseWithUnnamedParams(c: SymbolConverter) {
   /**
     * Generate SQL WHERE clause from query command.
     *
@@ -104,16 +103,16 @@ class WhereClauseWithUnnamedParams(convert: Converter) {
     * @return A predicate for SQL WHERE clause
     */
   private def toSql(predicate: LogicalPredicateVo, indent: Int): String = predicate.getPredicateType match {
-    case EQ => s"${convert(predicate.getFieldName)} = ?"
-    case NE => s"${convert(predicate.getFieldName)} <> ?"
-    case LT => s"${convert(predicate.getFieldName)} < ?"
-    case GT => s"${convert(predicate.getFieldName)} > ?"
-    case LE => s"${convert(predicate.getFieldName)} <= ?"
-    case GE => s"${convert(predicate.getFieldName)} >= ?"
-    case BETWEEN => s"${convert(predicate.getFieldName)} BETWEEN ? AND ?"
-    case LIKE => s"${convert(predicate.getFieldName)} LIKE ?"
-    case IS_NULL => s"${convert(predicate.getFieldName)} IS NULL"
-    case IS_NOT_NULL => s"${convert(predicate.getFieldName)} IS NOT NULL"
+    case EQ => s"${c.convert(predicate.getFieldName)} = ?"
+    case NE => s"${c.convert(predicate.getFieldName)} <> ?"
+    case LT => s"${c.convert(predicate.getFieldName)} < ?"
+    case GT => s"${c.convert(predicate.getFieldName)} > ?"
+    case LE => s"${c.convert(predicate.getFieldName)} <= ?"
+    case GE => s"${c.convert(predicate.getFieldName)} >= ?"
+    case BETWEEN => s"${c.convert(predicate.getFieldName)} BETWEEN ? AND ?"
+    case LIKE => s"${c.convert(predicate.getFieldName)} LIKE ?"
+    case IS_NULL => s"${c.convert(predicate.getFieldName)} IS NULL"
+    case IS_NOT_NULL => s"${c.convert(predicate.getFieldName)} IS NOT NULL"
     case _ => throw new IllegalArgumentException(predicate.toString)
   }
 
@@ -125,8 +124,8 @@ class WhereClauseWithUnnamedParams(convert: Converter) {
     * @param q
     * @return
     */
-  def toUnnamedParamList(q: QueryCommand): java.util.List[String] = {
-    toUnnamedParams(q).asJava
+  def toUnnamedParamList(q: QueryCommand, m: QueryParamMapper): java.util.List[Object] = {
+    toUnnamedParams(q, m).asJava
   }
 
   /**
@@ -137,8 +136,8 @@ class WhereClauseWithUnnamedParams(convert: Converter) {
     * @param q
     * @return
     */
-  def toUnnamedParams(q: QueryCommand): Seq[String] = {
-    toUnnamedParams(q.getPredicate, q.getParamsMap)
+  def toUnnamedParams(q: QueryCommand, m: QueryParamMapper): Seq[Object] = {
+    toUnnamedParams(q.getPredicate, q.getParamsMap, m)
   }
 
   /**
@@ -149,34 +148,34 @@ class WhereClauseWithUnnamedParams(convert: Converter) {
     * @param criteria
     * @return
     */
-  def toUnnamedParams(criteria: FilterPredicate, params: java.util.Map[String, String]): Seq[String] = {
+  def toUnnamedParams(criteria: FilterPredicate, params: java.util.Map[String, String], m: QueryParamMapper): Seq[Object] = {
     if (criteria.hasConnection) {
-      toUnnamedParams(criteria.getConnection, params)
+      toUnnamedParams(criteria.getConnection, params, m)
     } else if (criteria.hasPredicate) {
-      toUnnamedParams(criteria.getPredicate, params)
+      toUnnamedParams(criteria.getPredicate, params, m)
     } else {
       throw new IllegalArgumentException(criteria.toString)
     }
   }
 
-  private def toUnnamedParams(connection: LogicalConnectionVo, params: java.util.Map[String, String]): Seq[String] = {
+  private def toUnnamedParams(connection: LogicalConnectionVo, params: java.util.Map[String, String], m: QueryParamMapper): Seq[Object] = {
     if (connection.getPredicatesList.isEmpty) {
       Seq()
     } else {
-      connection.getPredicatesList.asScala.toSeq
-        .map(x => toUnnamedParams(x, params)).reduce((x, y) => x ++ y)
+      connection.getPredicatesList.asScala
+        .map(x => toUnnamedParams(x, params, m)).reduce((x, y) => x ++ y)
     }
   }
 
-  private def toUnnamedParams(predicate: LogicalPredicateVo, params: java.util.Map[String, String]): Seq[String] = predicate.getPredicateType match {
-    case EQ => Seq(params.get(predicate.getParamNames(0)))
-    case NE => Seq(params.get(predicate.getParamNames(0)))
-    case LT => Seq(params.get(predicate.getParamNames(0)))
-    case GT => Seq(params.get(predicate.getParamNames(0)))
-    case LE => Seq(params.get(predicate.getParamNames(0)))
-    case GE => Seq(params.get(predicate.getParamNames(0)))
-    case BETWEEN => Seq(params.get(predicate.getParamNames(0)), params.get(predicate.getParamNames(1)))
-    case LIKE => Seq(params.get(predicate.getParamNames(0)))
+  private def toUnnamedParams(predicate: LogicalPredicateVo, params: java.util.Map[String, String], m: QueryParamMapper): Seq[Object] = predicate.getPredicateType match {
+    case EQ => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case NE => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case LT => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case GT => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case LE => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case GE => Seq(m.map(params.get(predicate.getParamNames(0))))
+    case BETWEEN => Seq(m.map(params.get(predicate.getParamNames(0))), m.map(params.get(predicate.getParamNames(1))))
+    case LIKE => Seq(m.map(params.get(predicate.getParamNames(0))))
     case IS_NULL => Seq()
     case IS_NOT_NULL => Seq()
     case _ => throw new IllegalArgumentException(predicate.toString)

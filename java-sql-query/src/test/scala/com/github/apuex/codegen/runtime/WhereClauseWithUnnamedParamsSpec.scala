@@ -21,11 +21,11 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    val whereClause = WhereClauseWithUnnamedParams(camelToPascal)
+    val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q) should be("WHERE Name = ?")
     val expected = new util.ArrayList[String]()
     expected.add("value")
-    whereClause.toUnnamedParamList(q) should be(expected)
+    whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
   }
 
   it should "generate predicate with and" in {
@@ -40,7 +40,7 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    val whereClause = WhereClauseWithUnnamedParams(camelToPascal)
+    val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
       """  WHERE (Id = ?
@@ -48,6 +48,10 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
     val expected = new util.ArrayList[String]()
     expected.add("id_value")
     expected.add("name_value")
-    whereClause.toUnnamedParamList(q) should be(expected)
+    whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
+  }
+
+  private val paramMapper: QueryParamMapper = {
+    case s => s
   }
 }
