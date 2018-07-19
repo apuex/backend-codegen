@@ -236,7 +236,7 @@ object Dao extends App {
   private def paramMapper(entity: Node): String = {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(camelToPascal(f._1), f._2))
+      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(pascalToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =

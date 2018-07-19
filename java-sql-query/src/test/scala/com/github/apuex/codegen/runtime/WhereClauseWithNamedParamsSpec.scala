@@ -17,6 +17,7 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
 
     val q = QueryCommand.newBuilder()
       .setPredicate(predicate)
+      .putAllParams(params)
       .build()
 
     println(JsonFormat.printer().print(q))
@@ -33,6 +34,7 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
     val connection = createConnection(AND, predicates)
     val q = QueryCommand.newBuilder()
       .setPredicate(connection)
+      .putAllParams(params)
       .build()
 
     println(JsonFormat.printer().print(q))
