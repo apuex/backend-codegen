@@ -9,10 +9,15 @@ import scala.xml.{Node, Text}
 
 object Dao extends App {
   val xml = ModelLoader(args(0)).xml
+  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
-  val srcDir = s"dao/src/main/java/${modelPackage.replace('.', '/')}/dao"
+  val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
+  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/dao"
+  val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
 
   new File(srcDir).mkdirs()
+
+  project
 
   xml.child.filter(x => x.label == "entity")
     .foreach(x => {
@@ -25,24 +30,22 @@ object Dao extends App {
       s"""package ${modelPackage}.dao;
          |
          |import com.github.apuex.codegen.runtime.*;
-         |import ${modelPackage}.message.Messages.*;
+         |import ${modelPackage}.message.${camelToPascal(modelName)}.*;
          |import com.github.apuex.codegen.runtime.Messages.*;
-         |import org.slf4j.Logger;
-         |import org.slf4j.LoggerFactory;
-         |import org.springframework.jdbc.core.JdbcTemplate;
-         |import org.springframework.jdbc.core.RowMapper;
-         |import org.springframework.stereotype.Component;
+         |import org.slf4j.*;
+         |import org.springframework.beans.factory.annotation.*;
+         |import org.springframework.jdbc.core.*;
+         |import org.springframework.stereotype.*;
          |
-         |import java.sql.SQLException;
-         |import java.util.HashMap;
-         |import java.util.List;
-         |import java.util.Map;
+         |import java.sql.*;
+         |import java.util.*;
          |
          |@Component
          |public class ${entityName}DAO {
          |
          |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new CamelToPascalConverter());
+         |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
@@ -251,5 +254,57 @@ object Dao extends App {
          |  }
          |}""".stripMargin
     out
+  }
+
+  private def project = {
+    val printWriter = new PrintWriter(s"${projectDir}/pom.xml", "utf-8")
+
+    val source =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         |         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         |  <modelVersion>4.0.0</modelVersion>
+         |
+         |  <groupId>${modelPackage}</groupId>
+         |  <artifactId>dao</artifactId>
+         |  <version>1.0-SNAPSHOT</version>
+         |
+         |  <parent>
+         |    <groupId>${modelPackage}</groupId>
+         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <version>1.0-SNAPSHOT</version>
+         |  </parent>
+         |
+         |  <dependencies>
+         |    <dependency>
+         |      <groupId>${modelPackage}</groupId>
+         |      <artifactId>message</artifactId>
+         |      <version>1.0-SNAPSHOT</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.github.apuex.springboot</groupId>
+         |      <artifactId>java-sql-query_2.12</artifactId>
+         |      <version>1.0.0</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework.boot</groupId>
+         |      <artifactId>spring-boot-starter-jdbc</artifactId>
+         |      <version>2.0.3.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework.boot</groupId>
+         |      <artifactId>spring-boot-starter-test</artifactId>
+         |      <version>2.0.3.RELEASE</version>
+         |      <scope>test</scope>
+         |    </dependency>
+         |  </dependencies>
+         |
+         |</project>
+         |
+       """.stripMargin
+
+    printWriter.print(source)
+
+    printWriter.close()
   }
 }

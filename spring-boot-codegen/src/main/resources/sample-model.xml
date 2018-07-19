@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <model name="sample" package="com.sample" dbSchema="sampledb">
   <!-- dbo.Table-->
-  <entity name="Table" aggregationRoot="false" enum="false" generate="true">
+  <entity name="Table" aggregationRoot="true" enum="false" generate="true">
     <field no="1" name="id" type="int" required="true"/>
     <field no="2" name="Name" type="string" length="255" required="true"/>
     <primaryKey name="PKTable">

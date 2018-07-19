@@ -10,11 +10,17 @@ import scala.xml.{Node, Text}
 
 object Message extends App {
   val xml = ModelLoader(args(0)).xml
+  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
-  val srcDir = s"dao/src/main/proto/${modelPackage.replace('.', '/')}/dao"
+  val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
+  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/message"
+  val srcDir = s"${projectDir}/src/main/proto/${modelPackage.replace('.', '/')}/message"
 
   new File(srcDir).mkdirs()
-  val printWriter = new PrintWriter(s"${srcDir}/messages.proto", "utf-8")
+
+  project
+
+  val printWriter = new PrintWriter(s"${srcDir}/${modelName}.proto", "utf-8")
 
   val prelude =
     s"""syntax = "proto3";
@@ -78,5 +84,73 @@ object Message extends App {
   def fields(columns: Seq[(String, String, String)]): String = {
     columns.map(f => "%s %s = %s".format(toProtobufType(f._3), f._2, f._1))
       .reduce((x, y) => "%s;\n%s".format(x, y))
+  }
+
+  private def project = {
+    val printWriter = new PrintWriter(s"${projectDir}/pom.xml", "utf-8")
+
+    val source =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         |         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         |  <modelVersion>4.0.0</modelVersion>
+         |
+         |  <groupId>${modelPackage}</groupId>
+         |  <artifactId>message</artifactId>
+         |  <version>1.0-SNAPSHOT</version>
+         |
+         |  <parent>
+         |    <groupId>${modelPackage}</groupId>
+         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <version>1.0-SNAPSHOT</version>
+         |  </parent>
+         |
+         |  <dependencies>
+         |    <dependency>
+         |      <groupId>com.google.protobuf</groupId>
+         |      <artifactId>protobuf-java</artifactId>
+         |      <version>3.5.1</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.google.protobuf</groupId>
+         |      <artifactId>protobuf-java-util</artifactId>
+         |      <version>3.5.1</version>
+         |    </dependency>
+         |  </dependencies>
+         |
+         |  <build>
+         |    <plugins>
+         |      <plugin>
+         |        <groupId>com.google.protobuf.tools</groupId>
+         |        <artifactId>maven-protoc-plugin</artifactId>
+         |        <version>0.3.2</version>
+         |        <configuration>
+         |          <protocExecutable>/usr/local/bin/protoc</protocExecutable>
+         |        </configuration>
+         |        <executions>
+         |          <execution>
+         |            <goals>
+         |              <goal>compile</goal>
+         |              <goal>testCompile</goal>
+         |            </goals>
+         |          </execution>
+         |        </executions>
+         |      </plugin>
+         |    </plugins>
+         |  </build>
+         |
+         |  <pluginRepositories>
+         |    <pluginRepository>
+         |      <id>mapr</id>
+         |      <url>http://repository.mapr.com/nexus/content/groups/mapr-public/releases</url>
+         |    </pluginRepository>
+         |  </pluginRepositories>
+         |</project>
+         |
+       """.stripMargin
+
+    printWriter.print(source)
+
+    printWriter.close()
   }
 }

@@ -48,6 +48,21 @@ object SymbolConverters {
       }).foldLeft("")(_ + _)
   }
 
+  val cToPascal: Converter = {
+    case name: String => name.split("_").map(
+      x => {
+        x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase()
+    }).foldLeft("")(_ + _)
+  }
+
+  val cToCamel: Converter = {
+    case name => pascalToCamel(cToPascal(name))
+  }
+
+  val cToShell: Converter = {
+    case name => name.replace("_", "-")
+  }
+
   val camelToShell: Converter = {
     case name: String => name.map(
       x => {
