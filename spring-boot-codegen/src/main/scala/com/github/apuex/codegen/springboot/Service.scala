@@ -4,7 +4,6 @@ import java.io.{File, PrintWriter}
 
 import com.github.apuex.codegen.runtime.SymbolConverters._
 import com.github.apuex.codegen.runtime.TextUtils._
-import com.github.apuex.codegen.springboot.App.{modelName, modelPackage, projectDir}
 
 import scala.xml.{Node, Text}
 
@@ -13,7 +12,7 @@ object Service extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/service"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-service"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/service"
 
   new File(srcDir).mkdirs()
@@ -31,7 +30,7 @@ object Service extends App {
          |
          |import com.github.apuex.codegen.runtime.*;
          |import com.github.apuex.codegen.runtime.Messages.*;
-         |import ${modelPackage}.message.${camelToPascal(modelName)}.*;
+         |import ${modelPackage}.message.${cToPascal(modelName)}.*;
          |import ${modelPackage}.dao.*;
          |
          |import org.slf4j.*;
@@ -42,33 +41,33 @@ object Service extends App {
          |import java.util.*;
          |
          |@Component
-         |public class ${entityName}Service {
+         |public class ${cToPascal(entityName)}Service {
          |  @Autowired
-         |  private ${entityName}DAO ${pascalToCamel(entityName)}DAO;
+         |  private ${cToPascal(entityName)}DAO ${cToCamel(entityName)}DAO;
          |
          |  @Transactional
-         |  public void create(Create${entityName}Cmd c) {
-         |    ${pascalToCamel(entityName)}DAO.create(c);
+         |  public void create(Create${cToPascal(entityName)}Cmd c) {
+         |    ${cToCamel(entityName)}DAO.create(c);
          |  }
          |
          |  @Transactional
-         |  public ${entityName}Vo retrieve(Retrieve${entityName}Cmd c) {
-         |    return ${pascalToCamel(entityName)}DAO.retrieve(c);
+         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
+         |    return ${cToCamel(entityName)}DAO.retrieve(c);
          |  }
          |
          |  @Transactional
-         |  public void update(Update${entityName}Cmd c) {
-         |    ${pascalToCamel(entityName)}DAO.update(c);
+         |  public void update(Update${cToPascal(entityName)}Cmd c) {
+         |    ${cToCamel(entityName)}DAO.update(c);
          |  }
          |
          |  @Transactional
-         |  public void delete(Delete${entityName}Cmd c) {
-         |    ${pascalToCamel(entityName)}DAO.delete(c);
+         |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
+         |    ${cToCamel(entityName)}DAO.delete(c);
          |  }
          |
          |  @Transactional
-         |  public List<${entityName}Vo> query(QueryCommand q) {
-         |    return ${pascalToCamel(entityName)}DAO.query(q);
+         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
+         |    return ${cToCamel(entityName)}DAO.query(q);
          |  }
          |
          |""".stripMargin
@@ -77,7 +76,7 @@ object Service extends App {
       """}
         |""".stripMargin
 
-    val printWriter = new PrintWriter(s"${srcDir}/${entityName}Service.java", "utf-8")
+    val printWriter = new PrintWriter(s"${srcDir}/${cToPascal(entityName)}Service.java", "utf-8")
 
     printWriter.print(prelude)
     printWriter.print(end)
@@ -95,19 +94,19 @@ object Service extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>service</artifactId>
+         |  <artifactId>${cToShell(modelName)}-service</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
-         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <artifactId>${cToShell(modelName)}</artifactId>
          |    <version>1.0-SNAPSHOT</version>
          |  </parent>
          |
          |  <dependencies>
          |    <dependency>
          |      <groupId>${modelPackage}</groupId>
-         |      <artifactId>dao</artifactId>
+         |      <artifactId>${cToShell(modelName)}-dao</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>

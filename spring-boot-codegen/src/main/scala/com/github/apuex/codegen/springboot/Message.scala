@@ -13,14 +13,14 @@ object Message extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/message"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-message"
   val srcDir = s"${projectDir}/src/main/proto/${modelPackage.replace('.', '/')}/message"
 
   new File(srcDir).mkdirs()
 
   project
 
-  val printWriter = new PrintWriter(s"${srcDir}/${modelName}.proto", "utf-8")
+  val printWriter = new PrintWriter(s"${srcDir}/${cToShell(modelName)}.proto", "utf-8")
 
   val prelude =
     s"""syntax = "proto3";
@@ -56,23 +56,23 @@ object Message extends App {
 
     val crud =
       s"""
-        |message ${entityName}Vo {
+        |message ${cToPascal(entityName)}Vo {
         |${indent(fields(columns), 2)};
         |}
         |
-        |message Create${entityName}Cmd {
+        |message Create${cToPascal(entityName)}Cmd {
         |${indent(fields(columns), 2)};
         |}
         |
-        |message Update${entityName}Cmd {
+        |message Update${cToPascal(entityName)}Cmd {
         |${indent(fields(columns), 2)};
         |}
         |
-        |message Delete${entityName}Cmd {
+        |message Delete${cToPascal(entityName)}Cmd {
         |${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
         |
-        |message Retrieve${entityName}Cmd {
+        |message Retrieve${cToPascal(entityName)}Cmd {
         |${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
         |
@@ -82,7 +82,7 @@ object Message extends App {
   }
 
   def fields(columns: Seq[(String, String, String)]): String = {
-    columns.map(f => "%s %s = %s".format(toProtobufType(f._3), f._2, f._1))
+    columns.map(f => "%s %s = %s".format(toProtobufType(f._3), cToCamel(f._2), f._1))
       .reduce((x, y) => "%s;\n%s".format(x, y))
   }
 
@@ -96,12 +96,12 @@ object Message extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>message</artifactId>
+         |  <artifactId>${cToShell(modelName)}-message</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
-         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <artifactId>${cToShell(modelName)}</artifactId>
          |    <version>1.0-SNAPSHOT</version>
          |  </parent>
          |

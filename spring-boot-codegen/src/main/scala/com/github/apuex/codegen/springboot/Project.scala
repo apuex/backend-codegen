@@ -11,7 +11,7 @@ object Project extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}"
 
   new File(projectDir).mkdirs()
 
@@ -27,7 +27,7 @@ object Project extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>${camelToShell(modelName)}</artifactId>
+         |  <artifactId>${cToShell(modelName)}</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |  <packaging>pom</packaging>
          |
@@ -42,11 +42,11 @@ object Project extends App {
          |  </properties>
          |
          |  <modules>
-         |    <module>${camelToShell(modelName)}-app</module>
-         |    <module>controller</module>
-         |    <module>dao</module>
-         |    <module>message</module>
-         |    <module>service</module>
+         |    <module>${cToShell(modelName)}-app</module>
+         |    <module>${cToShell(modelName)}-controller</module>
+         |    <module>${cToShell(modelName)}-dao</module>
+         |    <module>${cToShell(modelName)}-message</module>
+         |    <module>${cToShell(modelName)}-service</module>
          |  </modules>
          |
          |  <build>

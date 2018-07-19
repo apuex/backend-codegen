@@ -51,7 +51,7 @@ object SymbolConverters {
   val cToPascal: Converter = {
     case name: String => name.split("_").map(
       x => {
-        x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase()
+        x.substring(0, 1).toUpperCase() + x.substring(1)
     }).foldLeft("")(_ + _)
   }
 

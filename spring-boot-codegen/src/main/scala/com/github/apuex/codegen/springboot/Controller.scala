@@ -12,7 +12,7 @@ object Controller extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/controller"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-controller"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/controller"
 
   new File(srcDir).mkdirs()
@@ -28,7 +28,7 @@ object Controller extends App {
     val prelude =
     s"""package ${modelPackage}.controller;
       |import com.github.apuex.codegen.runtime.Messages.*;
-      |import ${modelPackage}.message.${camelToPascal(modelName)}.*;
+      |import ${modelPackage}.message.${cToPascal(modelName)}.*;
       |import ${modelPackage}.service.*;
       |import org.springframework.beans.factory.annotation.*;
       |import org.springframework.web.bind.annotation.*;
@@ -36,32 +36,32 @@ object Controller extends App {
       |import java.util.*;
       |
       |@RestController
-      |@RequestMapping(value="${pascalToShell(entityName)}", method=RequestMethod.POST)
-      |public class ${entityName}Controller {
+      |@RequestMapping(value="${cToShell(entityName)}", method=RequestMethod.POST)
+      |public class ${cToPascal(entityName)}Controller {
       |  @Autowired
-      |  private ${entityName}Service service;
+      |  private ${cToPascal(entityName)}Service service;
       |
-      |  @RequestMapping(value="create-${pascalToShell(entityName)}")
-      |  public void create(@RequestBody Create${entityName}Cmd c) {
+      |  @RequestMapping(value="create-${cToShell(entityName)}")
+      |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c) {
       |    service.create(c);
       |  }
       |
-      |  @RequestMapping(value="retrieve-${pascalToShell(entityName)}")
-      |  public ${entityName}Vo retrieve(@RequestBody Retrieve${entityName}Cmd c) {
+      |  @RequestMapping(value="retrieve-${cToShell(entityName)}")
+      |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c) {
       |    return service.retrieve(c);
       |  }
-      |  @RequestMapping(value="update-${pascalToShell(entityName)}")
-      |  public void update(@RequestBody Update${entityName}Cmd c) {
+      |  @RequestMapping(value="update-${cToShell(entityName)}")
+      |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c) {
       |    service.update(c);
       |  }
       |
-      |  @RequestMapping(value="delete-${pascalToShell(entityName)}")
-      |  public void delete(@RequestBody Delete${entityName}Cmd c) {
+      |  @RequestMapping(value="delete-${cToShell(entityName)}")
+      |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c) {
       |    service.delete(c);
       |  }
       |
-      |  @RequestMapping(value="query-${pascalToShell(entityName)}")
-      |  public List<${entityName}Vo> query(@RequestBody QueryCommand q) {
+      |  @RequestMapping(value="query-${cToShell(entityName)}")
+      |  public List<${cToPascal(entityName)}Vo> query(@RequestBody QueryCommand q) {
       |    return service.query(q);
       |  }
       |
@@ -71,7 +71,7 @@ object Controller extends App {
       """}
         |""".stripMargin
 
-    val printWriter = new PrintWriter(s"${srcDir}/${entityName}Controller.java", "utf-8")
+    val printWriter = new PrintWriter(s"${srcDir}/${cToPascal(entityName)}Controller.java", "utf-8")
 
     printWriter.print(prelude)
     printWriter.print(end)
@@ -89,19 +89,19 @@ object Controller extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>controller</artifactId>
+         |  <artifactId>${cToShell(modelName)}-controller</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
-         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <artifactId>${cToShell(modelName)}</artifactId>
          |    <version>1.0-SNAPSHOT</version>
          |  </parent>
          |
          |  <dependencies>
          |    <dependency>
          |      <groupId>${modelPackage}</groupId>
-         |      <artifactId>service</artifactId>
+         |      <artifactId>${cToShell(modelName)}-service</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>

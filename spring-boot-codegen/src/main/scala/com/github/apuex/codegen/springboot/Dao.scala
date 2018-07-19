@@ -12,7 +12,7 @@ object Dao extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/dao"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
 
   new File(srcDir).mkdirs()
@@ -30,7 +30,7 @@ object Dao extends App {
       s"""package ${modelPackage}.dao;
          |
          |import com.github.apuex.codegen.runtime.*;
-         |import ${modelPackage}.message.${camelToPascal(modelName)}.*;
+         |import ${modelPackage}.message.${cToPascal(modelName)}.*;
          |import com.github.apuex.codegen.runtime.Messages.*;
          |import org.slf4j.*;
          |import org.springframework.beans.factory.annotation.*;
@@ -41,37 +41,37 @@ object Dao extends App {
          |import java.util.*;
          |
          |@Component
-         |public class ${entityName}DAO {
+         |public class ${cToPascal(entityName)}DAO {
          |
-         |  private final static Logger logger = LoggerFactory.getLogger(${entityName}DAO.class);
-         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new CamelToPascalConverter());
+         |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}DAO.class);
+         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new CamelToCConverter());
          |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
          |  private final RowMapper rowMapper = ${indent(mapRow(entity), 2)};
          |
-         |  public ${entityName}DAO(JdbcTemplate jdbcTemplate) {
+         |  public ${cToPascal(entityName)}DAO(JdbcTemplate jdbcTemplate) {
          |    this.jdbcTemplate = jdbcTemplate;
          |  }
          |
-         |  public void create(Create${entityName}Cmd c) {
+         |  public void create(Create${cToPascal(entityName)}Cmd c) {
          |    ${create(entity)}
          |  }
          |
-         |  public ${entityName}Vo retrieve(Retrieve${entityName}Cmd c) {
+         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
          |    ${retrieve(entity)}
          |  }
          |
-         |  public void update(Update${entityName}Cmd c) {
+         |  public void update(Update${cToPascal(entityName)}Cmd c) {
          |    ${update(entity)}
          |  }
          |
-         |  public void delete(Delete${entityName}Cmd c) {
+         |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
          |    ${delete(entity)}
          |  }
          |
-         |  public List<${entityName}Vo> query(QueryCommand q) {
+         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
          |    ${query(entity)}
          |  }
          |
@@ -81,7 +81,7 @@ object Dao extends App {
       """}
         |""".stripMargin
 
-    val printWriter = new PrintWriter(s"${srcDir}/${entityName}DAO.java", "utf-8")
+    val printWriter = new PrintWriter(s"${srcDir}/${cToPascal(entityName)}DAO.java", "utf-8")
 
     printWriter.print(prelude)
     printWriter.print(end)
@@ -99,7 +99,7 @@ object Dao extends App {
       .reduce((x, y) => "%s,%s".format(x, y))
     val params = entity.child.filter(x => x.label == "field")
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .map(f => "c.get%s()".format(camelToPascal(f)))
+      .map(f => "c.get%s()".format(cToPascal(f)))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
@@ -131,11 +131,11 @@ object Dao extends App {
     val updates = entity.child.filter(x => x.label == "field")
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => !pkFields.contains(f))
-      .map(f => "c.get%s()".format(camelToPascal(f)))
+      .map(f => "c.get%s()".format(cToPascal(f)))
     val keys = entity.child.filter(x => x.label == "field")
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(camelToPascal(f)))
+      .map(f => "c.get%s()".format(cToPascal(f)))
     val params = (updates ++ keys)
       .reduce((x, y) => "%s, %s".format(x, y))
 
@@ -162,7 +162,7 @@ object Dao extends App {
     val params = entity.child.filter(x => x.label == "field")
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(camelToPascal(f)))
+      .map(f => "c.get%s()".format(cToPascal(f)))
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
@@ -192,11 +192,11 @@ object Dao extends App {
     val params = entity.child.filter(x => x.label == "field")
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(camelToPascal(f)))
+      .map(f => "c.get%s()".format(cToPascal(f)))
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
-    val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(entityName, sql, params)
+    val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(cToPascal(entityName), sql, params)
     out
   }
 
@@ -217,13 +217,13 @@ object Dao extends App {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => ".set%s(rs.get%s(\"%s\"))".format(camelToPascal(f._1), camelToPascal(f._2), camelToPascal(f._1)))
+      .map(f => ".set%s(rs.get%s(\"%s\"))".format(cToPascal(f._1), cToPascal(f._2), f._1))
       .reduce((x, y) => "%s\n      %s".format(x, y))
 
     val out =
-      s"""new RowMapper<${entityName}Vo>() {
-         |  public ${entityName}Vo mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
-         |    ${entityName}Vo row = ${entityName}Vo.newBuilder()
+      s"""new RowMapper<${cToPascal(entityName)}Vo>() {
+         |  public ${cToPascal(entityName)}Vo mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
+         |    ${cToPascal(entityName)}Vo row = ${cToPascal(entityName)}Vo.newBuilder()
          |      ${columns}
          |      .build();
          |    return row;
@@ -236,7 +236,7 @@ object Dao extends App {
   private def paramMapper(entity: Node): String = {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(pascalToCamel(f._1), f._2))
+      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =
@@ -266,19 +266,19 @@ object Dao extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>dao</artifactId>
+         |  <artifactId>${cToShell(modelName)}-dao</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
-         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <artifactId>${cToShell(modelName)}</artifactId>
          |    <version>1.0-SNAPSHOT</version>
          |  </parent>
          |
          |  <dependencies>
          |    <dependency>
          |      <groupId>${modelPackage}</groupId>
-         |      <artifactId>message</artifactId>
+         |      <artifactId>${cToShell(modelName)}-message</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>

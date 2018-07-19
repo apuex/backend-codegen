@@ -1,11 +1,23 @@
 <?xml version="1.0"?>
-<model name="sample" package="com.sample" dbSchema="sampledb">
-  <!-- dbo.Table-->
-  <entity name="Table" aggregationRoot="true" enum="false" generate="true">
-    <field no="1" name="id" type="int" required="true"/>
-    <field no="2" name="Name" type="string" length="255" required="true"/>
-    <primaryKey name="PKTable">
-      <field name="id"/>
+<model name="my_sample" package="com.sample" dbSchema="sampledb">
+  <entity name="one_entity" aggregationRoot="true" generate="true">
+    <field no="1" name="one_entity_id" type="string" length="64" required="true"/>
+    <field no="2" name="one_entity_name" type="string" length="64" aggregation="true"/>
+    <field no="3" name="one_entity_desc" type="string" length="64" aggregation="true"/>
+    <field no="4" name="one_entity_code" type="string" length="64" aggregation="true"/>
+    <field no="5" name="one_entity_abbreviation" type="string" length="64" aggregation="true"/>
+    <primaryKey name="one_entity_pk">
+      <field name="one_entity_id"/>
+    </primaryKey>
+  </entity>
+  <entity name="AnotherEntity" aggregationRoot="true" generate="true">
+    <field no="1" name="AnotherEntityId" type="string" length="64" required="true"/>
+    <field no="2" name="AnotherEntityName" type="string" length="64" aggregation="true"/>
+    <field no="3" name="AnotherEntityDesc" type="string" length="64" aggregation="true"/>
+    <field no="4" name="AnotherEntityCode" type="string" length="64" aggregation="true"/>
+    <field no="5" name="AnotherEntityAbbreviation" type="string" length="64" aggregation="true"/>
+    <primaryKey name="AnotherEntityPk">
+      <field name="AnotherEntityId"/>
     </primaryKey>
   </entity>
 </model>

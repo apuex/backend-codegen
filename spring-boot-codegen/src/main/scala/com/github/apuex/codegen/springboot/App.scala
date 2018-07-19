@@ -11,7 +11,7 @@ object App extends App {
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
-  val projectDir = s"${projectRoot}/${camelToShell(modelName)}/${camelToShell(modelName)}-app"
+  val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-app"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/app"
   val resourcesDir = s"${projectDir}/src/main/resources"
 
@@ -79,19 +79,19 @@ object App extends App {
          |  <modelVersion>4.0.0</modelVersion>
          |
          |  <groupId>${modelPackage}</groupId>
-         |  <artifactId>${camelToShell(modelName)}-app</artifactId>
+         |  <artifactId>${cToShell(modelName)}-app</artifactId>
          |  <version>1.0-SNAPSHOT</version>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
-         |    <artifactId>${camelToShell(modelName)}</artifactId>
+         |    <artifactId>${cToShell(modelName)}</artifactId>
          |    <version>1.0-SNAPSHOT</version>
          |  </parent>
          |
          |  <dependencies>
          |    <dependency>
          |      <groupId>${modelPackage}</groupId>
-         |      <artifactId>controller</artifactId>
+         |      <artifactId>${cToShell(modelName)}-controller</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>
