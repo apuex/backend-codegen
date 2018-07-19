@@ -41,26 +41,26 @@ object Controller extends App {
       |  @Autowired
       |  private ${cToPascal(entityName)}Service service;
       |
-      |  @RequestMapping(value="create-${cToShell(entityName)}")
+      |  @RequestMapping(value="${cToShell("%s_%s".format("create", entityName))}")
       |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c) {
       |    service.create(c);
       |  }
       |
-      |  @RequestMapping(value="retrieve-${cToShell(entityName)}")
+      |  @RequestMapping(value="${cToShell("%s_%s".format("retrieve", entityName))}")
       |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c) {
       |    return service.retrieve(c);
       |  }
-      |  @RequestMapping(value="update-${cToShell(entityName)}")
+      |  @RequestMapping(value="${cToShell("%s_%s".format("update", entityName))}")
       |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c) {
       |    service.update(c);
       |  }
       |
-      |  @RequestMapping(value="delete-${cToShell(entityName)}")
+      |  @RequestMapping(value="${cToShell("%s_%s".format("delete", entityName))}")
       |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c) {
       |    service.delete(c);
       |  }
       |
-      |  @RequestMapping(value="query-${cToShell(entityName)}")
+      |  @RequestMapping(value="${cToShell("%s_%s".format("query", entityName))}")
       |  public List<${cToPascal(entityName)}Vo> query(@RequestBody QueryCommand q) {
       |    return service.query(q);
       |  }
