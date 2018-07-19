@@ -209,7 +209,7 @@ object Dao extends App {
 
     val out =
       s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
-         |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper));""".stripMargin
+         |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());""".stripMargin
     out
   }
 
