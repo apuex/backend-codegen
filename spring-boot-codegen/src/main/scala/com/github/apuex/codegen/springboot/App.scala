@@ -28,7 +28,7 @@ object App extends App {
 
     val source =
       s"""# data source and mq configurations.
-         |spring.datasource.url=jdbc:mysql://localhost:3306/example
+         |spring.datasource.url=jdbc:mysql://localhost:3306/example?useSSL=false
          |spring.datasource.username=example
          |spring.datasource.password=password
          |    """.stripMargin
