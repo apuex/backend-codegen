@@ -6,6 +6,7 @@
     <field no="3" name="one_entity_desc" type="string" length="64" aggregation="true"/>
     <field no="4" name="one_entity_code" type="string" length="64" aggregation="true"/>
     <field no="5" name="one_entity_abbreviation" type="string" length="64" aggregation="true"/>
+    <field no="6" name="one_entity_weight" type="double" aggregation="true"/>
     <primaryKey name="one_entity_pk">
       <field name="one_entity_id"/>
     </primaryKey>
@@ -16,6 +17,7 @@
     <field no="3" name="AnotherEntityDesc" type="string" length="64" aggregation="true"/>
     <field no="4" name="AnotherEntityCode" type="string" length="64" aggregation="true"/>
     <field no="5" name="AnotherEntityAbbreviation" type="string" length="64" aggregation="true"/>
+    <field no="6" name="AnotherEntityWeight" type="double" aggregation="true"/>
     <primaryKey name="AnotherEntityPk">
       <field name="AnotherEntityId"/>
     </primaryKey>
