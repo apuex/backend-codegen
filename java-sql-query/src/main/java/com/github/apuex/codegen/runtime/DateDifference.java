@@ -1,6 +1,6 @@
 package com.github.apuex.codegen.runtime;
 
-import com.google.protobuf.timestamp.Timestamp;
+import com.google.protobuf.Timestamp;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Seconds;

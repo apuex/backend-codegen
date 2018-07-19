@@ -1,6 +1,6 @@
 package com.github.apuex.codegen.runtime;
 
-import com.google.protobuf.timestamp.Timestamp;
+import com.google.protobuf.Timestamp;
 import org.joda.time.DateTime;
 import scala.Option;
 
@@ -38,11 +38,11 @@ public class DateFormat {
     }
 
     public static Date toDate(Timestamp d) {
-        return new Date(d.seconds() * 1000 + d.nanos() / 1000000);
+        return new Date(d.getSeconds() * 1000 + d.getNanos() / 1000000);
     }
 
     public static DateTime toDateTime(Timestamp d) {
-        return new DateTime(d.seconds() * 1000 + d.nanos() / 1000000);
+        return new DateTime(d.getSeconds() * 1000 + d.getSeconds() / 1000000);
     }
 
     public static Option<Timestamp> toTimestamp(Option<Date> d) {
@@ -55,7 +55,10 @@ public class DateFormat {
     public static Timestamp toTimestamp(Date d) {
         long seconds = d.getTime() / 1000;
         long nanos = (d.getTime() - seconds * 1000) * 1000000;
-        return Timestamp.apply(seconds, (int)nanos);
+        return Timestamp.newBuilder()
+            .setSeconds(seconds)
+            .setNanos((int)nanos)
+            .build();
     }
     public static String formatTimestamp(Timestamp d) {
         return timestampFormat.format(toDate(d));
