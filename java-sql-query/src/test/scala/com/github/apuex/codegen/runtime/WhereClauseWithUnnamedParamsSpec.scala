@@ -7,6 +7,7 @@ import com.github.apuex.codegen.runtime.Messages.LogicalConnectionType._
 import com.github.apuex.codegen.runtime.Messages.PredicateType._
 import com.github.apuex.codegen.runtime.Messages._
 import com.github.apuex.codegen.runtime.SymbolConverters._
+import com.google.protobuf.util.JsonFormat
 
 import scala.collection.JavaConverters._
 import org.scalatest._
@@ -20,6 +21,8 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .setPredicate(predicate)
       .putAllParams(params)
       .build()
+
+    println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q) should be("WHERE Name = ?")
@@ -39,6 +42,8 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .setPredicate(connection)
       .putAllParams(params)
       .build()
+
+    println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     println(whereClause.toWhereClause(q, 2))

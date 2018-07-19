@@ -1,0 +1,63 @@
+[{
+  "predicate": {
+    "predicate": {
+      "predicateType": "EQ",
+      "fieldName": "name",
+      "paramNames": ["name"]
+    }
+  }
+},
+{
+  "predicate": {
+    "predicate": {
+      "predicateType": "EQ",
+      "fieldName": "name",
+      "paramNames": ["name"]
+    }
+  },
+  "params": {
+    "name": "value"
+  }
+},
+{
+  "predicate": {
+    "connection": {
+      "predicates": [{
+        "predicate": {
+          "predicateType": "EQ",
+          "fieldName": "id",
+          "paramNames": ["id"]
+        }
+      }, {
+        "predicate": {
+          "predicateType": "EQ",
+          "fieldName": "name",
+          "paramNames": ["name"]
+        }
+      }]
+    }
+  }
+},
+{
+  "predicate": {
+    "connection": {
+      "predicates": [{
+        "predicate": {
+          "predicateType": "EQ",
+          "fieldName": "id",
+          "paramNames": ["id"]
+        }
+      }, {
+        "predicate": {
+          "predicateType": "EQ",
+          "fieldName": "name",
+          "paramNames": ["name"]
+        }
+      }]
+    }
+  },
+  "params": {
+    "name": "name_value",
+    "id": "id_value"
+  }
+}]

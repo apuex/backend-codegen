@@ -7,6 +7,7 @@ import com.github.apuex.codegen.runtime.SymbolConverters._
 import com.github.apuex.codegen.runtime.Messages._
 import com.github.apuex.codegen.runtime.Messages.PredicateType._
 import com.github.apuex.codegen.runtime.Messages.LogicalConnectionType._
+import com.google.protobuf.util.JsonFormat
 import org.scalatest._
 
 class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
@@ -17,6 +18,8 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
     val q = QueryCommand.newBuilder()
       .setPredicate(predicate)
       .build()
+
+    println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithNamedParams(camelToPascal)
     whereClause.toWhereClause(q) should be("WHERE Name = {name}")
@@ -31,6 +34,8 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
     val q = QueryCommand.newBuilder()
       .setPredicate(connection)
       .build()
+
+    println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithNamedParams(camelToPascal)
     whereClause.toWhereClause(q, 2) should be(
