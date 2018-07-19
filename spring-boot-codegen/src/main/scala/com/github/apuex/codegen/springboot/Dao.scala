@@ -292,6 +292,16 @@ object Dao extends App {
          |      <version>2.0.3.RELEASE</version>
          |    </dependency>
          |    <dependency>
+         |      <groupId>mysql</groupId>
+         |      <artifactId>mysql-connector-java</artifactId>
+         |      <version>8.0.11</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>net.sourceforge.jtds</groupId>
+         |      <artifactId>jtds</artifactId>
+         |      <version>1.3.1</version>
+         |    </dependency>
+         |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-test</artifactId>
          |      <version>2.0.3.RELEASE</version>

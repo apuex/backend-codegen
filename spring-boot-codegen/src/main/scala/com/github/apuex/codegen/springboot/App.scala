@@ -13,12 +13,30 @@ object App extends App {
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${camelToShell(modelName)}/${camelToShell(modelName)}-app"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/app"
+  val resourcesDir = s"${projectDir}/src/main/resources"
 
   new File(srcDir).mkdirs()
+  new File(resourcesDir).mkdirs()
 
   project
 
   application
+  configuration
+
+  private def configuration = {
+    val printWriter = new PrintWriter(s"${resourcesDir}/application.properties", "utf-8")
+
+    val source =
+      s"""# data source and mq configurations.
+         |spring.datasource.url=jdbc:mysql://localhost:3306/example
+         |spring.datasource.username=example
+         |spring.datasource.password=password
+         |    """.stripMargin
+
+     printWriter.print(source)
+
+     printWriter.close()
+  }
 
   private def application = {
     val printWriter = new PrintWriter(s"${srcDir}/Application.java", "utf-8")
