@@ -3,14 +3,14 @@
     "predicate": {
       "predicate": {
         "predicateType": "EQ",
-        "fieldName": "name",
+        "fieldName": "dataObjectID",
         "paramNames": [
-          "name"
+          "dataObjectID"
         ]
       }
     },
     "params": {
-      "name": "value"
+      "dataObjectID": "1"
     }
   },
   {

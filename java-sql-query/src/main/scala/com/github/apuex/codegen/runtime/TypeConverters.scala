@@ -18,7 +18,23 @@ object TypeConverters {
     case "timestamp" => v => parseTimestamp(v)
     case "float" => v => v.toFloat
     case "double" => v => v.toDouble
-    case "image" => v => v
+    case "blob" => v => v
+    case x =>
+      throw new IllegalArgumentException(x)
+  }
+
+  def toJavaType(typeName: String): String = typeName match {
+    case "bool" => "boolean"
+    case "short" => "short"
+    case "byte" => "byte"
+    case "int" => "int"
+    case "long" => "long"
+    case "decimal" => "BigDecimal"
+    case "string" => "String"
+    case "timestamp" => "Date"
+    case "float" => "float"
+    case "double" => "double"
+    case "blob" => "Blob"
     case x =>
       throw new IllegalArgumentException(x)
   }
@@ -34,7 +50,7 @@ object TypeConverters {
     case "timestamp" => "google.protobuf.Timestamp"
     case "float" => typeName
     case "double" => typeName
-    case "image" => "bytes"
+    case "blob" => "bytes"
     case x =>
       throw new IllegalArgumentException(x)
   }

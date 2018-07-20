@@ -3,6 +3,7 @@ package com.github.apuex.codegen.springboot
 import java.io.{File, PrintWriter}
 
 import com.github.apuex.codegen.runtime.SymbolConverters._
+import com.github.apuex.codegen.runtime.TypeConverters._
 import com.github.apuex.codegen.runtime.TextUtils._
 
 import scala.xml.{Node, Text}
@@ -30,6 +31,7 @@ object Dao extends App {
       s"""package ${modelPackage}.dao;
          |
          |import com.github.apuex.codegen.runtime.*;
+         |import static com.github.apuex.codegen.runtime.DateFormat.*;
          |import ${modelPackage}.message.${cToPascal(modelName)}.*;
          |import com.github.apuex.codegen.runtime.Messages.*;
          |import org.slf4j.*;
@@ -44,7 +46,7 @@ object Dao extends App {
          |public class ${cToPascal(entityName)}DAO {
          |
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}DAO.class);
-         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new CamelToCConverter());
+         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new IdentityConverter());
          |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
@@ -213,11 +215,28 @@ object Dao extends App {
     out
   }
 
+  def convertColumn(typeName: String, value: String): String = (typeName, value) match {
+    case ("bool", v) => v
+    case ("short", v) => v
+    case ("byte", v) => v
+    case ("int", v) => v
+    case ("long", v) => v
+    case ("decimal", v) => v
+    case ("string", v) => v
+    case ("timestamp", v) => "toTimestamp(%s)".format(v)
+    case ("float", v) => v
+    case ("double", v) => v
+    case ("blob", v) => v
+    case (t, v) =>
+      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+  }
+
   private def mapRow(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => ".set%s(rs.get%s(\"%s\"))".format(cToPascal(f._1), cToPascal(f._2), f._1))
+      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJavaType(f._2)), cToPascal(f._1))))
+      .map(f => ".set%s(%s)".format(cToPascal(f._1), convertColumn(f._2, f._3)))
       .reduce((x, y) => "%s\n      %s".format(x, y))
 
     val out =
