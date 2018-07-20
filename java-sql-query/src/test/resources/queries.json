@@ -1,4 +1,19 @@
 [
+  {"agentID":"1"},
+  {
+    "predicate": {
+      "predicate": {
+        "predicateType": "EQ",
+        "fieldName": "agentID",
+        "paramNames": [
+          "agentID"
+        ]
+      }
+    },
+    "params": {
+      "agentID": "1"
+    }
+  },
   {
     "predicate": {
       "predicate": {

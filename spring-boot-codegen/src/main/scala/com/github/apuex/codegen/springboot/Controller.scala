@@ -28,6 +28,7 @@ object Controller extends App {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val prelude =
     s"""package ${modelPackage}.controller;
+      |
       |import com.github.apuex.codegen.runtime.Messages.*;
       |import ${modelPackage}.message.${cToPascal(modelName)}.*;
       |import ${modelPackage}.service.*;
@@ -42,28 +43,30 @@ object Controller extends App {
       |  @Autowired
       |  private ${cToPascal(entityName)}Service service;
       |
-      |  @RequestMapping(value="${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}", produces="application/json")
       |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c) {
       |    service.create(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}", produces="application/json")
       |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c) {
       |    return service.retrieve(c);
       |  }
-      |  @RequestMapping(value="${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}", produces="application/json")
       |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c) {
       |    service.update(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s%s%s".format("delete", hyphen, cToShell(entityName)))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("delete", hyphen, cToShell(entityName)))}", produces="application/json")
       |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c) {
       |    service.delete(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}")
-      |  public List<${cToPascal(entityName)}Vo> query(@RequestBody QueryCommand q) {
-      |    return service.query(q);
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}", produces="application/json")
+      |  public ${cToPascal(entityName)}ListVo query(@RequestBody QueryCommand q) {
+      |    return ${cToPascal(entityName)}ListVo.newBuilder()
+      |      .addAllItems(service.query(q))
+      |      .build();
       |  }
       |
       |""".stripMargin

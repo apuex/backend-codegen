@@ -60,6 +60,10 @@ object Message extends App {
         |${indent(fields(columns), 2)};
         |}
         |
+        |message ${cToPascal(entityName)}ListVo {
+        |  repeated ${cToPascal(entityName)}Vo items = 1;
+        |}
+        |
         |message Create${cToPascal(entityName)}Cmd {
         |${indent(fields(columns), 2)};
         |}
