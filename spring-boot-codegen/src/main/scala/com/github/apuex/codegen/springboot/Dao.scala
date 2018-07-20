@@ -15,6 +15,9 @@ object Dao extends App {
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
+  val symboConverter = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}")
+    "new IdentityConverter()" else "new CamelToCConverter()"
+
 
   new File(srcDir).mkdirs()
 
@@ -46,7 +49,7 @@ object Dao extends App {
          |public class ${cToPascal(entityName)}DAO {
          |
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}DAO.class);
-         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(new IdentityConverter());
+         |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(${symboConverter});
          |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};

@@ -14,6 +14,7 @@ object Controller extends App {
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-controller"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/controller"
+  val hyphen = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}") "" else "-"
 
   new File(srcDir).mkdirs()
 
@@ -41,26 +42,26 @@ object Controller extends App {
       |  @Autowired
       |  private ${cToPascal(entityName)}Service service;
       |
-      |  @RequestMapping(value="${cToShell("%s_%s".format("create", entityName))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}")
       |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c) {
       |    service.create(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s_%s".format("retrieve", entityName))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}")
       |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c) {
       |    return service.retrieve(c);
       |  }
-      |  @RequestMapping(value="${cToShell("%s_%s".format("update", entityName))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}")
       |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c) {
       |    service.update(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s_%s".format("delete", entityName))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("delete", hyphen, cToShell(entityName)))}")
       |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c) {
       |    service.delete(c);
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s_%s".format("query", entityName))}")
+      |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}")
       |  public List<${cToPascal(entityName)}Vo> query(@RequestBody QueryCommand q) {
       |    return service.query(q);
       |  }
