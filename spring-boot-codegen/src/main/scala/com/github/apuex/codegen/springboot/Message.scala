@@ -26,7 +26,7 @@ object Message extends App {
     s"""syntax = "proto3";
       |import "google/protobuf/timestamp.proto";
       |
-      |package com.sample.message;
+      |package ${modelPackage}.message;
       |""".stripMargin
 
   printWriter.print(prelude)
