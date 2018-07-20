@@ -42,7 +42,7 @@ object App extends App {
     val printWriter = new PrintWriter(s"${srcDir}/Application.java", "utf-8")
 
     val source =
-      s"""package ${modelPackage}.service;
+      s"""package ${modelPackage}.app;
          |
          |import org.springframework.boot.*;
          |import org.springframework.boot.autoconfigure.*;
