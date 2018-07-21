@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package com.github.apuex.springbootsolution.runtime;
+
+enum PredicateType {
+  UNKNOWN = 0;
+  EQ = 1;
+  LT = 2;
+  GT = 3;
+  LE = 4;
+  GE = 5;
+  BETWEEN = 6;
+  LIKE = 7;
+  NE = 8;
+  IS_NULL = 9;
+  IS_NOT_NULL = 10;
+};
+
+message PredicateTypeVo {
+  int32 predicateTypeId = 1;
+  string predicateTypeName = 2;
+  string predicateTypeTitle = 3;
+};
+
+enum LogicalConnectionType {
+  AND = 0;
+  OR = 1;
+};
+
+message LogicalConnectionTypeVo {
+  int32 logicalConnectionTypeId = 1;
+  string logicalConnectionTypeName = 2;
+};
+
+message LogicalPredicateVo {
+  PredicateType predicateType = 1;
+  string fieldName = 2;
+  repeated string paramNames = 3;
+};
+
+message FilterPredicate {
+  oneof clause {
+    LogicalPredicateVo predicate = 1;
+    LogicalConnectionVo connection = 2;
+  }
+};
+
+message LogicalConnectionVo {
+  LogicalConnectionType logicalConnectionType = 1;
+  repeated FilterPredicate predicates = 2;
+};
+
+message QueryCommand {
+  FilterPredicate predicate = 1;
+  map<string, string> params = 2;
+}

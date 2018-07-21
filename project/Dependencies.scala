@@ -5,7 +5,7 @@ object Dependencies {
   lazy val scalaVersionNumber    = "2.12.6"
   lazy val akkaVersion           = "2.5.11"
   lazy val artifactVersionNumber = "1.0.0"
-  lazy val artifactGroupName     = "com.github.apuex.springboot"
+  lazy val artifactGroupName     = "com.github.apuex.spring-boot-solution"
   lazy val sprayVersion          = "1.3.3"
   lazy val playVersion           = "2.6.9"
   lazy val playSilhouetteVersion = "5.0.3"
