@@ -28,7 +28,6 @@ object Service extends App {
     val prelude =
       s"""package ${modelPackage}.service;
          |
-         |import com.github.apuex.springbootsolution.runtime.*;
          |import com.github.apuex.springbootsolution.runtime.Messages.*;
          |import ${modelPackage}.message.${cToPascal(modelName)}.*;
          |import ${modelPackage}.dao.*;
@@ -42,6 +41,7 @@ object Service extends App {
          |
          |@Component
          |public class ${cToPascal(entityName)}Service {
+         |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}Service.class);
          |  @Autowired
          |  private ${cToPascal(entityName)}DAO ${cToCamel(entityName)}DAO;
          |

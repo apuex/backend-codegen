@@ -54,26 +54,26 @@ object Dao extends App {
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
-         |  private final RowMapper rowMapper = ${indent(mapRow(entity), 2)};
+         |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = ${indent(mapRow(entity), 2)};
          |
          |  public ${cToPascal(entityName)}DAO(JdbcTemplate jdbcTemplate) {
          |    this.jdbcTemplate = jdbcTemplate;
          |  }
          |
-         |  public void create(Create${cToPascal(entityName)}Cmd c) {
-         |    ${create(entity)}
+         |  public int create(Create${cToPascal(entityName)}Cmd c) {
+         |    return ${create(entity)}
          |  }
          |
          |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
          |    ${retrieve(entity)}
          |  }
          |
-         |  public void update(Update${cToPascal(entityName)}Cmd c) {
-         |    ${update(entity)}
+         |  public int update(Update${cToPascal(entityName)}Cmd c) {
+         |    return ${update(entity)}
          |  }
          |
-         |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
-         |    ${delete(entity)}
+         |  public int delete(Delete${cToPascal(entityName)}Cmd c) {
+         |    return ${delete(entity)}
          |  }
          |
          |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {

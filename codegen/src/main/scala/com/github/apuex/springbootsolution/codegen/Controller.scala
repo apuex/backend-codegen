@@ -35,8 +35,6 @@ object Controller extends App {
       |import org.springframework.beans.factory.annotation.*;
       |import org.springframework.web.bind.annotation.*;
       |
-      |import java.util.*;
-      |
       |@RestController
       |@RequestMapping(value="${cToShell(entityName)}", method=RequestMethod.POST)
       |public class ${cToPascal(entityName)}Controller {
