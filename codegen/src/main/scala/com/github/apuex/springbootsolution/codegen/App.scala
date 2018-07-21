@@ -81,6 +81,7 @@ object App extends App {
          |  <groupId>${modelPackage}</groupId>
          |  <artifactId>${cToShell(modelName)}-app</artifactId>
          |  <version>1.0-SNAPSHOT</version>
+         |  <packaging>war</packaging>
          |
          |  <parent>
          |    <groupId>${modelPackage}</groupId>
@@ -98,6 +99,12 @@ object App extends App {
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-web</artifactId>
          |      <version>2.0.3.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework.boot</groupId>
+         |      <artifactId>spring-boot-starter-tomcat</artifactId>
+         |      <version>2.0.3.RELEASE</version>
+         |      <scope>provided</scope>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
