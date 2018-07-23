@@ -34,7 +34,7 @@ object TypeConverters {
     case "timestamp" => "Date"
     case "float" => "float"
     case "double" => "double"
-    case "blob" => "Blob"
+    case "blob" => "Bytes"
     case x =>
       throw new IllegalArgumentException(x)
   }

@@ -30,6 +30,7 @@ object Dao extends App {
 
   def daoForEntity(modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val aggregationRoot = entity.attribute("aggregationRoot").asInstanceOf[Some[Text]].get.data
     val prelude =
       s"""package ${modelPackage}.dao;
          |
@@ -69,7 +70,7 @@ object Dao extends App {
          |  }
          |
          |  public int update(Update${cToPascal(entityName)}Cmd c) {
-         |    return ${update(entity)}
+         |    ${if("true" == aggregationRoot) "return %s".format(update(entity)) else "throw new UnsupportedOperationException();"}
          |  }
          |
          |  public int delete(Delete${cToPascal(entityName)}Cmd c) {
@@ -258,7 +259,7 @@ object Dao extends App {
   private def paramMapper(entity: Node): String = {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
+      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), toJavaType(f._2)))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =
