@@ -76,8 +76,10 @@ object DumpSchema extends App {
     case "int identity" => "int"
     case "bigint" => "long"
     case "decimal" => "decimal"
+    case "char" => "string"
     case "varchar" => "string"
     case "nvarchar" => "string"
+    case "ntext" => "string"
     case "text" => "string"
     case "datetime" => "timestamp"
     case "real" => "float"
@@ -96,8 +98,10 @@ object DumpSchema extends App {
     case "int identity" => ""
     case "bigint" => ""
     case "decimal" => ""
+    case "char" => "length=\"%d\" ".format(length)
     case "varchar" => "length=\"%d\" ".format(length)
     case "nvarchar" => "length=\"%d\" ".format(length)
+    case "ntext" => ""
     case "text" => ""
     case "datetime" => ""
     case "real" => ""
