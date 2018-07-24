@@ -104,8 +104,9 @@ object Dao extends App {
       .map(_ => "?")
       .reduce((x, y) => "%s,%s".format(x, y))
     val params = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .map(f => "c.get%s()".format(cToPascal(f)))
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
@@ -135,13 +136,17 @@ object Dao extends App {
       .reduce((x, y) => "%s AND %s".format(x, y))
 
     val updates = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => !pkFields.contains(f))
-      .map(f => "c.get%s()".format(cToPascal(f)))
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .filter(f => !pkFields.contains(f._1))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
+
     val keys = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(cToPascal(f)))
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .filter(f => pkFields.contains(f._1))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
+
     val params = (updates ++ keys)
       .reduce((x, y) => "%s, %s".format(x, y))
 
@@ -166,10 +171,11 @@ object Dao extends App {
       .reduce((x, y) => "%s AND %s".format(x, y))
 
     val params = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(cToPascal(f)))
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .filter(f => pkFields.contains(f._1))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
+      .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
 
@@ -196,10 +202,11 @@ object Dao extends App {
       .reduce((x, y) => "%s AND %s".format(x, y))
 
     val params = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => pkFields.contains(f))
-      .map(f => "c.get%s()".format(cToPascal(f)))
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .filter(f => pkFields.contains(f._1))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
+      .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
     val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(cToPascal(entityName), sql, params)
@@ -219,7 +226,7 @@ object Dao extends App {
     out
   }
 
-  def convertColumn(typeName: String, value: String): String = (typeName, value) match {
+  def convertToColumn(typeName: String, value: String): String = (typeName, value) match {
     case ("bool", v) => v
     case ("short", v) => v
     case ("byte", v) => v
@@ -235,12 +242,28 @@ object Dao extends App {
       throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
   }
 
+  def convertFromColumn(typeName: String, value: String): String = (typeName, value) match {
+    case ("bool", v) => v
+    case ("short", v) => v
+    case ("byte", v) => v
+    case ("int", v) => v
+    case ("long", v) => v
+    case ("decimal", v) => v
+    case ("string", v) => v
+    case ("timestamp", v) => "toDate(%s)".format(v)
+    case ("float", v) => v
+    case ("double", v) => v
+    case ("blob", v) => v
+    case (t, v) =>
+      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+  }
+
   private def mapRow(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJavaType(f._2)), cToPascal(f._1))))
-      .map(f => ".set%s(%s)".format(cToPascal(f._1), convertColumn(f._2, f._3)))
+      .map(f => ".set%s(%s)".format(cToPascal(f._1), convertToColumn(f._2, f._3)))
       .reduce((x, y) => "%s\n      %s".format(x, y))
 
     val out =
@@ -259,7 +282,7 @@ object Dao extends App {
   private def paramMapper(entity: Node): String = {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), toJavaType(f._2)))
+      .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 
     val out =
