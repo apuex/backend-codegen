@@ -14,4 +14,4 @@ libraryDependencies ++= Seq(
   scalaTestPlusPlay % Test
 )
 
-publishTo := localRepo
+publishTo := sonatypePublishTo.value

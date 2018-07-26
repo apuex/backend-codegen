@@ -14,5 +14,5 @@ lazy val root = (project in file("."))
 lazy val codegen = (project in file("codegen")).dependsOn(runtime)
 lazy val runtime = (project in file("runtime")).enablePlugins(ProtobufPlugin)
 
-publishTo := localRepo
+publishTo := sonatypePublishTo.value
 
