@@ -1,6 +1,7 @@
 package com.github.apuex.springbootsolution.runtime
 
 import com.github.apuex.springbootsolution.runtime.DateFormat._
+import com.google.protobuf.util.Timestamps
 
 trait TypeConverter {
   def convert(value: String): Any
@@ -15,7 +16,7 @@ object TypeConverters {
     case "long" => v => v.toLong
     case "decimal" => v => BigDecimal.apply(v)
     case "string" => v => v
-    case "timestamp" => v => parseTimestamp(v)
+    case "timestamp" => v => toDate(Timestamps.parse(v))
     case "float" => v => v.toFloat
     case "double" => v => v.toDouble
     case "blob" => v => v
