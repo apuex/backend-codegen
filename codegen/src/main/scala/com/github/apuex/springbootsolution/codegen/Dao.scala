@@ -237,7 +237,7 @@ object Dao extends App {
     case ("timestamp", v) => "toTimestamp(%s)".format(v)
     case ("float", v) => v
     case ("double", v) => v
-    case ("blob", v) => v
+    case ("blob", v) => "com.google.protobuf.ByteString.copyFrom(%s)".format(v)
     case (t, v) =>
       throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
   }
@@ -346,7 +346,7 @@ object Dao extends App {
          |    <dependency>
          |      <groupId>com.github.apuex.springbootsolution</groupId>
          |      <artifactId>runtime_2.12</artifactId>
-         |      <version>1.0.1</version>
+         |      <version>1.0.2</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>

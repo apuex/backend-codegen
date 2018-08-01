@@ -27,7 +27,7 @@ object ApiList extends App {
 
   private def apiForEntity(modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-    val format = "%s, %s, %s\n"
+    val format = "%s, %s\n"
     printWriter.print(format.format(s"${cToShell(entityName)}", s"${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}"))
     printWriter.print(format.format("", s"${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}"))
     printWriter.print(format.format("", s"${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}"))

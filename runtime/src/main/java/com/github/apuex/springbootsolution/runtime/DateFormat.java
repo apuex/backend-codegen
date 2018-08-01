@@ -38,10 +38,12 @@ public class DateFormat {
   }
 
   public static Date toDate(Timestamp d) {
+    if(null == d) return null;
     return new Date(d.getSeconds() * 1000 + d.getNanos() / 1000000);
   }
 
   public static DateTime toDateTime(Timestamp d) {
+    if(null == d) return null;
     return new DateTime(d.getSeconds() * 1000 + d.getSeconds() / 1000000);
   }
 
@@ -54,6 +56,7 @@ public class DateFormat {
   }
 
   public static Timestamp toTimestamp(Date d) {
+    if(null == d) return null;
     long seconds = d.getTime() / 1000;
     long nanos = (d.getTime() - seconds * 1000) * 1000000;
     return Timestamp.newBuilder()
@@ -63,6 +66,7 @@ public class DateFormat {
   }
 
   public static String formatTimestamp(Timestamp d) {
+    if(null == d) return null;
     return timestampFormat.format(toDate(d));
   }
 
