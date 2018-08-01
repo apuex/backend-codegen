@@ -242,6 +242,22 @@ object Dao extends App {
       throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
   }
 
+  def emptyTest(typeName: String, value: String): String = (typeName, value) match {
+    case ("bool", v) => ""
+    case ("short", v) => ""
+    case ("byte", v) => "if(null != %s) ".format(v)
+    case ("int", v) => ""
+    case ("long", v) => ""
+    case ("decimal", v) => ""
+    case ("string", v) => "if(null != %s) ".format(v)
+    case ("timestamp", v) => "if(null != %s) ".format(v)
+    case ("float", v) => ""
+    case ("double", v) => ""
+    case ("blob", v) => "if(null != %s) ".format(v)
+    case (t, v) =>
+      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+  }
+
   def convertFromColumn(typeName: String, value: String): String = (typeName, value) match {
     case ("bool", v) => v
     case ("short", v) => v
@@ -263,16 +279,16 @@ object Dao extends App {
     val columns = entity.child.filter(x => x.label == "field")
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJavaType(f._2)), cToPascal(f._1))))
-      .map(f => ".set%s(%s)".format(cToPascal(f._1), convertToColumn(f._2, f._3)))
-      .reduce((x, y) => "%s\n      %s".format(x, y))
+      .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(f._1), convertToColumn(f._2, f._3)))
+      .reduce((x, y) => "%s\n    %s".format(x, y))
 
     val out =
       s"""new RowMapper<${cToPascal(entityName)}Vo>() {
          |  public ${cToPascal(entityName)}Vo mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
-         |    ${cToPascal(entityName)}Vo row = ${cToPascal(entityName)}Vo.newBuilder()
-         |      ${columns}
-         |      .build();
-         |    return row;
+         |    ${cToPascal(entityName)}Vo.Builder builder = ${cToPascal(entityName)}Vo.newBuilder();
+         |    ${columns}
+         |
+         |    return builder.build();
          |  }
          |}""".stripMargin
     out
