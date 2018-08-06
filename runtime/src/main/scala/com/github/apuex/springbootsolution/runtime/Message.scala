@@ -2,8 +2,6 @@ package com.github.apuex.springbootsolution.runtime
 
 import java.util
 
-import com.github.apuex.springbootsolution.runtime.Messages._
-
 object Message {
   def createConnection(connectionType: LogicalConnectionType, predicates: java.util.List[FilterPredicate]): FilterPredicate = {
     val connection = LogicalConnectionVo.newBuilder()

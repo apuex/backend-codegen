@@ -27,6 +27,9 @@ object Message extends App {
       |import "google/protobuf/timestamp.proto";
       |
       |package ${modelPackage}.message;
+      |option java_package = "${modelPackage}.message";
+      |option java_outer_classname = "${cToPascal(modelName)}";
+      |option java_multiple_files = true;
       |""".stripMargin
 
   printWriter.print(prelude)
@@ -125,17 +128,32 @@ object Message extends App {
          |  <build>
          |    <plugins>
          |      <plugin>
-         |        <groupId>com.google.protobuf.tools</groupId>
-         |        <artifactId>maven-protoc-plugin</artifactId>
-         |        <version>0.3.2</version>
+         |        <groupId>org.apache.maven.plugins</groupId>
+         |        <artifactId>maven-resources-plugin</artifactId>
+         |        <version>3.1.0</version>
+         |        <configuration>
+         |          <resources>
+         |            <resource>
+         |              <directory>target/generated-resources</directory>
+         |            </resource>
+         |          </resources>
+         |        </configuration>
+         |      </plugin>
+         |      <plugin>
+         |        <groupId>org.xolstice.maven.plugins</groupId>
+         |        <artifactId>protobuf-maven-plugin</artifactId>
+         |        <version>0.5.1</version>
          |        <configuration>
          |          <protocExecutable>/usr/local/bin/protoc</protocExecutable>
+         |          <includeDependenciesInDescriptorSet>true</includeDependenciesInDescriptorSet>
+         |          <attachDescriptorSet>true</attachDescriptorSet>
+         |          <writeDescriptorSet>true</writeDescriptorSet>
          |        </configuration>
          |        <executions>
          |          <execution>
          |            <goals>
          |              <goal>compile</goal>
-         |              <goal>testCompile</goal>
+         |              <goal>test-compile</goal>
          |            </goals>
          |          </execution>
          |        </executions>
@@ -143,12 +161,6 @@ object Message extends App {
          |    </plugins>
          |  </build>
          |
-         |  <pluginRepositories>
-         |    <pluginRepository>
-         |      <id>mapr</id>
-         |      <url>http://repository.mapr.com/nexus/content/groups/mapr-public/releases</url>
-         |    </pluginRepository>
-         |  </pluginRepositories>
          |</project>
          |
        """.stripMargin

@@ -1,9 +1,8 @@
 package com.github.apuex.springbootsolution.runtime
 
 import SymbolConverters._
-import com.github.apuex.springbootsolution.runtime.Messages._
-import com.github.apuex.springbootsolution.runtime.Messages.PredicateType._
-import com.github.apuex.springbootsolution.runtime.Messages.LogicalConnectionType._
+import com.github.apuex.springbootsolution.runtime.PredicateType._
+import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
 import scala.collection.JavaConverters._
 
 object WhereClauseWithNamedParams {

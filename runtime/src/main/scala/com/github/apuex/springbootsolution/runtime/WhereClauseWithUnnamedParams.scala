@@ -1,8 +1,7 @@
 package com.github.apuex.springbootsolution.runtime
 
-import com.github.apuex.springbootsolution.runtime.Messages.LogicalConnectionType._
-import com.github.apuex.springbootsolution.runtime.Messages.PredicateType._
-import com.github.apuex.springbootsolution.runtime.Messages._
+import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
+import com.github.apuex.springbootsolution.runtime.PredicateType._
 
 import scala.collection.JavaConverters._
 

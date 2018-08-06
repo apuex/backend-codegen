@@ -23,6 +23,6 @@ assemblyMergeStrategy in assembly := {
 }
 
 mainClass in assembly := Some("com.github.apuex.springbootsolution.codegen.Main")
-assemblyJarName in assembly := s"${artifactGroupName}.${name.value}.jar"
+assemblyJarName in assembly := s"${name.value}.jar"
 
 publishTo := sonatypePublishTo.value

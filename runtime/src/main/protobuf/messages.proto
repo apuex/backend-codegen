@@ -1,6 +1,9 @@
 syntax = "proto3";
 
 package com.github.apuex.springbootsolution.runtime;
+option java_package = "com.github.apuex.springbootsolution.runtime";
+option java_outer_classname = "Messages";
+option java_multiple_files = true;
 
 enum PredicateType {
   UNKNOWN = 0;

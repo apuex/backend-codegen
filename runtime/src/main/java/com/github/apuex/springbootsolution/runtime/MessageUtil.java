@@ -3,8 +3,6 @@ package com.github.apuex.springbootsolution.runtime;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.apuex.springbootsolution.runtime.Messages.*;
-
 public class MessageUtil {
   public static FilterPredicate createPredicate(PredicateType predicateType, String name, String value, Map<String, String> params) {
     return Message.createPredicate(predicateType, name, value, params);

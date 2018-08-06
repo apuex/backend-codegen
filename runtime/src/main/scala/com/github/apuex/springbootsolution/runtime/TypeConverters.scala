@@ -32,7 +32,7 @@ object TypeConverters {
     case "long" => "long"
     case "decimal" => "BigDecimal"
     case "string" => "String"
-    case "timestamp" => "Date"
+    case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
     case "blob" => "Bytes"

@@ -36,8 +36,8 @@ object Dao extends App {
          |
          |import com.github.apuex.springbootsolution.runtime.*;
          |import static com.github.apuex.springbootsolution.runtime.DateFormat.*;
-         |import ${modelPackage}.message.${cToPascal(modelName)}.*;
-         |import com.github.apuex.springbootsolution.runtime.Messages.*;
+         |import ${modelPackage}.message.*;
+         |import com.github.apuex.springbootsolution.runtime.*;
          |import org.slf4j.*;
          |import org.springframework.beans.factory.annotation.*;
          |import org.springframework.jdbc.core.*;

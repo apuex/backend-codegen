@@ -28,8 +28,8 @@ object Service extends App {
     val prelude =
       s"""package ${modelPackage}.service;
          |
-         |import com.github.apuex.springbootsolution.runtime.Messages.*;
-         |import ${modelPackage}.message.${cToPascal(modelName)}.*;
+         |import com.github.apuex.springbootsolution.runtime.*;
+         |import ${modelPackage}.message.*;
          |import ${modelPackage}.dao.*;
          |
          |import org.slf4j.*;

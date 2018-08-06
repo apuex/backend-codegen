@@ -29,8 +29,8 @@ object Controller extends App {
     val prelude =
     s"""package ${modelPackage}.controller;
       |
-      |import com.github.apuex.springbootsolution.runtime.Messages.*;
-      |import ${modelPackage}.message.${cToPascal(modelName)}.*;
+      |import com.github.apuex.springbootsolution.runtime.*;
+      |import ${modelPackage}.message.*;
       |import ${modelPackage}.service.*;
       |import org.springframework.beans.factory.annotation.*;
       |import org.springframework.web.bind.annotation.*;
