@@ -75,11 +75,12 @@
   {
     "predicate": {
       "connection": {
+        "logicalConnectionType": "AND",
         "predicates": [
           {
             "predicate": {
-              "predicateType": "EQ",
-              "fieldName": "id",
+              "predicateType": "GT",
+              "fieldName": "agentID",
               "paramNames": [
                 "id"
               ]
@@ -87,8 +88,8 @@
           },
           {
             "predicate": {
-              "predicateType": "EQ",
-              "fieldName": "name",
+              "predicateType": "LT",
+              "fieldName": "agentID",
               "paramNames": [
                 "name"
               ]
@@ -98,8 +99,8 @@
       }
     },
     "params": {
-      "name": "value",
-      "id": "value"
+      "name": "100",
+      "id": "0"
     }
   }
 ]

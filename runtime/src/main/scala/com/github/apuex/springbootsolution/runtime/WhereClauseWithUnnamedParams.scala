@@ -167,13 +167,13 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
   }
 
   private def toUnnamedParams(predicate: LogicalPredicateVo, params: java.util.Map[String, String], m: QueryParamMapper): Seq[Object] = predicate.getPredicateType match {
-    case EQ => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case NE => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case LT => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case GT => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case LE => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case GE => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
-    case BETWEEN => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))), m.map(predicate.getParamNames(1), params.get(predicate.getParamNames(1))))
+    case EQ => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case NE => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case LT => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case GT => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case LE => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case GE => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
+    case BETWEEN => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))), m.map(predicate.getFieldName(), params.get(predicate.getParamNames(1))))
     case LIKE => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
     case IS_NULL => Seq()
     case IS_NOT_NULL => Seq()
