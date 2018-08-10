@@ -14,6 +14,7 @@ object App extends App {
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-app"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/app"
   val resourcesDir = s"${projectDir}/src/main/resources"
+  val webappDir = s"${projectDir}/src/main/webapp"
 
   new File(srcDir).mkdirs()
   new File(resourcesDir).mkdirs()
@@ -21,9 +22,10 @@ object App extends App {
   project
 
   application
-  configuration
+  applicationProperties
+  tomcatContext
 
-  private def configuration = {
+  private def applicationProperties = {
     val printWriter = new PrintWriter(s"${resourcesDir}/application.properties", "utf-8")
 
     val source =
@@ -31,11 +33,78 @@ object App extends App {
          |spring.datasource.url=jdbc:mysql://localhost:3306/example?useSSL=false
          |spring.datasource.username=example
          |spring.datasource.password=password
+         |
+         |# disable jmx if deployed in standalone tomcat instance
+         |spring.jmx.enabled=false
+         |# disable datasource auto-configuration if using jndi datasouce
+         |# and deployed in standalone tomcat instance
+         |spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
          |    """.stripMargin
 
      printWriter.print(source)
 
      printWriter.close()
+  }
+
+  private def tomcatContext = {
+    val printWriter = new PrintWriter(s"${webappDir}/META-INF/context.xml", "utf-8")
+
+    val source =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<Context antiJARLocking="true" path="" reloadable="true" crossContext="true">
+         |
+         |  <Resource name="jdbc/example"
+         |            type="javax.sql.DataSource"
+         |            auth="Container"
+         |            driverClassName="net.sourceforge.jtds.jdbc.Driver"
+         |            url="jdbc:jtds:sqlserver://192.168.0.38:1433/example"
+         |            username="sa"
+         |            password=""
+         |            validationQuery="SELECT 1"
+         |            maxTotal="100"
+         |            maxIdle="30"
+         |            maxWaitMillis="10000"
+         |  />
+         |
+         |</Context>
+       """.stripMargin
+    printWriter.print(source)
+
+    printWriter.close()
+  }
+
+  private def appConfig = {
+    val printWriter = new PrintWriter(s"${resourcesDir}/app-config.xml", "utf-8")
+
+    val source =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<beans xmlns="http://www.springframework.org/schema/beans"
+         |  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+         |  xmlns:integration="http://www.springframework.org/schema/integration"
+         |  xmlns:websocket="http://www.springframework.org/schema/websocket"
+         |  xsi:schemaLocation="http://www.springframework.org/schema/beans
+         |    http://www.springframework.org/schema/beans/spring-beans.xsd
+         |    http://www.springframework.org/schema/jee
+         |    http://www.springframework.org/schema/jee/spring-jee.xsd
+         |    http://www.springframework.org/schema/integration
+         |    http://www.springframework.org/schema/integration/spring-integration.xsd
+         |    http://www.springframework.org/schema/websocket
+         |    http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+         |
+         |  <bean id="protobufHttpMessageConverter" class="org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter"/>
+         |
+         |  <jee:jndi-lookup id="dbDataSource" jndi-name="jdbc/example"
+         |    expected-type="javax.sql.DataSource" />
+         |
+         |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+         |    <property name="dataSource" ref="dbDataSource"/>
+         |  </bean>
+         |</beans>
+         |""".stripMargin
+
+    printWriter.print(source)
+
+    printWriter.close()
   }
 
   private def application = {
@@ -58,11 +127,6 @@ object App extends App {
          |
          |  public static void main(String[] args) {
          |    SpringApplication.run(Application.class, args);
-         |  }
-         |
-         |  @Bean
-         |  ProtobufHttpMessageConverter protobufHttpMessageConverter() {
-         |    return new ProtobufHttpMessageConverter();
          |  }
          |
          |  @Override
