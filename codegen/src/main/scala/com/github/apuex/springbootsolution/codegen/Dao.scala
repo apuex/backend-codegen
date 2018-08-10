@@ -349,6 +349,26 @@ object Dao extends App {
          |      <version>1.0.3</version>
          |    </dependency>
          |    <dependency>
+         |      <groupId>org.springframework</groupId>
+         |      <artifactId>spring-beans</artifactId>
+         |      <version>5.0.7.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework</groupId>
+         |      <artifactId>spring-context</artifactId>
+         |      <version>5.0.7.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework</groupId>
+         |      <artifactId>spring-tx</artifactId>
+         |      <version>5.0.7.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework</groupId>
+         |      <artifactId>spring-jdbc</artifactId>
+         |      <version>5.0.7.RELEASE</version>
+         |    </dependency>
+         |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-jdbc</artifactId>
          |      <version>2.0.3.RELEASE</version>
@@ -362,6 +382,11 @@ object Dao extends App {
          |      <groupId>net.sourceforge.jtds</groupId>
          |      <artifactId>jtds</artifactId>
          |      <version>1.3.1</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.slf4j</groupId>
+         |      <artifactId>slf4j-api</artifactId>
+         |      <version>1.7.25</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
