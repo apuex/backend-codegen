@@ -221,8 +221,35 @@ object Dao extends App {
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val out =
-      s"""String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
-         |    return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());""".stripMargin
+      s"""if(q.getPageNumber() > 0
+         |      && q.getRowsPerPage() > 0
+         |      && q.getOrderByCount() > 0) {
+         |      if(!(q.getOrderByList().stream()
+         |        .map(x -> paramMapper.exists(x.getFieldName()))
+         |        .reduce((x, y) -> x && y)
+         |        .get())) throw new RuntimeException("Invalid order by field.");
+         |      String orderBy = q.getOrderByList().stream()
+         |          .map(x -> String.format("%s %s", SymbolConverters.cToPascal().apply(x.getFieldName()), x.getOrder()))
+         |          .reduce((x, y) -> String.format("%s, %s", x, y))
+         |          .get();
+         |      String sql = String.format("WITH Paginated${entityName} AS ("
+         |          + "SELECT ROW_NUMBER() OVER (ORDER BY %s) AS RowNumber, "
+         |          + "${columns} "
+         |          + "FROM ${entityName} %s"
+         |          + ")"
+         |          + "SELECT ${columns} "
+         |          + "FROM Paginated${entityName} "
+         |          + "WHERE RowNumber > ? AND RowNumber <= ?",
+         |          orderBy,
+         |          where.toWhereClause(q));
+         |      List<Object> params = new LinkedList<>(where.toUnnamedParamList(q, paramMapper));
+         |      params.add(Integer.valueOf((q.getPageNumber() == 0 ? 0 : (q.getPageNumber() - 1)) * q.getRowsPerPage()));
+         |      params.add(Integer.valueOf(q.getPageNumber() * q.getRowsPerPage()));
+         |      return jdbcTemplate.query(sql, rowMapper, params.toArray());
+         |    } else {
+         |      String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
+         |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());
+         |    }""".stripMargin
     out
   }
 
@@ -313,6 +340,10 @@ object Dao extends App {
          |
          |  public Object map(String name, String value) {
          |    return mappers.get(name).convert(value);
+         |  }
+         |
+         |  public boolean exists(String name) {
+         |    return mappers.containsKey(name);
          |  }
          |}""".stripMargin
     out

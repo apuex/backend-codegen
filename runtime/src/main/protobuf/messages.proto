@@ -6,7 +6,7 @@ option java_outer_classname = "Messages";
 option java_multiple_files = true;
 
 enum PredicateType {
-  UNKNOWN = 0;
+  UNKNOWN_PREDICATE = 0;
   EQ = 1;
   LT = 2;
   GT = 3;
@@ -53,9 +53,20 @@ message LogicalConnectionVo {
   repeated FilterPredicate predicates = 2;
 };
 
+enum OrderType {
+  ASC = 0;
+  DESC = 1;
+};
+
+message OrderBy {
+  string fieldName = 1;
+  OrderType order = 2;
+};
+
 message QueryCommand {
   FilterPredicate predicate = 1;
   map<string, string> params = 2;
   int32 pageNumber = 3;
-  int32 rowsPerPage = 5;
+  int32 rowsPerPage = 4;
+  repeated OrderBy orderBy = 5;
 }
