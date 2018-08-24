@@ -56,4 +56,6 @@ message LogicalConnectionVo {
 message QueryCommand {
   FilterPredicate predicate = 1;
   map<string, string> params = 2;
+  int32 pageNumber = 3;
+  int32 rowsPerPage = 5;
 }
