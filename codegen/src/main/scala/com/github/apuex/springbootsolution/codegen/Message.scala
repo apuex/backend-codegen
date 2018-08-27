@@ -127,6 +127,7 @@ object Message extends App {
          |
          |  <build>
          |    <plugins>
+         |      <!-- walk-around solution for idea cannot import generated code. -->
          |      <plugin>
          |        <groupId>org.apache.maven.plugins</groupId>
          |        <artifactId>maven-resources-plugin</artifactId>

@@ -61,6 +61,19 @@ object Project extends App {
          |          <encoding>UTF-8</encoding>
          |        </configuration>
          |      </plugin>
+         |      <!-- walk-around solution for idea cannot import generated code. -->
+         |      <plugin>
+         |        <groupId>org.apache.maven.plugins</groupId>
+         |        <artifactId>maven-resources-plugin</artifactId>
+         |        <version>3.1.0</version>
+         |        <configuration>
+         |          <resources>
+         |            <resource>
+         |              <directory>target/generated-resources</directory>
+         |            </resource>
+         |          </resources>
+         |        </configuration>
+         |      </plugin>
          |      <plugin>
          |        <groupId>org.apache.maven.plugins</groupId>
          |        <artifactId>maven-source-plugin</artifactId>
