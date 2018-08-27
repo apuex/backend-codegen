@@ -97,13 +97,13 @@ object Dao extends App {
 
   private def create(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-    val columns = entity.child.filter(x => x.label == "field")
+    val columns = persistentColumns(entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s,%s".format(x, y))
-    val placeHolders = entity.child.filter(x => x.label == "field")
+    val placeHolders = persistentColumns(entity)
       .map(_ => "?")
       .reduce((x, y) => "%s,%s".format(x, y))
-    val params = entity.child.filter(x => x.label == "field")
+    val params = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
       .map(f => convertFromColumn(f._2, f._1))
@@ -115,33 +115,39 @@ object Dao extends App {
     out
   }
 
+  private def persistentColumns(entity: Node) = {
+    entity.child.filter(x => x.label == "field")
+      .filter(f => {
+        !(f.attribute("transient")
+          .map(x => {
+            x.filter(n => n.isInstanceOf[Text])
+              .map(n => n.asInstanceOf[Text].data == "true")
+              .foldLeft(false)(_ || _)
+          })
+          .getOrElse(false))
+      })
+  }
+
   private def update(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val pkFields = entity.child.filter(x => x.label == "primaryKey")
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .toSet
+    val pkFields = primaryKeyFields(entity)
 
-    val columns = entity.child.filter(x => x.label == "field")
+    val pkCriteria = primaryKeyCriteria(entity, pkFields)
+
+    val columns = persistentColumns(entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => !pkFields.contains(f))
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s, %s".format(x, y))
 
-    val pkCriteria = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => pkFields.contains(f))
-      .map(f => "%s = ?".format(f))
-      .reduce((x, y) => "%s AND %s".format(x, y))
-
-    val updates = entity.child.filter(x => x.label == "field")
+    val updates = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .filter(f => !pkFields.contains(f._1))
       .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
       .map(f => convertFromColumn(f._2, f._1))
 
-    val keys = entity.child.filter(x => x.label == "field")
+    val keys = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .filter(f => pkFields.contains(f._1))
       .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
@@ -159,18 +165,11 @@ object Dao extends App {
   private def delete(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val pkFields = entity.child.filter(x => x.label == "primaryKey")
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .toSet
+    val pkFields = primaryKeyFields(entity)
 
-    val pkCriteria = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .filter(f => pkFields.contains(f))
-      .map(f => "%s = ?".format(f))
-      .reduce((x, y) => "%s AND %s".format(x, y))
+    val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
-    val params = entity.child.filter(x => x.label == "field")
+    val params = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .filter(f => pkFields.contains(f._1))
       .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
@@ -183,25 +182,33 @@ object Dao extends App {
     out
   }
 
-  private def retrieve(entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-
-    val columns = entity.child.filter(x => x.label == "field")
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .reduce((x, y) => "%s, %s".format(x, y))
-
-    val pkFields = entity.child.filter(x => x.label == "primaryKey")
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .toSet
-
-    val pkCriteria = entity.child.filter(x => x.label == "field")
+  private def primaryKeyCriteria(entity: Node, pkFields: Set[String]): String = {
+    persistentColumns(entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .filter(f => pkFields.contains(f))
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s AND %s".format(x, y))
+  }
 
-    val params = entity.child.filter(x => x.label == "field")
+  private def primaryKeyFields(entity: Node): Set[String] = {
+    entity.child.filter(x => x.label == "primaryKey")
+      .flatMap(k => k.child.filter(x => x.label == "field"))
+      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .toSet
+  }
+
+  private def retrieve(entity: Node): String = {
+    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+
+    val columns = persistentColumns(entity)
+      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .reduce((x, y) => "%s, %s".format(x, y))
+
+    val pkFields = primaryKeyFields(entity)
+
+    val pkCriteria = primaryKeyCriteria(entity, pkFields)
+
+    val params = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .filter(f => pkFields.contains(f._1))
       .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
@@ -216,7 +223,7 @@ object Dao extends App {
   private def query(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val columns = entity.child.filter(x => x.label == "field")
+    val columns = persistentColumns(entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s, %s".format(x, y))
 
@@ -303,7 +310,7 @@ object Dao extends App {
 
   private def mapRow(entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-    val columns = entity.child.filter(x => x.label == "field")
+    val columns = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJavaType(f._2)), cToPascal(f._1))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(f._1), convertToColumn(f._2, f._3)))
@@ -323,7 +330,7 @@ object Dao extends App {
 
 
   private def paramMapper(entity: Node): String = {
-    val columns = entity.child.filter(x => x.label == "field")
+    val columns = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
