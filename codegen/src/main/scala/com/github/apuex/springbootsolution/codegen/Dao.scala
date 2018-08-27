@@ -103,10 +103,7 @@ object Dao extends App {
     val placeHolders = persistentColumns(entity)
       .map(_ => "?")
       .reduce((x, y) => "%s,%s".format(x, y))
-    val params = persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
-      .map(f => convertFromColumn(f._2, f._1))
+    val params = paramsSubstitute(entity, (_) => true)
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
@@ -141,17 +138,8 @@ object Dao extends App {
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s, %s".format(x, y))
 
-    val updates = persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .filter(f => !pkFields.contains(f._1))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
-      .map(f => convertFromColumn(f._2, f._1))
-
-    val keys = persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .filter(f => pkFields.contains(f._1))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
-      .map(f => convertFromColumn(f._2, f._1))
+    val updates = paramsSubstitute(entity, (x) => !pkCriteria.contains(x))
+    val keys = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
 
     val params = (updates ++ keys)
       .reduce((x, y) => "%s, %s".format(x, y))
@@ -169,17 +157,21 @@ object Dao extends App {
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
-    val params = persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .filter(f => pkFields.contains(f._1))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
-      .map(f => convertFromColumn(f._2, f._1))
+    val params = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
 
     val out = "jdbcTemplate.update(\"%s\", %s);".format(sql, params)
     out
+  }
+
+  private def paramsSubstitute(entity: Node, predicate: (String) => Boolean) = {
+    persistentColumns(entity)
+      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .filter(f => predicate(f._1))
+      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => convertFromColumn(f._2, f._1))
   }
 
   private def primaryKeyCriteria(entity: Node, pkFields: Set[String]): String = {
@@ -208,11 +200,7 @@ object Dao extends App {
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
-    val params = persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .filter(f => pkFields.contains(f._1))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
-      .map(f => convertFromColumn(f._2, f._1))
+    val params = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
