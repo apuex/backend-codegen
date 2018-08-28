@@ -70,6 +70,7 @@ object Project extends App {
          |          <resources>
          |            <resource>
          |              <directory>target/generated-resources</directory>
+         |              <directory>src/main/resources</directory>
          |            </resource>
          |          </resources>
          |        </configuration>
