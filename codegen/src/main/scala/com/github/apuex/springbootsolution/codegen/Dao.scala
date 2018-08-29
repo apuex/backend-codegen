@@ -2,6 +2,7 @@ package com.github.apuex.springbootsolution.codegen
 
 import java.io.{File, PrintWriter}
 
+import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
 import com.github.apuex.springbootsolution.runtime.TypeConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
@@ -25,12 +26,11 @@ object Dao extends App {
 
   xml.child.filter(x => x.label == "entity")
     .foreach(x => {
-      daoForEntity(modelPackage, x)
+      daoForEntity(modelPackage, xml, x)
     })
 
-  def daoForEntity(modelPackage: String, entity: Node): Unit = {
+  def daoForEntity(modelPackage: String, model: Node, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-    val aggregationRoot = entity.attribute("aggregationRoot").asInstanceOf[Some[Text]].get.data
     val prelude =
       s"""package ${modelPackage}.dao;
          |
@@ -55,7 +55,7 @@ object Dao extends App {
          |  private final JdbcTemplate jdbcTemplate;
          |  ${indent(paramMapper(entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
-         |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = ${indent(mapRow(entity), 2)};
+         |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = ${indent(mapRow(model, entity), 2)};
          |
          |  public ${cToPascal(entityName)}DAO(JdbcTemplate jdbcTemplate) {
          |    this.jdbcTemplate = jdbcTemplate;
@@ -70,7 +70,7 @@ object Dao extends App {
          |  }
          |
          |  public int update(Update${cToPascal(entityName)}Cmd c) {
-         |    ${if("true" == aggregationRoot) "return %s".format(update(entity)) else "throw new UnsupportedOperationException();"}
+         |    ${if(isAggregationRoot(entity)) "return %s".format(update(entity)) else "throw new UnsupportedOperationException();"}
          |  }
          |
          |  public int delete(Delete${cToPascal(entityName)}Cmd c) {
@@ -110,19 +110,6 @@ object Dao extends App {
 
     val out = "jdbcTemplate.update(\"%s\", %s);".format(sql, params)
     out
-  }
-
-  private def persistentColumns(entity: Node) = {
-    entity.child.filter(x => x.label == "field")
-      .filter(f => {
-        !(f.attribute("transient")
-          .map(x => {
-            x.filter(n => n.isInstanceOf[Text])
-              .map(n => n.asInstanceOf[Text].data == "true")
-              .foldLeft(false)(_ || _)
-          })
-          .getOrElse(false))
-      })
   }
 
   private def update(entity: Node): String = {
@@ -260,8 +247,7 @@ object Dao extends App {
     case ("float", v) => v
     case ("double", v) => v
     case ("blob", v) => "com.google.protobuf.ByteString.copyFrom(%s)".format(v)
-    case (t, v) =>
-      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+    case (t, v) => "%s.forNumber(%s)".format(t, v) // enum type
   }
 
   def emptyTest(typeName: String, value: String): String = (typeName, value) match {
@@ -276,8 +262,7 @@ object Dao extends App {
     case ("float", v) => ""
     case ("double", v) => ""
     case ("blob", v) => "if(null != %s) ".format(v)
-    case (t, v) =>
-      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+    case (_, _) => "" // enum type
   }
 
   def convertFromColumn(typeName: String, value: String): String = (typeName, value) match {
@@ -292,15 +277,14 @@ object Dao extends App {
     case ("float", v) => v
     case ("double", v) => v
     case ("blob", v) => v
-    case (t, v) =>
-      throw new IllegalArgumentException("type=%s, value=%s".format(t, v))
+    case (_, v) => "%s.getNumber()".format(v) // enum type
   }
 
-  private def mapRow(entity: Node): String = {
+  private def mapRow(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJavaType(f._2)), cToPascal(f._1))))
+      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(f._1))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(f._1), convertToColumn(f._2, f._3)))
       .reduce((x, y) => "%s\n    %s".format(x, y))
 

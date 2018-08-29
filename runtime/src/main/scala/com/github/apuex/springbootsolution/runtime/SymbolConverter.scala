@@ -78,6 +78,10 @@ object SymbolConverters {
     case name => camelToShell(pascalToCamel(name))
   }
 
+  val pascalToC: Converter = {
+    case name => pascalToCamel(name).replace("-", "_")
+  }
+
   val pascalToCamel: Converter = {
     case name: String =>
       if (name.length > 1)

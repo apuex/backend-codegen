@@ -2,6 +2,7 @@ package com.github.apuex.springbootsolution.codegen
 
 import java.io.{File, PrintWriter}
 
+import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
 import com.github.apuex.springbootsolution.runtime.TypeConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
@@ -82,15 +83,31 @@ object Message extends App {
         |message Retrieve${cToPascal(entityName)}Cmd {
         |${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
-        |
-      """.stripMargin
+        |""".stripMargin
 
     printWriter.print(crud)
+    if(isEnum(entity)) printWriter.print(enum(entity, entityName))
   }
 
   def fields(columns: Seq[(String, String, String)]): String = {
     columns.map(f => "%s %s = %s".format(toProtobufType(f._3), cToCamel(f._2), f._1))
       .reduce((x, y) => "%s;\n%s".format(x, y))
+  }
+
+  private def enumItems(entity: Node): String = {
+    entity.child.filter(x => x.label == "row")
+      .map(x => "%s = %s;".format(
+        x.attribute("name").asInstanceOf[Some[Text]].get.data,
+        x.attribute("id").asInstanceOf[Some[Text]].get.data))
+      .reduce((x, y) => "%s\n%s".format(x, y))
+  }
+
+  private def enum(entity: Node, entityName: String): String = {
+    s"""
+       |enum ${cToPascal(entityName)} {
+       |${indent(enumItems(entity), 2)}
+       |}
+       """.stripMargin
   }
 
   private def project = {

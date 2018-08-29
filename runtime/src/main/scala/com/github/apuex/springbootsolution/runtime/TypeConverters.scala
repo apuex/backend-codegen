@@ -1,6 +1,7 @@
 package com.github.apuex.springbootsolution.runtime
 
 import com.github.apuex.springbootsolution.runtime.DateFormat._
+import com.github.apuex.springbootsolution.runtime.SymbolConverters._
 import com.google.protobuf.util.Timestamps
 
 trait TypeConverter {
@@ -20,8 +21,23 @@ object TypeConverters {
     case "float" => v => v.toFloat
     case "double" => v => v.toDouble
     case "blob" => v => v
-    case x =>
-      throw new IllegalArgumentException(x)
+    case _ =>
+      v => cToPascal(v)
+  }
+
+  def toJdbcType(typeName: String): String = typeName match {
+    case "bool" => "boolean"
+    case "short" => "short"
+    case "byte" => "byte"
+    case "int" => "int"
+    case "long" => "long"
+    case "decimal" => "BigDecimal"
+    case "string" => "String"
+    case "timestamp" => "Timestamp"
+    case "float" => "float"
+    case "double" => "double"
+    case "blob" => "Bytes"
+    case _ => "int" // enum type
   }
 
   def toJavaType(typeName: String): String = typeName match {
@@ -37,7 +53,7 @@ object TypeConverters {
     case "double" => "double"
     case "blob" => "Bytes"
     case x =>
-      throw new IllegalArgumentException(x)
+      cToPascal(x)
   }
 
   def toProtobufType(typeName: String): String = typeName match {
@@ -53,7 +69,7 @@ object TypeConverters {
     case "double" => typeName
     case "blob" => "bytes"
     case x =>
-      throw new IllegalArgumentException(x)
+      cToPascal(x)
   }
 
   def toModelTypeName(typeName: String): String = typeName match {
@@ -73,6 +89,6 @@ object TypeConverters {
     case "double" => "double"
     case "image" => "blob"
     case x =>
-      throw new IllegalArgumentException(x)
+      pascalToC(x)
   }
 }
