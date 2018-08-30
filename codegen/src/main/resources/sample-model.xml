@@ -1,23 +1,38 @@
 <?xml version="1.0"?>
 <model name="my_sample" package="com.sample" dbSchema="sampledb">
+  <!-- enum object using microsoft naming convention -->
+  <entity name="EntityType" aggregationRoot="false" enum="true" generate="true">
+    <field no="1" name="id" type="int" required="true"/>
+    <field no="2" name="name" type="string" length="64"/>
+    <primaryKey name="EntityTypePk">
+      <field name="id"/>
+    </primaryKey>
+    <row id="0" name="ENUM_CONSTANT_ONE"/>
+    <row id="1" name="ENUM_CONSTANT_TWO"/>
+    <row id="2" name="ENUM_CONSTANT_THREE"/>
+  </entity>
+  <!-- enum object using unix c naming convention -->
   <entity name="one_entity" aggregationRoot="true" generate="true">
     <field no="1" name="one_entity_id" type="string" length="64" required="true"/>
     <field no="2" name="one_entity_name" type="string" length="64" aggregation="true"/>
-    <field no="3" name="one_entity_desc" type="string" length="64" aggregation="true"/>
-    <field no="4" name="one_entity_code" type="string" length="64" aggregation="true"/>
-    <field no="5" name="one_entity_abbreviation" type="string" length="64" aggregation="true"/>
-    <field no="6" name="one_entity_weight" type="double" aggregation="true"/>
+    <field no="3" name="one_entity_type" type="EntityType" aggregation="true"/>
+    <field no="4" name="one_entity_desc" type="string" length="64" aggregation="true"/>
+    <field no="5" name="one_entity_code" type="string" length="64" aggregation="true"/>
+    <field no="6" name="one_entity_abbreviation" type="string" length="64" aggregation="true"/>
+    <field no="7" name="one_entity_weight" type="double" aggregation="true"/>
     <primaryKey name="one_entity_pk">
       <field name="one_entity_id"/>
     </primaryKey>
   </entity>
+  <!-- enum object using microsoft naming convention -->
   <entity name="AnotherEntity" aggregationRoot="true" generate="true">
     <field no="1" name="AnotherEntityId" type="string" length="64" required="true"/>
     <field no="2" name="AnotherEntityName" type="string" length="64" aggregation="true"/>
-    <field no="3" name="AnotherEntityDesc" type="string" length="64" aggregation="true"/>
-    <field no="4" name="AnotherEntityCode" type="string" length="64" aggregation="true"/>
-    <field no="5" name="AnotherEntityAbbreviation" type="string" length="64" aggregation="true"/>
-    <field no="6" name="AnotherEntityWeight" type="double" aggregation="true"/>
+    <field no="3" name="AnotherEntityType" type="EntityType" aggregation="true"/>
+    <field no="4" name="AnotherEntityDesc" type="string" length="64" aggregation="true"/>
+    <field no="5" name="AnotherEntityCode" type="string" length="64" aggregation="true"/>
+    <field no="6" name="AnotherEntityAbbreviation" type="string" length="64" aggregation="true"/>
+    <field no="7" name="AnotherEntityWeight" type="double" aggregation="true"/>
     <primaryKey name="AnotherEntityPk">
       <field name="AnotherEntityId"/>
     </primaryKey>

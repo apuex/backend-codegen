@@ -18,6 +18,7 @@ object App extends App {
 
   new File(srcDir).mkdirs()
   new File(resourcesDir).mkdirs()
+  new File(s"${webappDir}/META-INF").mkdirs()
 
   project
 
@@ -38,8 +39,8 @@ object App extends App {
          |spring.jmx.enabled=false
          |# disable datasource auto-configuration if using jndi datasouce
          |# and deployed in standalone tomcat instance
-         |spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-         |    """.stripMargin
+         |#spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+         |""".stripMargin
 
      printWriter.print(source)
 

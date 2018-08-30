@@ -356,7 +356,7 @@ object Dao extends App {
          |    <dependency>
          |      <groupId>com.github.apuex.springbootsolution</groupId>
          |      <artifactId>runtime_2.12</artifactId>
-         |      <version>1.0.3</version>
+         |      <version>1.0.4</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework</groupId>
