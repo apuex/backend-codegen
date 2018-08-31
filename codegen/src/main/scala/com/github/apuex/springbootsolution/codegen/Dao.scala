@@ -247,7 +247,7 @@ object Dao extends App {
     case ("float", v) => v
     case ("double", v) => v
     case ("blob", v) => "com.google.protobuf.ByteString.copyFrom(%s)".format(v)
-    case (t, v) => "%s.forNumber(%s)".format(t, v) // enum type
+    case (t, v) => "%s.forNumber(%s)".format(cToPascal(t), v) // enum type
   }
 
   def emptyTest(typeName: String, value: String): String = (typeName, value) match {

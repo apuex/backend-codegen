@@ -37,20 +37,19 @@ object Message extends App {
 
   xml.child.filter(x => x.label == "entity")
     .foreach(x => {
-      messageForEntity(modelPackage, x)
+      messageForEntity(xml, modelPackage, x)
     })
 
   printWriter.close()
 
-  def messageForEntity(modelPackage: String, entity: Node): Unit = {
+  def messageForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val pkColumns = entity.child.filter(x => x.label == "primaryKey")
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
-      .toSet
+    val pkColumns = primaryKeyColumns(model, entity)
+        .map(x => x.\@("name"))
+        .toSet
 
-    val columns = entity.child.filter(x => x.label == "field")
+    val columns = persistentColumnsExtended(model, entity)
       .map(f => (
         f.attribute("no").asInstanceOf[Some[Text]].get.data,
         f.attribute("name").asInstanceOf[Some[Text]].get.data,

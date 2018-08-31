@@ -37,4 +37,53 @@
       <field name="AnotherEntityId"/>
     </primaryKey>
   </entity>
+  <!-- parent-child relationship -->
+  <entity name="animal_species" enum="true">
+    <field no="1" name="id" type="int" required="true"/>
+    <field no="2" name="name" type="string" length="64"/>
+    <primaryKey name="animal_species_pk">
+      <field name="id"/>
+    </primaryKey>
+    <row id="0" name="FOOL_SPECIES"/>
+    <row id="1" name="DOG_SPECIES"/>
+    <row id="2" name="CAT_SPECIES"/>
+  </entity>
+  <entity name="animal" aggregationRoot="true" generate="true">
+    <field no="1" name="id" type="int" required="true"/>
+    <field no="2" name="name" type="string" length="64" aggregation="true"/>
+    <field no="3" name="species" type="animal_species" />
+    <primaryKey name="animal_pk">
+      <field name="id"/>
+    </primaryKey>
+  </entity>
+  <entity name="cat" aggregationRoot="true" generate="true" extends="animal">
+    <field no="1" name="cat_id" type="int" required="true"/>
+    <field no="4" name="desc" type="string" length="64" aggregation="true"/>
+    <primaryKey name="cat_pk">
+      <field name="cat_id"/>
+    </primaryKey>
+    <foreignKey name="cat_animal_fk" refEntity="animal">
+      <field name="cat_id" refField="id"/>
+    </foreignKey>
+  </entity>
+  <entity name="dog" aggregationRoot="true" generate="true" extends="animal">
+    <field no="1" name="dog_id" type="int" required="true"/>
+    <field no="4" name="desc" type="string" length="64" aggregation="true"/>
+    <primaryKey name="dog_pk">
+      <field name="dog_id"/>
+    </primaryKey>
+    <foreignKey name="dog_animal_fk" refEntity="animal">
+      <field name="dog_id" refField="id"/>
+    </foreignKey>
+  </entity>
+  <entity name="fool" aggregationRoot="true" generate="true" extends="animal">
+    <field no="1" name="id" type="int" required="true"/>
+    <field no="4" name="bite" type="bool" aggregation="true"/>
+    <primaryKey name="fool_pk">
+      <field name="id"/>
+    </primaryKey>
+    <foreignKey name="fool_animal_fk" refEntity="animal">
+      <field name="id" refField="id"/>
+    </foreignKey>
+  </entity>
 </model>
