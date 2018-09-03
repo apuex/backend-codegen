@@ -62,23 +62,23 @@ object Dao extends App {
          |  }
          |
          |  public int create(Create${cToPascal(entityName)}Cmd c) {
-         |    return ${create(entity)}
+         |    return ${create(model, entity)}
          |  }
          |
          |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
-         |    ${retrieve(entity)}
+         |    ${retrieve(model, entity)}
          |  }
          |
          |  public int update(Update${cToPascal(entityName)}Cmd c) {
-         |    ${if(isAggregationRoot(entity)) "return %s".format(update(entity)) else "throw new UnsupportedOperationException();"}
+         |    ${if(isAggregationRoot(entity)) "return %s".format(update(model, entity)) else "throw new UnsupportedOperationException();"}
          |  }
          |
          |  public int delete(Delete${cToPascal(entityName)}Cmd c) {
-         |    return ${delete(entity)}
+         |    return ${delete(model, entity)}
          |  }
          |
          |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
-         |    ${query(entity)}
+         |    ${query(model, entity)}
          |  }
          |
          |""".stripMargin
@@ -95,7 +95,7 @@ object Dao extends App {
     printWriter.close()
   }
 
-  private def create(entity: Node): String = {
+  private def create(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val columns = persistentColumns(entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
@@ -103,7 +103,7 @@ object Dao extends App {
     val placeHolders = persistentColumns(entity)
       .map(_ => "?")
       .reduce((x, y) => "%s,%s".format(x, y))
-    val params = paramsSubstitute(entity, (_) => true)
+    val params = paramsSubstitute(model, entity, (_) => true)
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
@@ -112,7 +112,7 @@ object Dao extends App {
     out
   }
 
-  private def update(entity: Node): String = {
+  private def update(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
     val pkFields = primaryKeyFields(entity)
@@ -125,8 +125,8 @@ object Dao extends App {
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s, %s".format(x, y))
 
-    val updates = paramsSubstitute(entity, (x) => !pkCriteria.contains(x))
-    val keys = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
+    val updates = paramsSubstitute(model, entity, (x) => !pkFields.contains(x))
+    val keys = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
 
     val params = (updates ++ keys)
       .reduce((x, y) => "%s, %s".format(x, y))
@@ -137,14 +137,14 @@ object Dao extends App {
     out
   }
 
-  private def delete(entity: Node): String = {
+  private def delete(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
     val pkFields = primaryKeyFields(entity)
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
-    val params = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
+    val params = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
@@ -153,11 +153,12 @@ object Dao extends App {
     out
   }
 
-  private def paramsSubstitute(entity: Node, predicate: (String) => Boolean) = {
+  private def paramsSubstitute(model: Node, entity: Node, predicate: String => Boolean) = {
+    val joinColumns = joinColumnsForExtension(model, entity)
     persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .filter(f => predicate(f._1))
-      .map(f => ("c.get%s()".format(cToPascal(f._1)), f._2))
+      .map(f => ("c.get%s()".format(cToPascal(joinColumns.getOrElse(f._1, f._1))), f._2))
       .map(f => convertFromColumn(f._2, f._1))
   }
 
@@ -176,7 +177,7 @@ object Dao extends App {
       .toSet
   }
 
-  private def retrieve(entity: Node): String = {
+  private def retrieve(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
     val columns = persistentColumns(entity)
@@ -187,7 +188,7 @@ object Dao extends App {
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
-    val params = paramsSubstitute(entity, (x) => pkCriteria.contains(x))
+    val params = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
@@ -195,7 +196,7 @@ object Dao extends App {
     out
   }
 
-  private def query(entity: Node): String = {
+  private def query(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
     val columns = persistentColumns(entity)
@@ -282,10 +283,11 @@ object Dao extends App {
 
   private def mapRow(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val joinColumns = joinColumnsForExtension(model, entity)
     val columns = persistentColumns(entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
-      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(f._1))))
-      .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(f._1), convertToColumn(f._2, f._3)))
+      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(joinColumns.getOrElse(f._1, f._1)))))
+      .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(joinColumns.getOrElse(f._1, f._1)), convertToColumn(f._2, f._3)))
       .reduce((x, y) => "%s\n    %s".format(x, y))
 
     val out =

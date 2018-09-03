@@ -66,7 +66,7 @@ object ModelUtils {
     return parent ++ extended
   }
 
-  private def parentName(entity: Node): Option[String] = {
+  def parentName(entity: Node): Option[String] = {
     entity.attribute("extends")
       .map(x => {
         x.filter(e => e.isInstanceOf[Text])
@@ -89,6 +89,16 @@ object ModelUtils {
       .toSet
     val extended = entity.child.filter(x => x.label == "field")
       .filter(f => pkColumnsNames.contains(f.\@("name")))
+    return parent ++ extended
+  }
+
+  def joinColumnsForExtension(model: Node, entity: Node): Map[String, String] = {
+    val parentEntityName = parentName(entity)
+    val parent = parentEntityName.map(x => joinColumnsForExtension(model, entityFor(model, x))).getOrElse(Map())
+    val extended = entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
+      .flatMap(k => k.child.filter(x => x.label == "field"))
+      .map(f => (f.\@("name"), f.\@("refField")))
+      .toMap
     return parent ++ extended
   }
 

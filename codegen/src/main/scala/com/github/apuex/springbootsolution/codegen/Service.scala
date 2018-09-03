@@ -2,6 +2,7 @@ package com.github.apuex.springbootsolution.codegen
 
 import java.io.{File, PrintWriter}
 
+import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
 
@@ -21,9 +22,9 @@ object Service extends App {
 
   xml.child.filter(x => x.label == "entity")
     .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
-    .foreach(x => serviceForEntity(modelPackage, x))
+    .foreach(x => serviceForEntity(xml, modelPackage, x))
 
-  private def serviceForEntity(modelPackage: String, entity: Node): Unit = {
+  private def serviceForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val prelude =
       s"""package ${modelPackage}.service;
@@ -42,12 +43,11 @@ object Service extends App {
          |@Component
          |public class ${cToPascal(entityName)}Service {
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}Service.class);
-         |  @Autowired
-         |  private ${cToPascal(entityName)}DAO ${cToCamel(entityName)}DAO;
+         |${indent(daoReferences(entityName, entity), 2)}
          |
          |  @Transactional
          |  public void create(Create${cToPascal(entityName)}Cmd c) {
-         |    ${cToCamel(entityName)}DAO.create(c);
+         |${indent(create(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
@@ -57,12 +57,12 @@ object Service extends App {
          |
          |  @Transactional
          |  public void update(Update${cToPascal(entityName)}Cmd c) {
-         |    ${cToCamel(entityName)}DAO.update(c);
+         |${indent(update(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
          |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
-         |    ${cToCamel(entityName)}DAO.delete(c);
+         |${indent(delete(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
@@ -82,6 +82,73 @@ object Service extends App {
     printWriter.print(end)
 
     printWriter.close()
+  }
+
+  private def daoReferences(entityName: String, entity: Node): String = {
+    val parentNameOpts = parentName(entity)
+    val parent = s"${parentNameOpts.map(x => String.format("@Autowired\nprivate %sDAO %sDAO;", cToPascal(x), cToCamel(x))).getOrElse("")}"
+    val extended = s"""@Autowired
+    |private ${cToPascal(entityName)}DAO ${cToCamel(entityName)}DAO;""".stripMargin
+
+    parentNameOpts.map(_ => "%s\n%s".format(parent, extended))
+      .getOrElse(extended)
+  }
+
+  private def create(model: Node, entityName: String, entity: Node): String = {
+    val parentNameOpts = parentName(entity)
+    val parent = parentNameOpts.map(x => {
+      val parentEntity = entityFor(model, x)
+      val columns = persistentColumns(parentEntity)
+        .map(f => f.\@("name"))
+        .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
+        .reduce((x, y) => "%s\n%s".format(x, y))
+      s"""Create${cToPascal(x)}Cmd cp = Create${cToPascal(x)}Cmd.newBuilder()
+         |${indent(columns, 2)}
+         |.build();
+         |${cToCamel(x)}DAO.create(cp);""".stripMargin
+    }).getOrElse("")
+    val extended = s"${cToCamel(entityName)}DAO.create(c);"
+
+    parentNameOpts.map(_ => "%s\n%s".format(parent, extended))
+      .getOrElse(extended)
+  }
+
+  private def update(model: Node, entityName: String, entity: Node): String = {
+    val parentNameOpts = parentName(entity)
+    val parent = parentNameOpts.map(x => {
+      val parentEntity = entityFor(model, x)
+      val columns = persistentColumns(parentEntity)
+        .map(f => f.\@("name"))
+        .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
+        .reduce((x, y) => "%s\n%s".format(x, y))
+      s"""Update${cToPascal(x)}Cmd cp = Update${cToPascal(x)}Cmd.newBuilder()
+         |${indent(columns, 2)}
+         |.build();
+         |${cToCamel(x)}DAO.update(cp);""".stripMargin
+    }).getOrElse("")
+    val extended = s"${cToCamel(entityName)}DAO.update(c);"
+
+    parentNameOpts.map(_ => "%s\n%s".format(parent, extended))
+      .getOrElse(extended)
+  }
+
+  private def delete(model: Node, entityName: String, entity: Node): String = {
+    val parentNameOpts = parentName(entity)
+    val parent = parentNameOpts.map(x => {
+      val parentEntity = entityFor(model, x)
+      val columns = joinColumnsForExtension(model, entity)
+        .map(f => f._2)
+        .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
+        .reduce((x, y) => "%s\n%s".format(x, y))
+      s"""Delete${cToPascal(x)}Cmd cp = Delete${cToPascal(x)}Cmd.newBuilder()
+         |${indent(columns, 2)}
+         |.build();
+         |${cToCamel(x)}DAO.delete(cp);""".stripMargin
+    }).getOrElse("")
+    val extended = s"${cToCamel(entityName)}DAO.delete(c);"
+
+    parentNameOpts.map(_ => "%s\n%s".format(extended, parent))
+      .getOrElse(extended)
   }
 
   private def project = {
