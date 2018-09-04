@@ -75,6 +75,13 @@ object ModelUtils {
       })
   }
 
+  def extendedEntityNames(model: Node, entity: Node): Seq[String] = {
+    val parentEntityName = parentName(entity)
+    val parent = parentEntityName.map(x => extendedEntityNames(model, entityFor(model, x))).getOrElse(Seq())
+    val extended = Seq(entity.\@("name"))
+    return parent ++ extended
+  }
+
   def primaryKeyColumns(model: Node, entity: Node):Seq[Node] = {
     val parentEntityName = parentName(entity)
     val parent = parentEntityName.map(x => primaryKeyColumns(model, entityFor(model, x))).getOrElse(Seq())

@@ -53,7 +53,7 @@ object Dao extends App {
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(${symboConverter});
          |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
-         |  ${indent(paramMapper(entity), 2)};
+         |  ${indent(paramMapper(model, entity), 2)};
          |  private final QueryParamMapper paramMapper = new ParamMapper();
          |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = ${indent(mapRow(model, entity), 2)};
          |
@@ -180,7 +180,7 @@ object Dao extends App {
   private def retrieve(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val columns = persistentColumns(entity)
+    val columns = persistentColumnsExtended(model, entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s, %s".format(x, y))
 
@@ -191,7 +191,14 @@ object Dao extends App {
     val params = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
-    val sql = "SELECT %s FROM %s WHERE %s".format(columns, entityName, pkCriteria)
+    val entityNames = extendedEntityNames(model, entity)
+      .reduce((x, y) => "%s, %s".format(x, y))
+
+    val joinPredicate = joinColumnsForExtension(model, entity)
+      .map(f => "%s = %s".format(f._1, f._2))
+      .foldLeft("")((x, y) => "%s AND %s".format(x, y))
+
+    val sql = s"SELECT %s FROM %s WHERE %s ${joinPredicate}".format(columns, entityNames, pkCriteria)
     val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(cToPascal(entityName), sql, params)
     out
   }
@@ -199,9 +206,16 @@ object Dao extends App {
   private def query(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
 
-    val columns = persistentColumns(entity)
+    val columns = persistentColumnsExtended(model, entity)
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s, %s".format(x, y))
+
+    val entityNames = extendedEntityNames(model, entity)
+      .reduce((x, y) => "%s, %s".format(x, y))
+
+    val joinPredicate = joinColumnsForExtension(model, entity)
+      .map(f => "%s = %s".format(f._1, f._2))
+      .foldLeft("")((x, y) => "%s AND %s".format(x, y))
 
     val out =
       s"""if(q.getPageNumber() > 0
@@ -218,7 +232,7 @@ object Dao extends App {
          |      String sql = String.format("WITH Paginated${entityName} AS ("
          |          + "SELECT ROW_NUMBER() OVER (ORDER BY %s) AS RowNumber, "
          |          + "${columns} "
-         |          + "FROM ${entityName} %s"
+         |          + "FROM ${entityNames} %s ${joinPredicate}"
          |          + ")"
          |          + "SELECT ${columns} "
          |          + "FROM Paginated${entityName} "
@@ -230,7 +244,7 @@ object Dao extends App {
          |      params.add(Integer.valueOf(q.getPageNumber() * q.getRowsPerPage()));
          |      return jdbcTemplate.query(sql, rowMapper, params.toArray());
          |    } else {
-         |      String sql = String.format("SELECT ${columns} FROM ${entityName} %s", where.toWhereClause(q));
+         |      String sql = String.format("SELECT ${columns} FROM ${entityNames} %s ${joinPredicate}", where.toWhereClause(q));
          |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());
          |    }""".stripMargin
     out
@@ -284,7 +298,7 @@ object Dao extends App {
   private def mapRow(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val joinColumns = joinColumnsForExtension(model, entity)
-    val columns = persistentColumns(entity)
+    val columns = persistentColumnsExtended(model, entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(joinColumns.getOrElse(f._1, f._1)))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(joinColumns.getOrElse(f._1, f._1)), convertToColumn(f._2, f._3)))
@@ -303,8 +317,8 @@ object Dao extends App {
   }
 
 
-  private def paramMapper(entity: Node): String = {
-    val columns = persistentColumns(entity)
+  private def paramMapper(model: Node, entity: Node): String = {
+    val columns = persistentColumnsExtended(model, entity)
       .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
       .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
