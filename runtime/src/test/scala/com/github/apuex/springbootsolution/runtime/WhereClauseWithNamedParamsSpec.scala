@@ -4,9 +4,8 @@ import java.util
 
 import com.github.apuex.springbootsolution.runtime.Message._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
-import com.github.apuex.springbootsolution.runtime.Messages._
-import com.github.apuex.springbootsolution.runtime.Messages.PredicateType._
-import com.github.apuex.springbootsolution.runtime.Messages.LogicalConnectionType._
+import com.github.apuex.springbootsolution.runtime.PredicateType._
+import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
 import com.google.protobuf.util.JsonFormat
 import org.scalatest._
 

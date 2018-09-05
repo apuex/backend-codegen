@@ -4,7 +4,7 @@ import scalapb.compiler.Version.scalapbVersion
 object Dependencies {
   lazy val scalaVersionNumber    = "2.12.6"
   lazy val akkaVersion           = "2.5.11"
-  lazy val artifactVersionNumber = "1.0.4"
+  lazy val artifactVersionNumber = "1.0.5"
   lazy val artifactGroupName     = "com.github.apuex.springbootsolution"
   lazy val sprayVersion          = "1.3.3"
   lazy val playVersion           = "2.6.9"

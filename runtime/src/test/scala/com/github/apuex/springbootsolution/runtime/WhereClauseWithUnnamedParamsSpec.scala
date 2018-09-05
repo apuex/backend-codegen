@@ -2,14 +2,10 @@ package com.github.apuex.springbootsolution.runtime
 
 import java.util
 
+import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
 import com.github.apuex.springbootsolution.runtime.Message._
-import com.github.apuex.springbootsolution.runtime.Messages.LogicalConnectionType._
-import com.github.apuex.springbootsolution.runtime.Messages.PredicateType._
-import com.github.apuex.springbootsolution.runtime.Messages._
-import com.github.apuex.springbootsolution.runtime.SymbolConverters._
+import com.github.apuex.springbootsolution.runtime.PredicateType._
 import com.google.protobuf.util.JsonFormat
-
-import scala.collection.JavaConverters._
 import org.scalatest._
 
 class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
@@ -56,7 +52,29 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
     whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
   }
 
-  private val paramMapper: QueryParamMapper = {
-    case (_, value) => value
+  it should "generate IN predicate with param array" in {
+    val params = new util.HashMap[String, String]()
+    val stringArray = s"""["1", "2"]"""
+    val q = QueryCommand.newBuilder()
+      .setPredicate(createPredicate(IN, "id", stringArray, params))
+      .putAllParams(params)
+      .build()
+
+    println(JsonFormat.printer().print(q))
+
+    val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
+    println(whereClause.toWhereClause(q, 2))
+    whereClause.toWhereClause(q, 2) should be(
+      """  WHERE Id IN (?,?)""".stripMargin)
+    val expected = new util.ArrayList[String]()
+    expected.add("1")
+    expected.add("2")
+    whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
+  }
+
+  private val paramMapper: QueryParamMapper = new QueryParamMapper {
+    override def map(name: String, value: String): AnyRef = value
+
+    override def exists(name: String): Boolean = true
   }
 }
