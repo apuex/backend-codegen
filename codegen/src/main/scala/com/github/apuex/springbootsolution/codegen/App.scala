@@ -34,6 +34,7 @@ object App extends App {
          |spring.datasource.url=jdbc:mysql://localhost:3306/example?useSSL=false
          |spring.datasource.username=example
          |spring.datasource.password=password
+         |spring.datasource.hikari.connection-test-query=SELECT 1
          |
          |# disable jmx if deployed in standalone tomcat instance
          |spring.jmx.enabled=false
