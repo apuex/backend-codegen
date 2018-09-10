@@ -25,6 +25,7 @@ object App extends App {
   application
   applicationProperties
   tomcatContext
+  appConfig
 
   private def applicationProperties = {
     val printWriter = new PrintWriter(s"${resourcesDir}/application.properties", "utf-8")
@@ -117,6 +118,11 @@ object App extends App {
     val source =
       s"""package ${modelPackage}.app;
          |
+         |import com.github.apuex.springbootsolution.runtime.*;
+         |import com.google.protobuf.*;
+         |import com.google.protobuf.util.*;
+         |import ${modelPackage}.message.*;
+         |
          |import org.springframework.boot.*;
          |import org.springframework.boot.autoconfigure.*;
          |import org.springframework.boot.builder.*;
@@ -124,13 +130,33 @@ object App extends App {
          |import org.springframework.context.annotation.*;
          |import org.springframework.http.converter.protobuf.*;
          |
+         |import java.util.*;
+         |
          |@Configuration
          |@ComponentScan({"${modelPackage}.*"})
+         |@ImportResource("classpath:app-config.xml")
          |@SpringBootApplication
          |public class Application extends SpringBootServletInitializer {
          |
          |  public static void main(String[] args) {
          |    SpringApplication.run(Application.class, args);
+         |  }
+         |
+         |  @Bean
+         |  ProtobufHttpMessageConverter protobufHttpMessageConverter() throws Exception {
+         |    JsonFormat.TypeRegistry registry = JsonFormat.TypeRegistry.newBuilder()
+         |        .add(${cToPascal{modelName}}.getDescriptor().getMessageTypes())
+         |        .add(Messages.getDescriptor().getMessageTypes())
+         |        .build();
+         |    Set<Descriptors.FieldDescriptor> fieldsToAlwaysOutput = new HashSet<>();
+         |    ${cToPascal{modelName}}.getDescriptor().getMessageTypes()
+         |        .forEach(t -> fieldsToAlwaysOutput.addAll(t.getFields()));
+         |    JsonFormat.Printer printer = JsonFormat.printer()
+         |        .usingTypeRegistry(registry)
+         |        .includingDefaultValueFields(fieldsToAlwaysOutput);
+         |
+         |    JsonFormat.Parser parser = JsonFormat.parser().usingTypeRegistry(registry);
+         |    return new ProtobufJsonFormatHttpMessageConverter(parser, printer);
          |  }
          |
          |  @Override
