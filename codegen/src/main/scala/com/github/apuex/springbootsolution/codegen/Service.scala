@@ -29,6 +29,7 @@ object Service extends App {
     val prelude =
       s"""package ${modelPackage}.service;
          |
+         |import com.github.apuex.eventsource.*;
          |import com.github.apuex.springbootsolution.runtime.*;
          |import ${modelPackage}.message.*;
          |import ${modelPackage}.dao.*;
@@ -43,11 +44,14 @@ object Service extends App {
          |@Component
          |public class ${cToPascal(entityName)}Service {
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}Service.class);
+         |  @Autowired
+         |  private EventSourceAdapter eventSourceAdapter;
          |${indent(daoReferences(entityName, entity), 2)}
          |
          |  @Transactional
          |  public void create(Create${cToPascal(entityName)}Cmd c) {
          |${indent(create(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c);
          |  }
          |
          |  @Transactional
@@ -58,11 +62,13 @@ object Service extends App {
          |  @Transactional
          |  public void update(Update${cToPascal(entityName)}Cmd c) {
          |${indent(update(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c);
          |  }
          |
          |  @Transactional
          |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
          |${indent(delete(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c);
          |  }
          |
          |  @Transactional
@@ -175,6 +181,11 @@ object Service extends App {
          |      <groupId>${modelPackage}</groupId>
          |      <artifactId>${cToShell(modelName)}-dao</artifactId>
          |      <version>1.0-SNAPSHOT</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.github.apuex.event-source</groupId>
+         |      <artifactId>event-source-api</artifactId>
+         |      <version>1.0.0</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>

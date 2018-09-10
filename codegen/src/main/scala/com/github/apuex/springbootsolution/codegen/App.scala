@@ -101,6 +101,8 @@ object App extends App {
          |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
          |    <property name="dataSource" ref="dbDataSource"/>
          |  </bean>
+         |
+         |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.EventSourceAdapter.NullAdapter"/>
          |</beans>
          |""".stripMargin
 
