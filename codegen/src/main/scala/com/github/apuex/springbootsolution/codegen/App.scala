@@ -1,6 +1,7 @@
 package com.github.apuex.springbootsolution.codegen
 
 import java.io.{File, PrintWriter}
+import java.util.Locale
 
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
 
@@ -103,7 +104,71 @@ object App extends App {
          |    <property name="dataSource" ref="dbDataSource"/>
          |  </bean>
          |
-         |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.EventSourceAdapter.NullAdapter"/>
+         |	<bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+         |		<property name="targetConnectionFactory">
+         |			<bean class="com.github.apuex.jms.SunConnectionFactory">
+         |				<property name="configuration">
+         |					<props>
+         |						<prop key="imqConfiguredClientID">${cToShell(modelName)}-app</prop>
+         |						<prop key="imqBrokerHostName">192.168.0.166</prop>
+         |						<prop key="imqBrokerHostPort">7676</prop>
+         |						<prop key="imqDefaultUsername">admin</prop>
+         |						<prop key="imqDefaultPassword">admin</prop>
+         |						<prop key="imqReconnectEnabled">true</prop>
+         |						<prop key="imqReconnectInterval">3000</prop>
+         |						<prop key="imqReconnectAttempts">1000000</prop>
+         |					</props>
+         |				</property>
+         |			</bean>
+         |		</property>
+         |		<property name="sessionCacheSize" value="10"/>
+         |		<property name="cacheConsumers" value="false"/>
+         |	</bean>
+         |
+         |	<bean id="${cToCamel(modelName)}EventNotifyTopic" class="com.sun.messaging.BasicTopic">
+         |		<constructor-arg value="${modelName.toUpperCase(Locale.ENGLISH)}_EVENT_NOTIFY_TOPIC"/>
+         |	</bean>
+         |
+         |	<bean id="${cToCamel("other_system")}EventNotifyTopic" class="com.sun.messaging.BasicTopic">
+         |		<constructor-arg value="${"other_system".toUpperCase(Locale.ENGLISH)}_EVENT_NOTIFY_TOPIC"/>
+         |	</bean>
+         |
+         |	<bean id="jmsProtobufConverter" class="com.github.apuex.protobuf.jms.ProtoJmsMessageConverter">
+         |		<property name="protobufDescriptors">
+         |			<list>
+         |				<value>/protobuf/descriptor-sets/${cToShell(modelName)}-message-1.0-SNAPSHOT.protobin</value>
+         |			</list>
+         |		</property>
+         |	</bean>
+         |
+         |	<bean id="eventNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
+         |		<property name="connectionFactory" ref="jmsConnectionFactory"/>
+         |		<property name="defaultDestination" ref="${cToCamel(modelName)}EventNotifyTopic" />
+         |		<property name="messageConverter" ref="jmsProtobufConverter" />
+         |	</bean>
+         |
+         |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.jms.EventSourceJmsAdapter">
+         |    <constructor-arg ref="eventNotifyTemplate"/>
+         |  </bean>
+         |
+         |	<bean id="messageListenerDelegate" class="com.wincom.mstar.pe.integration.ProtobufMessageListenerDelegate"/>
+         |
+         |	<bean id="messageListenerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+         |		<constructor-arg ref="messageListenerDelegate"/>
+         |		<property name="messageConverter" ref="jmsProtobufConverter"/>
+         |	</bean>
+         |
+         |  <bean id="taskScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+         |		<property name="poolSize" value="8"/>
+         |		<property name="threadNamePrefix" value="message-listener"/>
+         |	</bean>
+         |
+         |	<bean id="jmsMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+         |		<property name="connectionFactory" ref="jmsConnectionFactory"/>
+         |		<property name="destination" ref="${cToCamel("other_system")}EventNotifyTopic"/>
+         |		<property name="messageListener" ref="messageListenerAdapter"/>
+         |		<property name="taskExecutor" ref="taskScheduler"/>
+         |	</bean>
          |</beans>
          |""".stripMargin
 
@@ -197,6 +262,11 @@ object App extends App {
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>
+         |      <groupId>com.wincom.mstar.pe</groupId>
+         |      <artifactId>${cToShell(modelName)}-integration</artifactId>
+         |      <version>1.0-SNAPSHOT</version>
+         |    </dependency>
+         |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-web</artifactId>
          |      <version>2.0.3.RELEASE</version>
@@ -206,6 +276,36 @@ object App extends App {
          |      <artifactId>spring-boot-starter-tomcat</artifactId>
          |      <version>2.0.3.RELEASE</version>
          |      <scope>provided</scope>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>javax.jms</groupId>
+         |      <artifactId>javax.jms-api</artifactId>
+         |      <version>2.0.1</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.github.apuex.jms</groupId>
+         |      <artifactId>imq-patch</artifactId>
+         |      <version>1.0.0</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.sun.messaging.mq</groupId>
+         |      <artifactId>jms</artifactId>
+         |      <version>4.5.1-b03</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.sun.messaging.mq</groupId>
+         |      <artifactId>imq</artifactId>
+         |      <version>4.5.1-b03</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.github.apuex.protobuf</groupId>
+         |      <artifactId>jms-pb-converter</artifactId>
+         |      <version>1.0.1</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.github.apuex.event-source</groupId>
+         |      <artifactId>event-source-jms</artifactId>
+         |      <version>1.0.0</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>

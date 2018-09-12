@@ -47,6 +47,7 @@ object Project extends App {
          |    <module>${cToShell(modelName)}-dao</module>
          |    <module>${cToShell(modelName)}-message</module>
          |    <module>${cToShell(modelName)}-service</module>
+         |    <module>${cToShell(modelName)}-integration</module>
          |  </modules>
          |
          |  <build>
