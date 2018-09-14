@@ -262,7 +262,7 @@ object App extends App {
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>
-         |      <groupId>com.wincom.mstar.pe</groupId>
+         |      <groupId>${modelPackage}</groupId>
          |      <artifactId>${cToShell(modelName)}-integration</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
