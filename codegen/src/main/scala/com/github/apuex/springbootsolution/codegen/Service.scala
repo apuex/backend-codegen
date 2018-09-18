@@ -56,6 +56,7 @@ object Service extends App {
          |
          |  @Transactional
          |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
+         |    eventSourceAdapter.publish(c);
          |    return ${cToCamel(entityName)}DAO.retrieve(c);
          |  }
          |
@@ -73,6 +74,7 @@ object Service extends App {
          |
          |  @Transactional
          |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
+         |    eventSourceAdapter.publish(c);
          |    return ${cToCamel(entityName)}DAO.query(q);
          |  }
          |
