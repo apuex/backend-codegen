@@ -40,6 +40,7 @@ object Service extends App {
          |import org.springframework.transaction.annotation.*;
          |
          |import java.util.*;
+         |import java.security.*;
          |
          |@Component
          |public class ${cToPascal(entityName)}Service {
@@ -49,32 +50,32 @@ object Service extends App {
          |${indent(daoReferences(entityName, entity), 2)}
          |
          |  @Transactional
-         |  public void create(Create${cToPascal(entityName)}Cmd c) {
+         |  public void create(Create${cToPascal(entityName)}Cmd c, Principal p) {
          |${indent(create(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c);
+         |    eventSourceAdapter.publish(c, p);
          |  }
          |
          |  @Transactional
-         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
-         |    eventSourceAdapter.publish(c);
+         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c, Principal p) {
+         |    eventSourceAdapter.publish(c, p);
          |    return ${cToCamel(entityName)}DAO.retrieve(c);
          |  }
          |
          |  @Transactional
-         |  public void update(Update${cToPascal(entityName)}Cmd c) {
+         |  public void update(Update${cToPascal(entityName)}Cmd c, Principal p) {
          |${indent(update(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c);
+         |    eventSourceAdapter.publish(c, p);
          |  }
          |
          |  @Transactional
-         |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
+         |  public void delete(Delete${cToPascal(entityName)}Cmd c, Principal p) {
          |${indent(delete(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c);
+         |    eventSourceAdapter.publish(c, p);
          |  }
          |
          |  @Transactional
-         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
-         |    eventSourceAdapter.publish(c);
+         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q, Principal p) {
+         |    eventSourceAdapter.publish(q, p);
          |    return ${cToCamel(entityName)}DAO.query(q);
          |  }
          |

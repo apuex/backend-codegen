@@ -34,6 +34,7 @@ object Controller extends App {
       |import ${modelPackage}.service.*;
       |import org.springframework.beans.factory.annotation.*;
       |import org.springframework.web.bind.annotation.*;
+      |import javax.servlet.http.*;
       |
       |@RestController
       |@RequestMapping(value="${cToShell(entityName)}", method=RequestMethod.POST)
@@ -42,28 +43,28 @@ object Controller extends App {
       |  private ${cToPascal(entityName)}Service service;
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c) {
-      |    service.create(c);
+      |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
+      |    service.create(c, r.getUserPrincipal());
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c) {
-      |    return service.retrieve(c);
+      |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
+      |    return service.retrieve(c, r.getUserPrincipal());
       |  }
       |  @RequestMapping(value="${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c) {
-      |    service.update(c);
+      |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
+      |    service.update(c, r.getUserPrincipal());
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("delete", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c) {
-      |    service.delete(c);
+      |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
+      |    service.delete(c, r.getUserPrincipal());
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public ${cToPascal(entityName)}ListVo query(@RequestBody QueryCommand q) {
+      |  public ${cToPascal(entityName)}ListVo query(@RequestBody QueryCommand q, HttpServletRequest r) {
       |    return ${cToPascal(entityName)}ListVo.newBuilder()
-      |      .addAllItems(service.query(q))
+      |      .addAllItems(service.query(q, r.getUserPrincipal()))
       |      .build();
       |  }
       |
