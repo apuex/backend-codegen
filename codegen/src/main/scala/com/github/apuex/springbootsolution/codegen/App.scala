@@ -278,29 +278,14 @@ object App extends App {
          |      <scope>provided</scope>
          |    </dependency>
          |    <dependency>
-         |      <groupId>javax.jms</groupId>
-         |      <artifactId>javax.jms-api</artifactId>
-         |      <version>2.0.1</version>
-         |    </dependency>
-         |    <dependency>
          |      <groupId>com.github.apuex.jms</groupId>
          |      <artifactId>imq-patch</artifactId>
          |      <version>1.0.0</version>
          |    </dependency>
          |    <dependency>
-         |      <groupId>com.sun.messaging.mq</groupId>
-         |      <artifactId>jms</artifactId>
-         |      <version>4.5.1-b03</version>
-         |    </dependency>
-         |    <dependency>
-         |      <groupId>com.sun.messaging.mq</groupId>
+         |      <groupId>org.glassfish.mq</groupId>
          |      <artifactId>imq</artifactId>
-         |      <version>4.5.1-b03</version>
-         |    </dependency>
-         |    <dependency>
-         |      <groupId>com.github.apuex.protobuf</groupId>
-         |      <artifactId>jms-pb-converter</artifactId>
-         |      <version>1.0.1</version>
+         |      <version>5.1</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>com.github.apuex.event-source</groupId>
