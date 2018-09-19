@@ -39,6 +39,7 @@ object Service extends App {
          |import org.springframework.stereotype.*;
          |import org.springframework.transaction.annotation.*;
          |
+         |import java.net.*;
          |import java.util.*;
          |import java.security.*;
          |
@@ -74,8 +75,8 @@ object Service extends App {
          |  }
          |
          |  @Transactional
-         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q, Principal p) {
-         |    eventSourceAdapter.publish(q, p);
+         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q, Principal p, URI u) {
+         |    eventSourceAdapter.publish(q, p, u);
          |    return ${cToCamel(entityName)}DAO.query(q);
          |  }
          |
