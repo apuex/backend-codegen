@@ -242,9 +242,11 @@ object Dao extends App {
          |      List<Object> params = new LinkedList<>(where.toUnnamedParamList(q, paramMapper));
          |      params.add(Integer.valueOf((q.getPageNumber() == 0 ? 0 : (q.getPageNumber() - 1)) * q.getRowsPerPage()));
          |      params.add(Integer.valueOf(q.getPageNumber() * q.getRowsPerPage()));
+         |      logger.info(sql);
          |      return jdbcTemplate.query(sql, rowMapper, params.toArray());
          |    } else {
          |      String sql = String.format("SELECT ${columns} FROM ${entityNames} %s ${joinPredicate}", where.toWhereClause(q));
+         |      logger.info(sql);
          |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());
          |    }""".stripMargin
     out
