@@ -1,5 +1,4 @@
 import sbt._
-import scalapb.compiler.Version.scalapbVersion
 
 object Dependencies {
   lazy val scalaVersionNumber    = "2.12.6"
@@ -35,8 +34,6 @@ object Dependencies {
   lazy val akkaTestkit     = "com.typesafe.akka"         %%  "akka-testkit"                        % akkaVersion
   lazy val protobufJava    = "com.google.protobuf"       % "protobuf-java"                         % "3.5.1"
   lazy val protobufJavaUtil= "com.google.protobuf"       % "protobuf-java-util"                    % "3.5.1"
-  lazy val scalapbCompiler = "com.thesamet.scalapb"      %% "compilerplugin"                       % scalapbVersion
-  lazy val scalapbRuntime  = "com.thesamet.scalapb"      %% "scalapb-runtime"                      % scalapbVersion
   lazy val playSilhouette  = "com.mohiva"                %%  "play-silhouette"                     % playSilhouetteVersion
   lazy val play            = "com.typesafe.play"         %%  "play"                                % playVersion
   lazy val webjarsPlay     = "org.webjars"               %%  "webjars-play"                        % "2.6.1"
