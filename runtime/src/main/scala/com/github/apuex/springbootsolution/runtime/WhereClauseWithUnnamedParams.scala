@@ -179,7 +179,7 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
     case LE => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
     case GE => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))))
     case BETWEEN => Seq(m.map(predicate.getFieldName(), params.get(predicate.getParamNames(0))), m.map(predicate.getFieldName(), params.get(predicate.getParamNames(1))))
-    case LIKE => Seq(m.map(predicate.getParamNames(0), params.get(predicate.getParamNames(0))))
+    case LIKE => Seq(m.map(predicate.getFieldName(), "%%%s%%".format(params.get(predicate.getParamNames(0)))))
     case IS_NULL => Seq()
     case IS_NOT_NULL => Seq()
     case IN => parseStringArray(params.get(predicate.getParamNames(0)))
