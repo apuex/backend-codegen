@@ -52,6 +52,37 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
     whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
   }
 
+  it should "generate nested predicate with and" in {
+    val nestedPredicates = new util.ArrayList[FilterPredicate]()
+    val params = new util.HashMap[String, String]()
+    nestedPredicates.add(createPredicate(EQ, "id", "id_value", params))
+    nestedPredicates.add(createPredicate(EQ, "name", "name_value", params))
+    val nestedConnection = createConnection(AND, nestedPredicates)
+    val predicates = new util.ArrayList[FilterPredicate]()
+    predicates.add(createPredicate(EQ, "type", "type_value", params))
+    predicates.add(nestedConnection)
+    val connection = createConnection(AND, predicates)
+
+    val q = QueryCommand.newBuilder()
+      .setPredicate(connection)
+      .putAllParams(params)
+      .build()
+
+    println(JsonFormat.printer().print(q))
+
+    val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
+    println(whereClause.toWhereClause(q, 2))
+    whereClause.toWhereClause(q, 2) should be(
+      """  WHERE (Type = ?
+        |  AND (Id = ?
+        |    AND Name = ?))""".stripMargin)
+    val expected = new util.ArrayList[String]()
+    expected.add("type_value")
+    expected.add("id_value")
+    expected.add("name_value")
+    whereClause.toUnnamedParamList(q, paramMapper) should be(expected)
+  }
+
   it should "generate IN predicate with param array" in {
     val params = new util.HashMap[String, String]()
     val stringArray = s"""["1", "2"]"""
