@@ -336,7 +336,11 @@ object Dao extends App {
          |  }
          |
          |  public Object map(String name, String value) {
-         |    return mappers.get(name).convert(value);
+         |    TypeConverter c = mappers.get(name);
+         |    if(null == c) {
+         |      logger.error("No such a field: {}", name);
+         |    }
+         |    return c.convert(value);
          |  }
          |
          |  public boolean exists(String name) {
