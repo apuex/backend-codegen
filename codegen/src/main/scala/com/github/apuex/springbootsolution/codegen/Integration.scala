@@ -177,6 +177,12 @@ object Integration extends App {
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>
+         |      <groupId>org.springframework</groupId>
+         |      <artifactId>spring-jms</artifactId>
+         |      <version>5.0.7.RELEASE</version>
+         |      <scope>compile</scope>
+         |    </dependency>
+         |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-test</artifactId>
          |      <version>2.0.3.RELEASE</version>

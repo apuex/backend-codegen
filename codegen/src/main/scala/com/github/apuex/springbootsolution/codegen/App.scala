@@ -294,7 +294,7 @@ object App extends App {
          |    <dependency>
          |      <groupId>com.github.apuex.event-source</groupId>
          |      <artifactId>event-source-jms</artifactId>
-         |      <version>1.0.0</version>
+         |      <version>1.0.1</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
