@@ -53,9 +53,10 @@ object Dao extends App {
          |  private final WhereClauseWithUnnamedParams where = new WhereClauseWithUnnamedParams(${symboConverter});
          |  @Autowired
          |  private final JdbcTemplate jdbcTemplate;
-         |  ${indent(paramMapper(model, entity), 2)};
+         |  ${indent(paramMapper(model, entity), 2)}
          |  private final QueryParamMapper paramMapper = new ParamMapper();
-         |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = ${indent(mapRow(model, entity), 2)};
+         |  ${indent(rowMapper(model, entity), 2)}
+         |  private final RowMapper<${cToPascal(entityName)}Vo> rowMapper = new ResultRowMapper();
          |
          |  public ${cToPascal(entityName)}DAO(JdbcTemplate jdbcTemplate) {
          |    this.jdbcTemplate = jdbcTemplate;
@@ -297,7 +298,7 @@ object Dao extends App {
     case (_, v) => "%s.getNumber()".format(v) // enum type
   }
 
-  private def mapRow(model: Node, entity: Node): String = {
+  private def rowMapper(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
     val joinColumns = joinColumnsForExtension(model, entity)
     val columns = persistentColumnsExtended(model, entity)
@@ -307,7 +308,7 @@ object Dao extends App {
       .reduce((x, y) => "%s\n    %s".format(x, y))
 
     val out =
-      s"""new RowMapper<${cToPascal(entityName)}Vo>() {
+      s"""public static class ResultRowMapper implements RowMapper<${cToPascal(entityName)}Vo> {
          |  public ${cToPascal(entityName)}Vo mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException {
          |    ${cToPascal(entityName)}Vo.Builder builder = ${cToPascal(entityName)}Vo.newBuilder();
          |    ${columns}
@@ -401,11 +402,6 @@ object Dao extends App {
          |      <version>5.0.7.RELEASE</version>
          |    </dependency>
          |    <dependency>
-         |      <groupId>org.springframework.boot</groupId>
-         |      <artifactId>spring-boot-starter-jdbc</artifactId>
-         |      <version>2.0.3.RELEASE</version>
-         |    </dependency>
-         |    <dependency>
          |      <groupId>mysql</groupId>
          |      <artifactId>mysql-connector-java</artifactId>
          |      <version>8.0.11</version>
@@ -429,8 +425,7 @@ object Dao extends App {
          |  </dependencies>
          |
          |</project>
-         |
-       """.stripMargin
+         |""".stripMargin
 
     printWriter.print(source)
 

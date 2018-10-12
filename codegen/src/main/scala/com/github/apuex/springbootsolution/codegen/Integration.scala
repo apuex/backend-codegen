@@ -43,11 +43,11 @@ object Integration extends App {
          |@Component
          |public class ${cToPascal(entityName)}Integration {
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}Integration.class);
-         |${indent(daoReferences(entityName, entity), 2)}
+         |  ${indent(daoReferences(entityName, entity), 2)}
          |
          |  @Transactional
          |  public void create(Create${cToPascal(entityName)}Cmd c) {
-         |${indent(create(model, entityName, entity), 4)}
+         |    ${indent(create(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
@@ -57,12 +57,12 @@ object Integration extends App {
          |
          |  @Transactional
          |  public void update(Update${cToPascal(entityName)}Cmd c) {
-         |${indent(update(model, entityName, entity), 4)}
+         |    ${indent(update(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
          |  public void delete(Delete${cToPascal(entityName)}Cmd c) {
-         |${indent(delete(model, entityName, entity), 4)}
+         |    ${indent(delete(model, entityName, entity), 4)}
          |  }
          |
          |  @Transactional
@@ -103,7 +103,7 @@ object Integration extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Create${cToPascal(x)}Cmd cp = Create${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.create(cp);""".stripMargin
     }).getOrElse("")
@@ -122,7 +122,7 @@ object Integration extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Update${cToPascal(x)}Cmd cp = Update${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.update(cp);""".stripMargin
     }).getOrElse("")
@@ -141,7 +141,7 @@ object Integration extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Delete${cToPascal(x)}Cmd cp = Delete${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.delete(cp);""".stripMargin
     }).getOrElse("")

@@ -60,7 +60,7 @@ object Message extends App {
     val crud =
       s"""
         |message ${cToPascal(entityName)}Vo {
-        |${indent(fields(columns), 2)};
+        |  ${indent(fields(columns), 2)};
         |}
         |
         |message ${cToPascal(entityName)}ListVo {
@@ -68,19 +68,19 @@ object Message extends App {
         |}
         |
         |message Create${cToPascal(entityName)}Cmd {
-        |${indent(fields(columns), 2)};
+        |  ${indent(fields(columns), 2)};
         |}
         |
         |message Update${cToPascal(entityName)}Cmd {
-        |${indent(fields(columns), 2)};
+        |  ${indent(fields(columns), 2)};
         |}
         |
         |message Delete${cToPascal(entityName)}Cmd {
-        |${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
+        |  ${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
         |
         |message Retrieve${cToPascal(entityName)}Cmd {
-        |${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
+        |  ${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
         |""".stripMargin
 
@@ -104,7 +104,7 @@ object Message extends App {
   private def enum(entity: Node, entityName: String): String = {
     s"""
        |enum ${cToPascal(entityName)} {
-       |${indent(enumItems(entity), 2)}
+       |  ${indent(enumItems(entity), 2)}
        |}
        """.stripMargin
   }

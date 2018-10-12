@@ -48,30 +48,30 @@ object Service extends App {
          |  private final static Logger logger = LoggerFactory.getLogger(${cToPascal(entityName)}Service.class);
          |  @Autowired
          |  private EventSourceAdapter eventSourceAdapter;
-         |${indent(daoReferences(entityName, entity), 2)}
+         |  ${indent(daoReferences(entityName, entity), 2)}
          |
          |  @Transactional
-         |  public void create(Create${cToPascal(entityName)}Cmd c, Principal p) {
-         |${indent(create(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c, p);
+         |  public void create(Create${cToPascal(entityName)}Cmd c, Principal p, URI u) {
+         |    ${indent(create(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c, p, u);
          |  }
          |
          |  @Transactional
-         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c, Principal p) {
-         |    eventSourceAdapter.publish(c, p);
+         |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c, Principal p, URI u) {
+         |    eventSourceAdapter.publish(c, p, u);
          |    return ${cToCamel(entityName)}DAO.retrieve(c);
          |  }
          |
          |  @Transactional
-         |  public void update(Update${cToPascal(entityName)}Cmd c, Principal p) {
-         |${indent(update(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c, p);
+         |  public void update(Update${cToPascal(entityName)}Cmd c, Principal p, URI u) {
+         |    ${indent(update(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c, p, u);
          |  }
          |
          |  @Transactional
-         |  public void delete(Delete${cToPascal(entityName)}Cmd c, Principal p) {
-         |${indent(delete(model, entityName, entity), 4)}
-         |    eventSourceAdapter.publish(c, p);
+         |  public void delete(Delete${cToPascal(entityName)}Cmd c, Principal p, URI u) {
+         |    ${indent(delete(model, entityName, entity), 4)}
+         |    eventSourceAdapter.publish(c, p, u);
          |  }
          |
          |  @Transactional
@@ -113,7 +113,7 @@ object Service extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Create${cToPascal(x)}Cmd cp = Create${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.create(cp);""".stripMargin
     }).getOrElse("")
@@ -132,7 +132,7 @@ object Service extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Update${cToPascal(x)}Cmd cp = Update${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.update(cp);""".stripMargin
     }).getOrElse("")
@@ -151,7 +151,7 @@ object Service extends App {
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
         .reduce((x, y) => "%s\n%s".format(x, y))
       s"""Delete${cToPascal(x)}Cmd cp = Delete${cToPascal(x)}Cmd.newBuilder()
-         |${indent(columns, 2)}
+         |${indent(columns, 2, true)}
          |.build();
          |${cToCamel(x)}DAO.delete(cp);""".stripMargin
     }).getOrElse("")

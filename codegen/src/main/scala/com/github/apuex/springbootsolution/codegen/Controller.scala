@@ -44,22 +44,22 @@ object Controller extends App {
       |  private ${cToPascal(entityName)}Service service;
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("create", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
-      |    service.create(c, r.getUserPrincipal());
+      |  public void create(@RequestBody Create${cToPascal(entityName)}Cmd c, HttpServletRequest r) throws URISyntaxException {
+      |    service.create(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("retrieve", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
-      |    return service.retrieve(c, r.getUserPrincipal());
+      |  public ${cToPascal(entityName)}Vo retrieve(@RequestBody Retrieve${cToPascal(entityName)}Cmd c, HttpServletRequest r) throws URISyntaxException {
+      |    return service.retrieve(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |  @RequestMapping(value="${cToShell("%s%s%s".format("update", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
-      |    service.update(c, r.getUserPrincipal());
+      |  public void update(@RequestBody Update${cToPascal(entityName)}Cmd c, HttpServletRequest r) throws URISyntaxException {
+      |    service.update(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("delete", hyphen, cToShell(entityName)))}", produces="application/json")
-      |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c, HttpServletRequest r) {
-      |    service.delete(c, r.getUserPrincipal());
+      |  public void delete(@RequestBody Delete${cToPascal(entityName)}Cmd c, HttpServletRequest r) throws URISyntaxException {
+      |    service.delete(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}", produces="application/json")
