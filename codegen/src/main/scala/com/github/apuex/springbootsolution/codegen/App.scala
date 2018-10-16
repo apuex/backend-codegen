@@ -83,33 +83,54 @@ object App extends App {
     val source =
       s"""<?xml version="1.0" encoding="UTF-8"?>
          |<beans xmlns="http://www.springframework.org/schema/beans"
-         |  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
-         |  xmlns:integration="http://www.springframework.org/schema/integration"
-         |  xmlns:websocket="http://www.springframework.org/schema/websocket"
-         |  xsi:schemaLocation="http://www.springframework.org/schema/beans
-         |    http://www.springframework.org/schema/beans/spring-beans.xsd
-         |    http://www.springframework.org/schema/jee
-         |    http://www.springframework.org/schema/jee/spring-jee.xsd
-         |    http://www.springframework.org/schema/integration
-         |    http://www.springframework.org/schema/integration/spring-integration.xsd
-         |    http://www.springframework.org/schema/websocket
-         |    http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+         |       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         |       xmlns:jee="http://www.springframework.org/schema/jee"
+         |       xmlns:context="http://www.springframework.org/schema/context"
+         |       xmlns:tx="http://www.springframework.org/schema/tx"
+         |       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         |                        http://www.springframework.org/schema/beans/spring-beans.xsd
+         |                        http://www.springframework.org/schema/context
+         |                        http://www.springframework.org/schema/context/spring-context.xsd
+         |                        http://www.springframework.org/schema/tx
+         |                        http://www.springframework.org/schema/tx/spring-tx.xsd
+         |                        http://www.springframework.org/schema/jee
+         |                        http://www.springframework.org/schema/jee/spring-jee.xsd">
          |
-         |  <bean id="protobufHttpMessageConverter" class="org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter"/>
-         |
-         |  <jee:jndi-lookup id="dbDataSource" jndi-name="jdbc/example"
-         |    expected-type="javax.sql.DataSource" />
-         |
-         |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-         |    <property name="dataSource" ref="dbDataSource"/>
+         |  <bean id="commandBundle" class="org.springframework.context.support.ResourceBundleMessageSource">
+         |    <property name="basename" value="Resource"/>
          |  </bean>
          |
-         |  <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
-         |    <property name="targetConnectionFactory">
-         |      <bean class="com.github.apuex.jms.SunConnectionFactory">
+         |  <context:annotation-config />
+         |  <context:component-scan base-package="${modelPackage}" />
+         |
+         |  <bean id="dbDataSource" class="net.sourceforge.jtds.jdbcx.JtdsDataSource">
+         |    <property name="serverName" value="192.168.0.38"/>
+         |    <property name="portNumber" value="1433"/>
+         |    <property name="databaseName" value="${cToCamel(modelName)}"/>
+         |    <property name="user" value="sa"/>
+         |    <property name="password" value=""/>
+         |  </bean>
+         |
+         |  <bean id="dataSource"
+         |        class="com.atomikos.jdbc.AtomikosDataSourceBean"
+         |        init-method="init" destroy-method="close">
+         |    <property name="poolSize" value="8" />
+         |    <property name="minPoolSize" value="8" />
+         |    <property name="maxPoolSize" value="8" />
+         |    <property name="uniqueResourceName" value="dbDataSource" />
+         |    <property name="xaDataSource" ref="dbDataSource" />
+         |  </bean>
+         |
+         |  <bean id="topicConnectionFactory"
+         |        class="com.atomikos.jms.AtomikosConnectionFactoryBean"
+         |        init-method="init" destroy-method="close">
+         |    <property name="minPoolSize" value="8" />
+         |    <property name="maxPoolSize" value="8" />
+         |    <property name="uniqueResourceName" value="jmsTopicConnectionFactory" />
+         |    <property name="xaConnectionFactory">
+         |      <bean class="com.github.apuex.jms.SunXAConnectionFactory">
          |        <property name="configuration">
          |          <props>
-         |            <prop key="imqConfiguredClientID">${cToShell(modelName)}-app</prop>
          |            <prop key="imqBrokerHostName">192.168.0.166</prop>
          |            <prop key="imqBrokerHostPort">7676</prop>
          |            <prop key="imqDefaultUsername">admin</prop>
@@ -121,8 +142,33 @@ object App extends App {
          |        </property>
          |      </bean>
          |    </property>
-         |    <property name="sessionCacheSize" value="10"/>
-         |    <property name="cacheConsumers" value="false"/>
+         |  </bean>
+         |
+         |  <bean id="atomikosTransactionManager"
+         |        class="com.atomikos.icatch.jta.UserTransactionManager"
+         |        init-method="init" destroy-method="close">
+         |    <property name="forceShutdown" value="false" />
+         |  </bean>
+         |
+         |  <bean id="atomikosUserTransaction"
+         |        class="com.atomikos.icatch.jta.J2eeUserTransaction">
+         |    <property name="transactionTimeout" value="300" />
+         |  </bean>
+         |
+         |  <bean id="transactionManager"
+         |        class="org.springframework.transaction.jta.JtaTransactionManager"
+         |        depends-on="atomikosTransactionManager,atomikosUserTransaction">
+         |    <property name="transactionManager"
+         |              ref="atomikosTransactionManager" />
+         |    <property name="userTransaction"
+         |              ref="atomikosUserTransaction" />
+         |    <property name="allowCustomIsolationLevels" value="true" />
+         |  </bean>
+         |
+         |  <tx:annotation-driven transaction-manager="transactionManager"/>
+         |
+         |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+         |    <property name="dataSource" ref="dataSource"/>
          |  </bean>
          |
          |  <bean id="${cToCamel(modelName)}EventNotifyTopic" class="com.sun.messaging.BasicTopic">
@@ -137,21 +183,22 @@ object App extends App {
          |    <property name="protobufDescriptors">
          |      <list>
          |        <value>/protobuf/descriptor-sets/${cToShell(modelName)}-message-1.0-SNAPSHOT.protobin</value>
+         |        <value>/runtime-1.0.5.protobin</value>
          |      </list>
          |    </property>
          |  </bean>
          |
          |  <bean id="eventNotifyTemplate" class="org.springframework.jms.core.JmsTemplate">
-         |    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+         |    <property name="connectionFactory" ref="topicConnectionFactory"/>
          |    <property name="defaultDestination" ref="${cToCamel(modelName)}EventNotifyTopic" />
          |    <property name="messageConverter" ref="jmsProtobufConverter" />
          |  </bean>
          |
          |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.jms.EventSourceJmsAdapter">
-         |    <constructor-arg ref="eventNotifyTemplate"/>
+         |    <property name="jmsTemplate" ref="eventNotifyTemplate"/>
          |  </bean>
          |
-         |  <bean id="messageListenerDelegate" class="com.wincom.mstar.pe.integration.ProtobufMessageListenerDelegate"/>
+         |  <bean id="messageListenerDelegate" class="${modelPackage}.integration.ProtobufMessageListenerDelegate"/>
          |
          |  <bean id="messageListenerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
          |    <constructor-arg ref="messageListenerDelegate"/>
@@ -164,11 +211,11 @@ object App extends App {
          |  </bean>
          |
          |  <bean id="jmsMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-         |    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+         |    <property name="connectionFactory" ref="topicConnectionFactory"/>
          |    <property name="destination" ref="${cToCamel("other_system")}EventNotifyTopic"/>
          |    <property name="messageListener" ref="messageListenerAdapter"/>
          |    <property name="taskExecutor" ref="taskScheduler"/>
-         |    <property name="subscriptionName" value="data-integration-subscription"/>
+         |    <property name="subscriptionName" value="${cToShell(modelName)}-subscription"/>
          |    <property name="clientId" value="${cToShell(modelName)}-app"/>
          |    <property name="subscriptionDurable" value="true"/>
          |    <property name="subscriptionShared" value="true"/>
@@ -269,6 +316,15 @@ object App extends App {
          |      <groupId>${modelPackage}</groupId>
          |      <artifactId>${cToShell(modelName)}-integration</artifactId>
          |      <version>1.0-SNAPSHOT</version>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework.boot</groupId>
+         |      <artifactId>spring-boot-starter-jta-atomikos</artifactId>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>org.springframework.boot</groupId>
+         |      <artifactId>spring-boot-starter-jdbc</artifactId>
+         |      <version>2.0.3.RELEASE</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
