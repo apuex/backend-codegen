@@ -303,7 +303,7 @@ object Dao extends App {
     case ("timestamp", v) => "toDate(%s)".format(v)
     case ("float", v) => v
     case ("double", v) => v
-    case ("blob", v) => v
+    case ("blob", v) => "%s.toByteArray()".format(v)
     case (_, v) => "%s.getNumber()".format(v) // enum type
   }
 
