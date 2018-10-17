@@ -98,13 +98,19 @@ object Dao extends App {
 
   private def create(model: Node, entity: Node): String = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
-    val columns = persistentColumns(entity)
+    val persistColumns = persistentColumns(entity)
+      .filter(f => f.\@("type") != "identity")
+    val skipColumns = persistentColumns(entity)
+      .filter(f => f.\@("type") == "identity")
+      .map(f => f.\@("name"))
+      .toSet
+    val columns = persistColumns
       .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
       .reduce((x, y) => "%s,%s".format(x, y))
-    val placeHolders = persistentColumns(entity)
+    val placeHolders = persistColumns
       .map(_ => "?")
       .reduce((x, y) => "%s,%s".format(x, y))
-    val params = paramsSubstitute(model, entity, (_) => true)
+    val params = paramsSubstitute(model, entity, (x) => !skipColumns.contains(x))
       .reduce((x, y) => "%s,%s".format(x, y))
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
@@ -157,7 +163,7 @@ object Dao extends App {
   private def paramsSubstitute(model: Node, entity: Node, predicate: String => Boolean) = {
     val joinColumns = joinColumnsForExtension(model, entity)
     persistentColumns(entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => (f.\@("name"), f.\@("type")))
       .filter(f => predicate(f._1))
       .map(f => ("c.get%s()".format(cToPascal(joinColumns.getOrElse(f._1, f._1))), f._2))
       .map(f => convertFromColumn(f._2, f._1))
@@ -258,6 +264,7 @@ object Dao extends App {
     case ("short", v) => v
     case ("byte", v) => v
     case ("int", v) => v
+    case ("identity", v) => v
     case ("long", v) => v
     case ("decimal", v) => v
     case ("string", v) => v
@@ -273,6 +280,7 @@ object Dao extends App {
     case ("short", v) => ""
     case ("byte", v) => "if(null != %s) ".format(v)
     case ("int", v) => ""
+    case ("identity", v) => ""
     case ("long", v) => ""
     case ("decimal", v) => ""
     case ("string", v) => "if(null != %s) ".format(v)
@@ -288,6 +296,7 @@ object Dao extends App {
     case ("short", v) => v
     case ("byte", v) => v
     case ("int", v) => v
+    case ("identity", v) => v
     case ("long", v) => v
     case ("decimal", v) => v
     case ("string", v) => v

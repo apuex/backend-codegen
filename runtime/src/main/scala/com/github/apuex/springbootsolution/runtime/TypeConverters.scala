@@ -61,6 +61,7 @@ object TypeConverters {
     case "short" => "int32"
     case "byte" => "bytes"
     case "int" => "int32"
+    case "identity" => "int32"
     case "long" => "int64"
     case "decimal" => "double"
     case "string" => typeName
