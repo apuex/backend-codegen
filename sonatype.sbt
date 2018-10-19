@@ -19,3 +19,15 @@ developers := List(
   Developer(id="apuex", name="Wangxy", email="xtwxy@hotmail.com", url=url("https://github.com/apuex"))
 )
 
+/*
+Command Line Usage
+
+Publish a GPG-signed artifact to Sonatype:
+
+$ sbt publishSigned
+
+Do close and promote at once:
+
+$ sbt sonatypeRelease
+
+ */
