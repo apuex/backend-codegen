@@ -73,3 +73,6 @@ message QueryCommand {
   repeated OrderBy orderBy = 5;
 }
 
+message SearchCmd {
+  string q = 1;
+}
