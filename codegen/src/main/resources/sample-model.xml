@@ -56,6 +56,7 @@
     <field no="1" name="id" type="int" required="true"/>
     <field no="2" name="name" type="string" length="64" aggregation="true"/>
     <field no="3" name="species" type="animal_species" />
+    <field no="4" name="birth_day" type="timestamp" />
     <primaryKey name="animal_pk">
       <field name="id"/>
     </primaryKey>

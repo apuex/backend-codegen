@@ -56,6 +56,39 @@ object TypeConverters {
       cToPascal(x)
   }
 
+  def toTypeScriptType(typeName: String): String = typeName match {
+    case "bool" => "boolean"
+    case "short" => "number"
+    case "byte" => "number"
+    case "int" => "number"
+    case "identity" => "number"
+    case "long" => "number"
+    case "decimal" => "number"
+    case "string" => typeName
+    case "timestamp" => "Date"
+    case "float" => "number"
+    case "double" => "number"
+    case "blob" => "number[]"
+    case x =>
+      cToPascal(x)
+  }
+
+  def isTypeScriptType(typeName: String): Boolean = typeName match {
+    case "bool" => true
+    case "short" => true
+    case "byte" => true
+    case "int" => true
+    case "identity" => true
+    case "long" => true
+    case "decimal" => true
+    case "string" => true
+    case "timestamp" => true
+    case "float" => true
+    case "double" => true
+    case "blob" => true
+    case _ => false
+  }
+
   def toProtobufType(typeName: String): String = typeName match {
     case "bool" => typeName
     case "short" => "int32"
