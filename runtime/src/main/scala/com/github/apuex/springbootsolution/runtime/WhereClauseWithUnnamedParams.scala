@@ -63,6 +63,12 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
     }
   }
 
+  def isRoot(q: QueryCommand, connection: LogicalConnectionVo): Boolean = {
+    q.getPredicate != null &&
+      q.getPredicate.hasConnection &&
+      q.getPredicate.getConnection.equals(connection)
+  }
+
   /**
     * Generate compound SQL filter predicates from compound predicates connected by logical connective.
     *
@@ -77,11 +83,19 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
         if (connection.getPredicatesList.isEmpty) {
           ""
         } else {
-          s"(${
-            connection.getPredicatesList.asScala
-              .map(x => toSql(q, x, indent + 2))
-              .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
-          })"
+          if(isRoot(q, connection)) {
+            s"${
+              connection.getPredicatesList.asScala
+                .map(x => toSql(q, x, indent + 2))
+                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+            }"
+          } else {
+            s"(${
+              connection.getPredicatesList.asScala
+                .map(x => toSql(q, x, indent + 2))
+                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+            })"
+          }
         }
       case OR =>
         if (connection.getPredicatesList.isEmpty) {
