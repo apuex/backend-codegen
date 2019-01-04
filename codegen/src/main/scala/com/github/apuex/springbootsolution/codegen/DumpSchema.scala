@@ -21,7 +21,7 @@ object DumpSchema extends App {
     val url: String = String.format("jdbc:jtds:sqlserver://%s:%s/%s", host, port, db)
     val conn = DriverManager.getConnection(url, user, password)
     val dbMeta = conn.getMetaData()
-    val tables = dbMeta.getTables(null, "dbo", null, Array("TABLE"))
+    val tables = dbMeta.getTables(null, "dbo", null, Array("TABLE", "VIEW"))
 
     printf("<?xml version=\"1.0\"?>\n")
     printf("<model name=\"%s\" script=\"cqrs_entities.gsl\" package=\"com.wincom.mstar\" dbSchema=\"%s\">\n", db, db)
