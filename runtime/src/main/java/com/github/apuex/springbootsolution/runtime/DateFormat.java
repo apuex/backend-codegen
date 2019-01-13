@@ -16,16 +16,15 @@ public class DateFormat {
   public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
   public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss.SSSZ";
 
-  public static final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
-  public static final SimpleDateFormat datetimeFormat = new SimpleDateFormat(DATETIME_PATTERN);
-  public static final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
 
   public static String formatTimestamp(Long tks) {
     Date d = new Date(tks);
+    final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
     return timestampFormat.format(d);
   }
 
   public static String formatTimestamp(Date d) {
+    final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
     return timestampFormat.format(d);
   }
 
@@ -67,11 +66,13 @@ public class DateFormat {
 
   public static String formatTimestamp(Timestamp d) {
     if(null == d) return null;
+    final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
     return timestampFormat.format(toDate(d));
   }
 
   public static Date parseTimestamp(String str) {
     try {
+      final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
       Date d = timestampFormat.parse(str);
       return d;
     } catch (ParseException e) {
@@ -81,6 +82,7 @@ public class DateFormat {
 
   public static Date parseDate(String str) {
     try {
+      final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
       Date d = dateFormat.parse(str);
       return d;
     } catch (ParseException e) {
@@ -90,6 +92,7 @@ public class DateFormat {
 
   public static Date parseDatetime(String str) {
     try {
+      final SimpleDateFormat datetimeFormat = new SimpleDateFormat(DATETIME_PATTERN);
       Date d = datetimeFormat.parse(str);
       return d;
     } catch (ParseException e) {
@@ -100,4 +103,5 @@ public class DateFormat {
   public static Timestamp parseProtobufTimestamp(String str) {
     return toTimestamp(parseTimestamp(str));
   }
+
 }
