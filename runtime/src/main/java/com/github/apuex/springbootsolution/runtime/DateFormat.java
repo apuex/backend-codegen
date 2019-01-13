@@ -76,7 +76,7 @@ public class DateFormat {
       Date d = timestampFormat.parse(str);
       return d;
     } catch (ParseException e) {
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException(str, e);
     }
   }
 
@@ -86,7 +86,7 @@ public class DateFormat {
       Date d = dateFormat.parse(str);
       return d;
     } catch (ParseException e) {
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException(str, e);
     }
   }
 
@@ -96,7 +96,7 @@ public class DateFormat {
       Date d = datetimeFormat.parse(str);
       return d;
     } catch (ParseException e) {
-      throw new IllegalArgumentException(e);
+      throw new IllegalArgumentException(str, e);
     }
   }
 
