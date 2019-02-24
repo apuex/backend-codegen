@@ -11,8 +11,7 @@ libraryDependencies ++= Seq(
   jtdsDriver,
   slf4jApi % Test,
   slf4jSimple % Test,
-  scalaTest % Test,
-  scalaTesplusPlay % Test
+  scalaTest % Test
 )
 
 assemblyMergeStrategy in assembly := {
