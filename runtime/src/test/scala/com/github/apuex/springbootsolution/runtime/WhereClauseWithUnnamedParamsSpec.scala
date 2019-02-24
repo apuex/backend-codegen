@@ -44,8 +44,8 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
-      """  WHERE (Id = ?
-        |  AND Name = ?)""".stripMargin)
+      """  WHERE Id = ?
+        |  AND Name = ?""".stripMargin)
     val expected = new util.ArrayList[String]()
     expected.add("id_value")
     expected.add("name_value")
@@ -73,9 +73,9 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
-      """  WHERE (Type = ?
+      """  WHERE Type = ?
         |  AND (Id = ?
-        |    AND Name = ?))""".stripMargin)
+        |    AND Name = ?)""".stripMargin)
     val expected = new util.ArrayList[String]()
     expected.add("type_value")
     expected.add("id_value")
