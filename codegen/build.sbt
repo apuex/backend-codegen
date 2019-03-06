@@ -6,9 +6,12 @@ scalaVersion := scalaVersionNumber
 organization := artifactGroupName
 version      := artifactVersionNumber
 
+resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-release/"
+
 libraryDependencies ++= Seq(
   scalaXml,
-  jtdsDriver,
+  mssqlDriver,
+  oracleDriver,
   slf4jApi % Test,
   slf4jSimple % Test,
   scalaTest % Test,

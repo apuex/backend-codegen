@@ -1,8 +1,8 @@
 package com.github.apuex.springbootsolution.codegen
 
-import java.sql.{Connection, DriverManager, ResultSet}
+import java.sql.{Connection, DriverManager}
 
-object DumpSchema extends App {
+object DumpOracleSchema extends App {
 
   if(args.length < 4) {
     println("Usage:\n" +
@@ -18,18 +18,18 @@ object DumpSchema extends App {
   }
 
   def dumpSchema(host: String, port: String, db: String, user: String, password: String) = {
-    val url: String = String.format("jdbc:sqlserver://%s:%s;databaseName=%s", host, port, db)
-    val conn = DriverManager.getConnection(url, user, password)
+    val url: String = String.format("jdbc:oracle:thin:%s/%s@//%s:%s/%s", user, password, host, port, db)
+    val conn = DriverManager.getConnection(url)
     val dbMeta = conn.getMetaData()
-    val tables = dbMeta.getTables(null, "dbo", null, Array("TABLE", "VIEW"))
+    val tables = dbMeta.getTables(null, user.toUpperCase(), null, Array("TABLE", "VIEW"))
     val namespace = System.getProperty("package", db)
 
     printf("<?xml version=\"1.0\"?>\n")
     printf("<model name=\"%s\" script=\"cqrs_entities.gsl\" package=\"%s\" dbSchema=\"%s\">\n", db, namespace, db)
     while (tables.next()) {
-      val schema = tables.getString("TABLE_SCHEM")
-      val table = tables.getString("TABLE_NAME")
-      if(!table.startsWith("sys")) {
+      val schema = tables.getString("TABLE_SCHEM").toLowerCase()
+      val table = tables.getString("TABLE_NAME").toLowerCase()
+      if(!table.contains("$")) {
         val keyRs = dbMeta.getPrimaryKeys(null, schema, table)
         var keys = Seq[String]()
         while(keyRs.next()) {
@@ -45,7 +45,7 @@ object DumpSchema extends App {
   def dumpTableColumns(conn: Connection, schema: String, table: String, keys: Seq[String]) = {
     printf("  <!-- %s.%s -->\n", schema, table)
     val stmt = conn.createStatement()
-    val rs = stmt.executeQuery(String.format("SELECT top(1) * FROM %s.%s", schema, table));
+    val rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", schema, table));
     val rsMeta = rs.getMetaData()
 
     printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
@@ -53,8 +53,8 @@ object DumpSchema extends App {
       printf("    <field no=\"%s\" name=\"%s\" type=\"%s\" %srequired=\"%s\"/>\n",
         i,
         rsMeta.getColumnName(i),
-        typeConverter(rsMeta.getColumnTypeName(i)),
-        lengthConverter(rsMeta.getColumnTypeName(i), rsMeta.getColumnDisplaySize(i)),
+        typeConverter(rsMeta.getColumnTypeName(i).toLowerCase()),
+        lengthConverter(rsMeta.getColumnTypeName(i).toLowerCase(), rsMeta.getColumnDisplaySize(i)),
         if(rsMeta.isNullable(i) == 0) false else true
       )
     })
@@ -74,21 +74,25 @@ object DumpSchema extends App {
     case "smallint" => "short"
     case "tinyint" => "byte"
     case "int" => "int"
+    case "number" => "int"
     case "int identity" => "int"
     case "bigint" => "long"
     case "decimal" => "decimal"
     case "char" => "string"
     case "varchar" => "string"
+    case "varchar2" => "string"
     case "nvarchar" => "string"
     case "ntext" => "string"
     case "text" => "string"
     case "datetime" => "timestamp"
+    case "timestamp" => "timestamp"
     case "real" => "float"
     case "float" => "double"
     case "double" => "double"
     case "image" => "blob"
-    case x =>
-      throw new IllegalArgumentException(x)
+    case "blob" => "blob"
+    case x => x
+      //throw new IllegalArgumentException(x)
   }
 
   private def lengthConverter(name: String, length: Int): String = name match {
@@ -96,20 +100,24 @@ object DumpSchema extends App {
     case "smallint" => ""
     case "tinyint" => ""
     case "int" => ""
+    case "number" => ""
     case "int identity" => ""
     case "bigint" => ""
     case "decimal" => ""
     case "char" => "length=\"%d\" ".format(length)
     case "varchar" => "length=\"%d\" ".format(length)
+    case "varchar2" => "length=\"%d\" ".format(length)
     case "nvarchar" => "length=\"%d\" ".format(length)
     case "ntext" => ""
     case "text" => ""
     case "datetime" => ""
+    case "timestamp" => ""
     case "real" => ""
     case "float" => ""
     case "double" => ""
     case "image" => ""
-    case x =>
-      throw new IllegalArgumentException(x)
+    case "blob" => ""
+    case _ => ""
+      //throw new IllegalArgumentException(x)
   }
 }

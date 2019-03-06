@@ -7,6 +7,7 @@ object Main extends App {
   } else {
     args(0) match {
       case "dump-schema" => DumpSchema.main(args.drop(1))
+      case "dump-oracle-schema" => DumpOracleSchema.main(args.drop(1))
       case "generate" => GenerateAll.main(args.drop(1))
       case "generate-all" => GenerateAll.main(args.drop(1))
       case "generate-app" => App.main(args.drop(1))

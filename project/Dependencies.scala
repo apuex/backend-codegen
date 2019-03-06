@@ -53,7 +53,8 @@ object Dependencies {
   lazy val playSlick       = "com.typesafe.play"         %%  "play-slick"                          % "3.0.2"
   lazy val playJson        = "com.typesafe.play"         %%  "play-json"                           % playVersion
   lazy val mysqlDriver     = "mysql"                     %   "mysql-connector-java"                % "6.0.6"
-  lazy val jtdsDriver      = "net.sourceforge.jtds"      %    "jtds"                               % "1.3.1"
+  lazy val mssqlDriver     = "com.microsoft.sqlserver"   %    "mssql-jdbc"                         % "7.0.0.jre8"
+  lazy val oracleDriver    = "com.oracle"                %    "ojdbc6"                             % "12.1.0.1-atlassian-hosted"
   lazy val jgraphtCore     = "org.jgrapht"               %   "jgrapht-core"                        % "1.1.0"
   lazy val sunJms          = "com.sun.messaging.mq"      %    "jms"                                % "4.5.1-b03"
   lazy val sunImq          = "com.sun.messaging.mq"      %    "imq"                                % "4.5.1-b03"
