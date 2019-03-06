@@ -11,9 +11,10 @@ libraryDependencies ++= Seq(
   protobufJava,
   protobufJavaUtil,
   jodaTime,
+  cassandraDriver,
   slf4jApi % Test,
   slf4jSimple % Test,
-  scalaTestPlusPlay % Test
+  scalaTest % Test
 )
 
 protobufProtocOptions in ProtobufConfig ++= { // if a java target is provided, add java generation option
