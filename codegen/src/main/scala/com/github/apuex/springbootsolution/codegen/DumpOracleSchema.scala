@@ -1,6 +1,6 @@
 package com.github.apuex.springbootsolution.codegen
 
-import java.sql.{Connection, DriverManager}
+import java.sql.{Connection, DriverManager, SQLSyntaxErrorException, DatabaseMetaData, ResultSet}
 
 object DumpOracleSchema extends App {
 
@@ -19,53 +19,98 @@ object DumpOracleSchema extends App {
 
   def dumpSchema(host: String, port: String, db: String, user: String, password: String) = {
     val url: String = String.format("jdbc:oracle:thin:%s/%s@//%s:%s/%s", user, password, host, port, db)
+    val namespace = System.getProperty("package", db)
+    val schema = System.getProperty("schema", db)
+    val model = System.getProperty("model", schema)
+
     val conn = DriverManager.getConnection(url)
     val dbMeta = conn.getMetaData()
-    val tables = dbMeta.getTables(null, user.toUpperCase(), null, Array("TABLE", "VIEW"))
-    val namespace = System.getProperty("package", db)
+    val tables = dbMeta.getTables(null, schema.toUpperCase(), null, Array("TABLE"))
+    val views = dbMeta.getTables(null, schema.toUpperCase(), null, Array("VIEW"))
 
     printf("<?xml version=\"1.0\"?>\n")
-    printf("<model name=\"%s\" script=\"cqrs_entities.gsl\" package=\"%s\" dbSchema=\"%s\">\n", db, namespace, db)
+    printf("<model name=\"%s\" script=\"cqrs_entities.gsl\" package=\"%s\" dbSchema=\"%s\">\n", model, namespace, schema)
+    printf("  <!-- ALL TABLES -->\n")
+    dumpTable(conn, dbMeta, tables)
+    tables.close()
+    printf("  <!-- ALL VIEWS -->\n")
+    dumpTable(conn, dbMeta, views)
+    views.close()
+    conn.close()
+    printf("</model>\n")
+  }
+
+  private def dumpTable(conn: Connection, dbMeta: DatabaseMetaData, tables: ResultSet) = {
     while (tables.next()) {
       val schema = tables.getString("TABLE_SCHEM").toLowerCase()
       val table = tables.getString("TABLE_NAME").toLowerCase()
-      if(!table.contains("$")) {
-        val keyRs = dbMeta.getPrimaryKeys(null, schema, table)
+      if (!table.contains("$")) {
+        val keyRs = dbMeta.getPrimaryKeys(null, schema.toUpperCase(), table.toUpperCase())
         var keys = Seq[String]()
-        while(keyRs.next()) {
-          keys :+= keyRs.getString("COLUMN_NAME")
+        while (keyRs.next()) {
+          keys :+= keyRs.getString("COLUMN_NAME").toLowerCase()
         }
         dumpTableColumns(conn, schema, table, keys)
         keyRs.close()
       }
     }
-    printf("</model>\n")
   }
 
   def dumpTableColumns(conn: Connection, schema: String, table: String, keys: Seq[String]) = {
     printf("  <!-- %s.%s -->\n", schema, table)
     val stmt = conn.createStatement()
-    val rs = stmt.executeQuery(String.format("SELECT * FROM %s.%s OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", schema, table));
-    val rsMeta = rs.getMetaData()
+    try {
+      val sql =
+        s"""
+           |SELECT
+           |    tc.owner,
+           |    tc.table_name,
+           |    tc.column_id,
+           |    tc.column_name,
+           |    tc.data_type,
+           |    tc.data_length,
+           |    tc.nullable,
+           |    tc.data_default,
+           |    cc.comments
+           |FROM all_tab_columns tc
+           |LEFT JOIN user_col_comments cc
+           |ON tc.table_name = cc.table_name
+           |    AND tc.column_name = cc.column_name
+           |WHERE tc.owner='${schema.toUpperCase}'
+           |    AND tc.table_name='${table.toUpperCase}'
+           |ORDER BY tc.column_id ASC
+         """.stripMargin
+      val rs = stmt.executeQuery(sql);
+      printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
+      while(rs.next()) {
+        val fieldId = rs.getInt("column_id")
+        val fieldName = rs.getString("column_name").toLowerCase()
+        val fieldType = typeConverter(rs.getString("data_type").toLowerCase())
+        val fieldLength = rs.getInt("data_length")
+        val fieldNullable = if(rs.getString("nullable").equalsIgnoreCase("Y")) false else true
+        val fieldDefault = rs.getString("data_default")
+        val fieldComments = rs.getString("comments")
+        printf("    <field no=\"%s\" name=\"%s\" type=\"%s\" %srequired=\"%s\" %scomments=\"%s\"/>\n",
+          fieldId,
+          fieldName,
+          fieldType,
+          lengthConverter(fieldType, fieldLength),
+          fieldNullable,
+          defaultConverter(fieldDefault),
+          if(null == fieldComments) "" else fieldComments
+        )
+      }
+      if (!keys.isEmpty) {
+        printf("    <primaryKey name=\"%s_pk\">\n", table)
+        keys.foreach(field => printf("      <field name=\"%s\"/>\n", field))
+        printf("    </primaryKey>\n")
+      }
+      printf("  </entity>\n")
 
-    printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
-    (1 to rsMeta.getColumnCount).foreach(i => {
-      printf("    <field no=\"%s\" name=\"%s\" type=\"%s\" %srequired=\"%s\"/>\n",
-        i,
-        rsMeta.getColumnName(i),
-        typeConverter(rsMeta.getColumnTypeName(i).toLowerCase()),
-        lengthConverter(rsMeta.getColumnTypeName(i).toLowerCase(), rsMeta.getColumnDisplaySize(i)),
-        if(rsMeta.isNullable(i) == 0) false else true
-      )
-    })
-    if(!keys.isEmpty) {
-      printf("    <primaryKey name=\"%s_pk\">\n", table)
-      keys.foreach(field => printf("      <field name=\"%s\"/>\n", field))
-      printf("    </primaryKey>\n")
+      rs.close()
+    } catch {
+      case e: SQLSyntaxErrorException => printf("<!-- %s -->", e.getMessage())
     }
-    printf("  </entity>\n")
-
-    rs.close()
     stmt.close()
   }
 
@@ -86,6 +131,7 @@ object DumpOracleSchema extends App {
     case "text" => "string"
     case "datetime" => "timestamp"
     case "timestamp" => "timestamp"
+    case "timestamp(6)" => "timestamp"
     case "real" => "float"
     case "float" => "double"
     case "double" => "double"
@@ -112,6 +158,7 @@ object DumpOracleSchema extends App {
     case "text" => ""
     case "datetime" => ""
     case "timestamp" => ""
+    case "timestamp(6)" => ""
     case "real" => ""
     case "float" => ""
     case "double" => ""
@@ -120,4 +167,16 @@ object DumpOracleSchema extends App {
     case _ => ""
       //throw new IllegalArgumentException(x)
   }
+
+  private def defaultConverter(str: String): String = {
+    if(null == str) "" else {
+      "default=\"%s\" ".format(
+        str.trim()
+          .stripPrefix("'")
+          .stripSuffix("'")
+          .trim()
+      )
+    }
+  }
+
 }
