@@ -85,7 +85,8 @@ object DumpOracleSchema extends App {
       while(rs.next()) {
         val fieldId = rs.getInt("column_id")
         val fieldName = rs.getString("column_name").toLowerCase()
-        val fieldType = typeConverter(rs.getString("data_type").toLowerCase())
+        val dataType = rs.getString("data_type").toLowerCase()
+        val fieldType = typeConverter(dataType)
         val fieldLength = rs.getInt("data_length")
         val fieldNullable = if(rs.getString("nullable").equalsIgnoreCase("Y")) false else true
         val fieldDefault = rs.getString("data_default")
@@ -94,7 +95,7 @@ object DumpOracleSchema extends App {
           fieldId,
           fieldName,
           fieldType,
-          lengthConverter(fieldType, fieldLength),
+          lengthConverter(dataType, fieldLength),
           fieldNullable,
           defaultConverter(fieldDefault),
           if(null == fieldComments) "" else fieldComments
