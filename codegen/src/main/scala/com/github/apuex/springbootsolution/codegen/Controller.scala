@@ -64,9 +64,7 @@ object Controller extends App {
       |
       |  @RequestMapping(value="${cToShell("%s%s%s".format("query", hyphen, cToShell(entityName)))}", produces="application/json")
       |  public ${cToPascal(entityName)}ListVo query(@RequestBody QueryCommand q, HttpServletRequest r) throws URISyntaxException {
-      |    return ${cToPascal(entityName)}ListVo.newBuilder()
-      |      .addAllItems(service.query(q, r.getUserPrincipal(), new URI(r.getRequestURI())))
-      |      .build();
+      |    return service.query(q, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |
       |""".stripMargin

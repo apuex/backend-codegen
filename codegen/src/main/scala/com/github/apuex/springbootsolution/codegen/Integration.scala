@@ -66,7 +66,7 @@ object Integration extends App {
          |  }
          |
          |  @Transactional
-         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
+         |  public ${cToPascal(entityName)}ListVo query(QueryCommand q) {
          |    return ${cToCamel(entityName)}DAO.query(q);
          |  }
          |

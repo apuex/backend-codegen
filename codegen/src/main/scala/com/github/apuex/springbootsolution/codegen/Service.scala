@@ -75,7 +75,7 @@ object Service extends App {
          |  }
          |
          |  @Transactional
-         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q, Principal p, URI u) {
+         |  public ${cToPascal(entityName)}ListVo query(QueryCommand q, Principal p, URI u) {
          |    eventSourceAdapter.publish(q, p, u);
          |    return ${cToCamel(entityName)}DAO.query(q);
          |  }

@@ -78,7 +78,7 @@ object Dao extends App {
          |    return ${delete(model, entity)}
          |  }
          |
-         |  public List<${cToPascal(entityName)}Vo> query(QueryCommand q) {
+         |  public ${cToPascal(entityName)}ListVo query(QueryCommand q) {
          |    ${query(model, entity)}
          |  }
          |
@@ -247,14 +247,25 @@ object Dao extends App {
          |          orderBy,
          |          where.toWhereClause(q));
          |      List<Object> params = new LinkedList<>(where.toUnnamedParamList(q, paramMapper));
-         |      params.add(Integer.valueOf((q.getPageNumber() == 0 ? 0 : (q.getPageNumber() - 1)) * q.getRowsPerPage()));
-         |      params.add(Integer.valueOf(q.getPageNumber() * q.getRowsPerPage()));
+         |      Integer beginRow = Integer.valueOf((q.getPageNumber() == 0 ? 0 : (q.getPageNumber() - 1)) * q.getRowsPerPage());
+         |      Integer endRow = Integer.valueOf(q.getPageNumber() * q.getRowsPerPage());
+         |      List<Object> moreParams = new LinkedList<>(params);
+         |      params.add(beginRow);
+         |      params.add(endRow);
+         |      moreParams.add(endRow);
+         |      moreParams.add(endRow + 1);
          |      logger.info(sql);
-         |      return jdbcTemplate.query(sql, rowMapper, params.toArray());
+         |      jdbcTemplate.query(sql, rowMapper, params.toArray());
+         |      return ${cToPascal(entityName)}ListVo.newBuilder()
+         |        .addAllItems(jdbcTemplate.query(sql, rowMapper, params.toArray()))
+         |        .setHasMore(!(jdbcTemplate.query(sql, rowMapper, moreParams.toArray()).isEmpty()))
+         |        .build();
          |    } else {
          |      String sql = String.format("SELECT ${columns} FROM ${entityNames} %s ${joinPredicate}", where.toWhereClause(q));
          |      logger.info(sql);
-         |      return jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray());
+         |      return ${cToPascal(entityName)}ListVo.newBuilder()
+         |        .addAllItems(jdbcTemplate.query(sql, rowMapper, where.toUnnamedParamList(q, paramMapper).toArray()))
+         |        .build();
          |    }""".stripMargin
     out
   }
