@@ -65,6 +65,7 @@ object Message extends App {
         |
         |message ${cToPascal(entityName)}ListVo {
         |  repeated ${cToPascal(entityName)}Vo items = 1;
+        |  bool hasMore = 2;
         |}
         |
         |message Create${cToPascal(entityName)}Cmd {
@@ -132,12 +133,7 @@ object Message extends App {
          |    <dependency>
          |      <groupId>com.google.protobuf</groupId>
          |      <artifactId>protobuf-java</artifactId>
-         |      <version>3.5.1</version>
-         |    </dependency>
-         |    <dependency>
-         |      <groupId>com.google.protobuf</groupId>
-         |      <artifactId>protobuf-java-util</artifactId>
-         |      <version>3.5.1</version>
+         |      <version>3.6.1</version>
          |    </dependency>
          |  </dependencies>
          |

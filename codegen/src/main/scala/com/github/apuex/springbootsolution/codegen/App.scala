@@ -308,6 +308,11 @@ object App extends App {
          |
          |  <dependencies>
          |    <dependency>
+         |      <groupId>com.google.protobuf</groupId>
+         |      <artifactId>protobuf-java-util</artifactId>
+         |      <version>3.6.1</version>
+         |    </dependency>
+         |    <dependency>
          |      <groupId>${modelPackage}</groupId>
          |      <artifactId>${cToShell(modelName)}-controller</artifactId>
          |      <version>1.0-SNAPSHOT</version>
