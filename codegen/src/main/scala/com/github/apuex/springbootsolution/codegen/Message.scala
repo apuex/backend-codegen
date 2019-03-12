@@ -66,6 +66,7 @@ object Message extends App {
         |message ${cToPascal(entityName)}ListVo {
         |  repeated ${cToPascal(entityName)}Vo items = 1;
         |  bool hasMore = 2;
+        |  string pagingState = 3;
         |}
         |
         |message Create${cToPascal(entityName)}Cmd {
