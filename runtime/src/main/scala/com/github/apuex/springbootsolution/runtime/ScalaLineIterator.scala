@@ -23,7 +23,10 @@ class ScalaLineIterator(reader: BufferedReader) extends Iterator[String] {
   override def hasNext: Boolean = if (nextLine != null) return true
   else try {
     nextLine = reader.readLine
-    return nextLine != null
+    if(nextLine == null) {
+      reader.close()
+      false
+    } else true
   } catch {
     case e: IOException =>
       throw new UncheckedIOException(e)
