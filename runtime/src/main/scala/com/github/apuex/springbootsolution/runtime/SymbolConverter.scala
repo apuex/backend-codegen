@@ -10,6 +10,10 @@ class CamelToCConverter extends SymbolConverter {
   override def convert(s: String): String = camelToC(s)
 }
 
+class HungarianToCConverter extends SymbolConverter {
+  override def convert(s: String): String = hungarianToC(s)
+}
+
 class IdentityConverter extends SymbolConverter {
   override def convert(s: String): String = s
 }
@@ -46,6 +50,19 @@ object SymbolConverters {
           x
         }
       }).foldLeft("")(_ + _)
+  }
+
+  val hungarianToC: Converter = {
+    case name: String =>
+      var upper = false
+      val builder = new StringBuilder
+      for (c <- name.toCharArray) {
+        val u = Character.isUpperCase(c)
+        if (!upper && u) builder.append("_")
+        upper = u
+        builder.append(Character.toLowerCase(c))
+      }
+      builder.toString
   }
 
   val cToPascal: Converter = {
