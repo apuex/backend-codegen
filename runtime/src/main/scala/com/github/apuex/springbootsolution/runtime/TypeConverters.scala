@@ -40,6 +40,21 @@ object TypeConverters {
     case _ => "int" // enum type
   }
 
+  def toCqlType(typeName: String): String = typeName match {
+    case "bool" => "bool"
+    case "short" => "short"
+    case "byte" => "byte"
+    case "int" => "int"
+    case "long" => "long"
+    case "decimal" => "BigDecimal"
+    case "string" => "String"
+    case "timestamp" => "Timestamp"
+    case "float" => "float"
+    case "double" => "double"
+    case "blob" => "Bytes"
+    case _ => "int" // enum type
+  }
+
   def toJavaType(typeName: String): String = typeName match {
     case "bool" => "boolean"
     case "short" => "short"

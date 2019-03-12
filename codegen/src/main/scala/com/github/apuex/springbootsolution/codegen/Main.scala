@@ -14,6 +14,7 @@ object Main extends App {
       case "generate-controller" => Controller.main(args.drop(1))
       case "generate-api-list" => ApiList.main(args.drop(1))
       case "generate-dao" => Dao.main(args.drop(1))
+      case "generate-cassandra-dao" => CassandraDao.main(args.drop(1))
       case "generate-message" => Message.main(args.drop(1))
       case "generate-project" => Project.main(args.drop(1))
       case "generate-service" => Service.main(args.drop(1))

@@ -71,6 +71,7 @@ message QueryCommand {
   int32 pageNumber = 3;
   int32 rowsPerPage = 4;
   repeated OrderBy orderBy = 5;
+  string pagingState = 6;
 }
 
 message SearchCmd {

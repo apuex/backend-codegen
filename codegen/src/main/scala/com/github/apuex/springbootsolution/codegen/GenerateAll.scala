@@ -9,5 +9,4 @@ object GenerateAll extends App {
   Dao.main(args)
   Message.main(args)
   Service.main(args)
-  Integration.main(args)
 }
