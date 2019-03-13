@@ -77,3 +77,8 @@ message QueryCommand {
 message SearchCmd {
   string q = 1;
 }
+
+message PagingStateVo {
+  bool hasMore = 1;
+  string pagingState = 2;
+}
