@@ -105,13 +105,13 @@ object Controller extends App {
       |  }
       |
       |  private void exportHeaderCells(HSSFRow row, HSSFCellStyle style) {
-      |    short colNumber = 1;
+      |    short colNumber = 0;
       |    HSSFCell cell = null;
       |    ${indent(headerCells(columns), 4)}
       |  }
       |
       |  private void exportDataCells(${cToPascal(entityName)}Vo vo, HSSFRow row, HSSFCellStyle style) {
-      |    short colNumber = 1;
+      |    short colNumber = 0;
       |    HSSFCell cell = null;
       |    ${indent(dataCells(columns), 4)}
       |  }
@@ -130,11 +130,11 @@ object Controller extends App {
   }
 
   private def headerCells(columns: Seq[(String, String)]): String = columns
-    .map(x => String.format("cell = row.createCell(colNumber);\ncell.setCellValue(\"%s\");\ncell.setCellStyle(style);", cToPascal(x._1)))
+    .map(x => String.format("cell = row.createCell(colNumber++);\ncell.setCellValue(\"%s\");\ncell.setCellStyle(style);", cToPascal(x._1)))
     .reduce((x, y) => "%s\n%s".format(x, y))
 
   private def dataCells(columns: Seq[(String, String)]): String = columns
-    .map(x => String.format("cell = row.createCell(colNumber);\ncell.setCellValue(%s);\ncell.setCellStyle(style);", formatCell(x._1, x._2)))
+    .map(x => String.format("cell = row.createCell(colNumber++);\ncell.setCellValue(%s);\ncell.setCellStyle(style);", formatCell(x._1, x._2)))
     .reduce((x, y) => "%s\n%s".format(x, y))
 
   private def formatCell(name: String, t: String): String =
