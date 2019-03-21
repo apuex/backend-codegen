@@ -138,7 +138,7 @@ object Controller extends App {
     .reduce((x, y) => "%s\n%s".format(x, y))
 
   private def formatCell(name: String, t: String): String =
-    if(t.eq("timestamp"))
+    if(t.equalsIgnoreCase("timestamp"))
       s"""String.format("%s", formatTimestamp(vo.get${cToPascal(name)}()))"""
     else
       s"""String.format("%s", vo.get${cToPascal(name)}())"""
