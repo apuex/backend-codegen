@@ -28,8 +28,8 @@ class ScalaLineIterator(reader: BufferedReader) extends Iterator[String] {
       false
     } else true
   } catch {
-    case e: IOException =>
-      throw new UncheckedIOException(e)
+    case _: IOException =>
+      false
   }
 
   override def next(): String = {
