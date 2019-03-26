@@ -63,7 +63,16 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
     }
   }
 
-  def isRoot(q: QueryCommand, connection: LogicalConnectionVo): Boolean = {
+  /**
+    * Check if logical connection is root level.
+    *
+    * Some database system cannot accept root level filter predicates parenthesized,
+    * therefore, predicates cannot be parenthesized by default for simplicity.
+    * @param q
+    * @param connection
+    * @return true if it is root level.
+    */
+  private def isRoot(q: QueryCommand, connection: LogicalConnectionVo): Boolean = {
     q.getPredicate != null &&
       q.getPredicate.hasConnection &&
       q.getPredicate.getConnection.equals(connection)

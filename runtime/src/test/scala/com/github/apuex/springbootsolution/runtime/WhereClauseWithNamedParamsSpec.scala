@@ -21,7 +21,7 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
 
     println(JsonFormat.printer().print(q))
 
-    val whereClause = WhereClauseWithNamedParams(camelToPascal)
+    val whereClause = WhereClauseWithNamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q) should be("WHERE Name = {name}")
   }
 
@@ -38,9 +38,9 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
 
     println(JsonFormat.printer().print(q))
 
-    val whereClause = WhereClauseWithNamedParams(camelToPascal)
+    val whereClause = WhereClauseWithNamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q, 2) should be(
-      """  WHERE (Id = {id}
-        |  AND Name = {name})""".stripMargin)
+      """  WHERE Id = {id}
+        |  AND Name = {name}""".stripMargin)
   }
 }
