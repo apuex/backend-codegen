@@ -1,6 +1,5 @@
 package com.github.apuex.springbootsolution.runtime
 
-import com.github.apuex.springbootsolution.runtime._
 import com.github.apuex.springbootsolution.runtime.PredicateType._
 import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
 import com.google.gson.Gson
