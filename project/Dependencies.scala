@@ -1,8 +1,8 @@
 import sbt._
 
 object Dependencies {
-  lazy val scalaVersionNumber    = "2.12.6"
-  lazy val akkaVersion           = "2.5.11"
+  lazy val scalaVersionNumber    = "2.12.8"
+  lazy val akkaVersion           = "2.5.22"
   lazy val artifactVersionNumber = "1.0.7"
   lazy val artifactGroupName     = "com.github.apuex.springbootsolution"
   lazy val sprayVersion          = "1.3.3"

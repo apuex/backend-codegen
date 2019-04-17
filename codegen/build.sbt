@@ -10,8 +10,6 @@ resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-relea
 
 libraryDependencies ++= Seq(
   scalaXml,
-  mssqlDriver,
-  oracleDriver,
   slf4jApi % Test,
   slf4jSimple % Test,
   scalaTest % Test
@@ -25,6 +23,7 @@ assemblyMergeStrategy in assembly := {
 }
 
 mainClass in assembly := Some("com.github.apuex.springbootsolution.codegen.Main")
+mainClass in Compile := Some("com.github.apuex.springbootsolution.codegen.Main")
 assemblyJarName in assembly := s"${name.value}.jar"
 
 publishTo := sonatypePublishTo.value
