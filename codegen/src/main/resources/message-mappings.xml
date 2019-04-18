@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<mappings>
+  <mapping from="scott.Emp"
+           to="tiger.EmployeeSales">
+    <field from="empno" to="id"/>
+    <field from="sal" to="sales"/>
+  </mapping>
+  <mapping from="scott.Dept"
+           to="tiger.Department">
+    <field from="deptno" to="id"/>
+    <field from="dname" to="departmentName"/>
+  </mapping>
+</mappings>
