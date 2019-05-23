@@ -345,7 +345,7 @@ object App extends App {
          |    <dependency>
          |      <groupId>com.github.apuex.jms</groupId>
          |      <artifactId>imq-patch</artifactId>
-         |      <version>1.0.1</version>
+         |      <version>1.0.2</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.glassfish.mq</groupId>
