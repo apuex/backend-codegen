@@ -22,9 +22,13 @@ object Controller extends App {
 
   project
 
-  xml.child.filter(x => x.label == "entity")
-    .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
-    .foreach(x => controllerForEntity(modelPackage, x))
+  controllers(modelPackage, xml)
+
+  def controllers(modelPackage: String, xml: Node): Unit = {
+    xml.child.filter(x => x.label == "entity")
+      .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+      .foreach(x => controllerForEntity(modelPackage, x))
+  }
 
   private def controllerForEntity(modelPackage: String, entity: Node): Unit = {
     val entityName = entity.\@("name")

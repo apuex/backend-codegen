@@ -24,10 +24,14 @@ object CassandraDao extends App {
 
   project
 
-  xml.child.filter(x => x.label == "entity")
-    .foreach(x => {
-      daoForEntity(modelPackage, xml, x)
-    })
+  daos(modelPackage, xml)
+
+  def daos(modelPackage: String, xml: Node): Unit = {
+    xml.child.filter(x => x.label == "entity")
+      .foreach(x => {
+        daoForEntity(modelPackage, xml, x)
+      })
+  }
 
   def daoForEntity(modelPackage: String, model: Node, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data

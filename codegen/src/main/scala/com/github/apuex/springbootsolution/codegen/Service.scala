@@ -20,9 +20,13 @@ object Service extends App {
 
   project
 
-  xml.child.filter(x => x.label == "entity")
-    .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
-    .foreach(x => serviceForEntity(xml, modelPackage, x))
+  services(modelPackage, xml)
+
+  def services(modelPackage: String, xml: Node): Unit = {
+    xml.child.filter(x => x.label == "entity")
+      .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+      .foreach(x => serviceForEntity(xml, modelPackage, x))
+  }
 
   private def serviceForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data

@@ -35,12 +35,17 @@ object Message extends App {
 
   printWriter.print(prelude)
 
-  xml.child.filter(x => x.label == "entity")
-    .foreach(x => {
-      messageForEntity(xml, modelPackage, x)
-    })
+  messages(modelPackage, xml)
 
   printWriter.close()
+
+
+  def messages(modelPackage: String, xml: Node): Unit = {
+    xml.child.filter(x => x.label == "entity")
+      .foreach(x => {
+        messageForEntity(xml, modelPackage, x)
+      })
+  }
 
   def messageForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data

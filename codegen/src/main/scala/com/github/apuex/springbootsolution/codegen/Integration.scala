@@ -20,9 +20,13 @@ object Integration extends App {
 
   project
 
-  xml.child.filter(x => x.label == "entity")
-    .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
-    .foreach(x => integrationForEntity(xml, modelPackage, x))
+  integrations(modelPackage, xml)
+
+  def integrations(modelPackage: String, xml: Node): Unit = {
+    xml.child.filter(x => x.label == "entity")
+      .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+      .foreach(x => integrationForEntity(xml, modelPackage, x))
+  }
 
   private def integrationForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
     val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
