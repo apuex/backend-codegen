@@ -70,6 +70,10 @@ object Dao extends App {
          |    return ${create(model, entity)}
          |  }
          |
+         |  public ${cToPascal(entityName)}Vo retrieveByRowId(Retrieve${cToPascal(entityName)}${cToPascal("by_rowid")}Cmd c) {
+         |    ${retrieveByRowid(model, entity)}
+         |  }
+         |
          |  public ${cToPascal(entityName)}Vo retrieve(Retrieve${cToPascal(entityName)}Cmd c) {
          |    ${retrieve(model, entity)}
          |  }
@@ -195,6 +199,41 @@ object Dao extends App {
       .toSet
   }
 
+  private def retrieveByRowid(model: Node, entity: Node): String = {
+    val entityName = entity.\@("name")
+
+    val columns = persistentColumnsExtended(model, entity)
+      .map(f => f.\@("name"))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
+
+    val rowidFields = Set("rowid")
+
+    val rowidCriteria = "rowid = ?"
+
+    val params = {
+      val joinParams = paramsSubstitute(model, entity, (x) => rowidFields.contains(x))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("").trim
+      if(joinParams == "") 
+        "rowId"
+      else
+        ", rowId"
+    }
+
+    val entityNames = extendedEntityNames(model, entity)
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
+
+    val joinPredicate = joinColumnsForExtension(model, entity)
+      .map(f => "%s = %s".format(f._1, f._2))
+      .foldLeft("")((x, y) => "%s AND %s".format(x, y))
+
+    val sql = s"SELECT %s FROM %s WHERE %s ${joinPredicate}".format(columns, entityNames, rowidCriteria)
+    val out = "return (%sVo) jdbcTemplate.queryForObject(\"%s\", rowMapper, %s);".format(cToPascal(entityName), sql, params)
+    out
+  }
+  
   private def retrieve(model: Node, entity: Node): String = {
     val entityName = entity.\@("name")
 

@@ -11,8 +11,8 @@ import scala.xml.{Node, Text}
 
 object Message extends App {
   val xml = ModelLoader(args(0)).xml
-  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
-  val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
+  val modelName = xml.\@("name")
+  val modelPackage = xml.\@("package")
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-message"
   val srcDir = s"${projectDir}/src/main/proto/${modelPackage.replace('.', '/')}/message"
@@ -31,6 +31,10 @@ object Message extends App {
       |option java_package = "${modelPackage}.message";
       |option java_outer_classname = "${cToPascal(modelName)}";
       |option java_multiple_files = true;
+      |
+      |message RetrieveByRowidCmd {
+      |  string rowid = 1;
+      |}
       |""".stripMargin
 
   printWriter.print(prelude)
@@ -48,7 +52,7 @@ object Message extends App {
   }
 
   def messageForEntity(model: Node, modelPackage: String, entity: Node): Unit = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
 
     val pkColumns = primaryKeyColumns(model, entity)
         .map(x => x.\@("name"))
@@ -56,9 +60,9 @@ object Message extends App {
 
     val columns = persistentColumnsExtended(model, entity)
       .map(f => (
-        f.attribute("no").asInstanceOf[Some[Text]].get.data,
-        f.attribute("name").asInstanceOf[Some[Text]].get.data,
-        f.attribute("type").asInstanceOf[Some[Text]].get.data
+        f.\@("no"),
+        f.\@("name"),
+        f.\@("type")
         )
       )
 
@@ -104,8 +108,8 @@ object Message extends App {
   private def enumItems(entity: Node): String = {
     entity.child.filter(x => x.label == "row")
       .map(x => "%s = %s;".format(
-        x.attribute("name").asInstanceOf[Some[Text]].get.data,
-        x.attribute("id").asInstanceOf[Some[Text]].get.data))
+        x.\@("name"),
+        x.\@("id")))
       .reduceOption((x, y) => "%s\n%s".format(x, y))
       .getOrElse("")
   }

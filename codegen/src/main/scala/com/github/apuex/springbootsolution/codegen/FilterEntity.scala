@@ -20,6 +20,8 @@ object FilterEntity extends App {
       minimizeEmpty = true,
       child = xml.child
         .filter(x => x.label == "entity")
+        .filter(x => x.\@("name").map(c => c.<=(0x7f)).foldLeft(true)(_ && _))
+        .filter(x => x.\@("name").map(c => c.<('0') || c.>('9')).foldLeft(true)(_ && _))
         .filter(x =>
           !(x.child.filter(c => c.label == "primaryKey").isEmpty)
             || !(x.child.filter(c => c.label == "uniqueKey").isEmpty))

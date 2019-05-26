@@ -118,6 +118,7 @@ object TypeConverters {
     case "double" => typeName
     case "blob" => "bytes"
     case x =>
+      println(s"unknown type ${x}")
       cToPascal(x)
   }
 
