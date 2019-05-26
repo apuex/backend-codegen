@@ -135,11 +135,13 @@ object Controller extends App {
 
   private def headerCells(columns: Seq[(String, String)]): String = columns
     .map(x => String.format("cell = row.createCell(colNumber++);\ncell.setCellValue(\"%s\");\ncell.setCellStyle(style);", cToPascal(x._1)))
-    .reduce((x, y) => "%s\n%s".format(x, y))
+    .reduceOption((x, y) => "%s\n%s".format(x, y))
+    .getOrElse("")
 
   private def dataCells(columns: Seq[(String, String)]): String = columns
     .map(x => String.format("cell = row.createCell(colNumber++);\ncell.setCellValue(%s);\ncell.setCellStyle(style);", formatCell(x._1, x._2)))
-    .reduce((x, y) => "%s\n%s".format(x, y))
+    .reduceOption((x, y) => "%s\n%s".format(x, y))
+    .getOrElse("")
 
   private def formatCell(name: String, t: String): String =
     if(t.equalsIgnoreCase("timestamp"))

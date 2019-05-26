@@ -97,7 +97,8 @@ object Message extends App {
 
   def fields(columns: Seq[(String, String, String)]): String = {
     columns.map(f => "%s %s = %s".format(toProtobufType(f._3), cToCamel(f._2), f._1))
-      .reduce((x, y) => "%s;\n%s".format(x, y))
+      .reduceOption((x, y) => "%s;\n%s".format(x, y))
+      .getOrElse("")
   }
 
   private def enumItems(entity: Node): String = {
@@ -105,7 +106,8 @@ object Message extends App {
       .map(x => "%s = %s;".format(
         x.attribute("name").asInstanceOf[Some[Text]].get.data,
         x.attribute("id").asInstanceOf[Some[Text]].get.data))
-      .reduce((x, y) => "%s\n%s".format(x, y))
+      .reduceOption((x, y) => "%s\n%s".format(x, y))
+      .getOrElse("")
   }
 
   private def enum(entity: Node, entityName: String): String = {

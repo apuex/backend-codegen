@@ -110,12 +110,15 @@ object Dao extends App {
       .toSet
     val columns = persistColumns
       .map(f => f.\@("name"))
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
     val placeHolders = persistColumns
       .map(_ => "?")
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
     val params = paramsSubstitute(model, entity, (x) => !skipColumns.contains(x))
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
 
     val sql = "INSERT INTO %s(%s) VALUES (%s)".format(entityName, columns, placeHolders)
 
@@ -134,13 +137,15 @@ object Dao extends App {
       .map(f => f.\@("name"))
       .filter(f => !pkFields.contains(f))
       .map(f => "%s = ?".format(f))
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val updates = paramsSubstitute(model, entity, (x) => !pkFields.contains(x))
     val keys = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
 
     val params = (updates ++ keys)
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val sql = "UPDATE %s SET %s WHERE %s".format(entityName, columns, pkCriteria)
 
@@ -156,7 +161,8 @@ object Dao extends App {
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
     val params = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
 
     val sql = "DELETE FROM %s WHERE %s".format(entityName, pkCriteria)
 
@@ -178,7 +184,8 @@ object Dao extends App {
       .map(f => f.\@("name"))
       .filter(f => pkFields.contains(f))
       .map(f => "%s = ?".format(f))
-      .reduce((x, y) => "%s AND %s".format(x, y))
+      .reduceOption((x, y) => "%s AND %s".format(x, y))
+      .getOrElse("")
   }
 
   private def primaryKeyFields(entity: Node): Set[String] = {
@@ -193,17 +200,20 @@ object Dao extends App {
 
     val columns = persistentColumnsExtended(model, entity)
       .map(f => f.\@("name"))
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val pkFields = primaryKeyFields(entity)
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
     val params = paramsSubstitute(model, entity, (x) => pkFields.contains(x))
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
 
     val entityNames = extendedEntityNames(model, entity)
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val joinPredicate = joinColumnsForExtension(model, entity)
       .map(f => "%s = %s".format(f._1, f._2))
@@ -219,10 +229,12 @@ object Dao extends App {
 
     val columns = persistentColumnsExtended(model, entity)
       .map(f => f.\@("name"))
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val entityNames = extendedEntityNames(model, entity)
-      .reduce((x, y) => "%s, %s".format(x, y))
+      .reduceOption((x, y) => "%s, %s".format(x, y))
+      .getOrElse("")
 
     val joinPredicate = joinColumnsForExtension(model, entity)
       .map(f => "%s = %s".format(f._1, f._2))
@@ -329,7 +341,8 @@ object Dao extends App {
       .map(f => (f.\@("name"), f.\@("type")))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(joinColumns.getOrElse(f._1, f._1)))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(joinColumns.getOrElse(f._1, f._1)), convertToColumn(f._2, f._3)))
-      .reduce((x, y) => "%s\n    %s".format(x, y))
+      .reduceOption((x, y) => "%s\n    %s".format(x, y))
+      .getOrElse("")
 
     val out =
       s"""public static class ResultRowMapper implements RowMapper<${cToPascal(entityName)}Vo> {
@@ -348,7 +361,8 @@ object Dao extends App {
     val columns = persistentColumnsExtended(model, entity)
       .map(f => (f.\@("name"), f.\@("type")))
       .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
-      .reduce((x, y) => "%s;\n    %s".format(x, y))
+      .reduceOption((x, y) => "%s;\n    %s".format(x, y))
+      .getOrElse("")
 
     val out =
       s"""public static class ParamMapper implements QueryParamMapper {

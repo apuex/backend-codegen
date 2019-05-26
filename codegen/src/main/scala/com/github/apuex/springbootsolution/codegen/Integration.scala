@@ -105,7 +105,8 @@ object Integration extends App {
       val columns = persistentColumns(parentEntity)
         .map(f => f.\@("name"))
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
-        .reduce((x, y) => "%s\n%s".format(x, y))
+        .reduceOption((x, y) => "%s\n%s".format(x, y))
+        .getOrElse("")
       s"""Create${cToPascal(x)}Cmd cp = Create${cToPascal(x)}Cmd.newBuilder()
          |${indent(columns, 2, true)}
          |.build();
@@ -124,7 +125,8 @@ object Integration extends App {
       val columns = persistentColumns(parentEntity)
         .map(f => f.\@("name"))
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
-        .reduce((x, y) => "%s\n%s".format(x, y))
+        .reduceOption((x, y) => "%s\n%s".format(x, y))
+        .getOrElse("")
       s"""Update${cToPascal(x)}Cmd cp = Update${cToPascal(x)}Cmd.newBuilder()
          |${indent(columns, 2, true)}
          |.build();
@@ -143,7 +145,8 @@ object Integration extends App {
       val columns = joinColumnsForExtension(model, entity)
         .map(f => f._2)
         .map(f => ".set%s(c.get%s())".format(cToPascal(f), cToPascal(f)))
-        .reduce((x, y) => "%s\n%s".format(x, y))
+        .reduceOption((x, y) => "%s\n%s".format(x, y))
+        .getOrElse("")
       s"""Delete${cToPascal(x)}Cmd cp = Delete${cToPascal(x)}Cmd.newBuilder()
          |${indent(columns, 2, true)}
          |.build();

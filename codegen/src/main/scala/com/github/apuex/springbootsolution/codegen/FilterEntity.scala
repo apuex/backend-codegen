@@ -11,7 +11,6 @@ import scala.xml._
 object FilterEntity extends App {
   val xml = ModelLoader(args(0)).xml
 
-  println(xml.getClass.getName)
   val root = xml.asInstanceOf[Elem]
     .copy(
       prefix = xml.prefix,
