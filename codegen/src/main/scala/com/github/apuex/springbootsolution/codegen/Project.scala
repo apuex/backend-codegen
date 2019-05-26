@@ -8,8 +8,8 @@ import scala.xml.Text
 
 object Project extends App {
   val xml = ModelLoader(args(0)).xml
-  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
-  val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
+  val modelName = xml.\@("name")
+  val modelPackage = xml.\@("package")
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}"
 

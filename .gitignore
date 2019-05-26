@@ -1,6 +1,7 @@
 .idea
 .idea/
 workspace.xml
+workspace
 target
 
 .cache-main

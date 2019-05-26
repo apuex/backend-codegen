@@ -11,8 +11,8 @@ import scala.xml.{Node, Text}
 
 object Dao extends App {
   val xml = ModelLoader(args(0)).xml
-  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
-  val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
+  val modelName = xml.\@("name")
+  val modelPackage = xml.\@("package")
   val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
@@ -34,7 +34,7 @@ object Dao extends App {
   }
 
   def daoForEntity(modelPackage: String, model: Node, entity: Node): Unit = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
     val prelude =
       s"""package ${modelPackage}.dao;
          |
@@ -101,7 +101,7 @@ object Dao extends App {
   }
 
   private def create(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
     val persistColumns = persistentColumns(entity)
       .filter(f => f.\@("type") != "identity")
     val skipColumns = persistentColumns(entity)
@@ -109,7 +109,7 @@ object Dao extends App {
       .map(f => f.\@("name"))
       .toSet
     val columns = persistColumns
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .reduce((x, y) => "%s,%s".format(x, y))
     val placeHolders = persistColumns
       .map(_ => "?")
@@ -124,14 +124,14 @@ object Dao extends App {
   }
 
   private def update(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
 
     val pkFields = primaryKeyFields(entity)
 
     val pkCriteria = primaryKeyCriteria(entity, pkFields)
 
     val columns = persistentColumns(entity)
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .filter(f => !pkFields.contains(f))
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s, %s".format(x, y))
@@ -149,7 +149,7 @@ object Dao extends App {
   }
 
   private def delete(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
 
     val pkFields = primaryKeyFields(entity)
 
@@ -175,7 +175,7 @@ object Dao extends App {
 
   private def primaryKeyCriteria(entity: Node, pkFields: Set[String]): String = {
     persistentColumns(entity)
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .filter(f => pkFields.contains(f))
       .map(f => "%s = ?".format(f))
       .reduce((x, y) => "%s AND %s".format(x, y))
@@ -184,15 +184,15 @@ object Dao extends App {
   private def primaryKeyFields(entity: Node): Set[String] = {
     entity.child.filter(x => x.label == "primaryKey")
       .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .toSet
   }
 
   private def retrieve(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
 
     val columns = persistentColumnsExtended(model, entity)
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val pkFields = primaryKeyFields(entity)
@@ -215,10 +215,10 @@ object Dao extends App {
   }
 
   private def query(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
 
     val columns = persistentColumnsExtended(model, entity)
-      .map(f => f.attribute("name").asInstanceOf[Some[Text]].get.data)
+      .map(f => f.\@("name"))
       .reduce((x, y) => "%s, %s".format(x, y))
 
     val entityNames = extendedEntityNames(model, entity)
@@ -323,10 +323,10 @@ object Dao extends App {
   }
 
   private def rowMapper(model: Node, entity: Node): String = {
-    val entityName = entity.attribute("name").asInstanceOf[Some[Text]].get.data
+    val entityName = entity.\@("name")
     val joinColumns = joinColumnsForExtension(model, entity)
     val columns = persistentColumnsExtended(model, entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => (f.\@("name"), f.\@("type")))
       .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(joinColumns.getOrElse(f._1, f._1)))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(joinColumns.getOrElse(f._1, f._1)), convertToColumn(f._2, f._3)))
       .reduce((x, y) => "%s\n    %s".format(x, y))
@@ -346,7 +346,7 @@ object Dao extends App {
 
   private def paramMapper(model: Node, entity: Node): String = {
     val columns = persistentColumnsExtended(model, entity)
-      .map(f => (f.attribute("name").asInstanceOf[Some[Text]].get.data, f.attribute("type").asInstanceOf[Some[Text]].get.data))
+      .map(f => (f.\@("name"), f.\@("type")))
       .map(f => "map.put(\"%s\", TypeConverters.toJavaTypeConverter(\"%s\"))".format(cToCamel(f._1), f._2))
       .reduce((x, y) => "%s;\n    %s".format(x, y))
 

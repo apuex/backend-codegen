@@ -2,7 +2,7 @@ package com.github.apuex.springbootsolution.codegen
 
 import com.github.apuex.springbootsolution.runtime.SymbolConverters.cToShell
 
-import _root_.scala.xml.parsing._
+import scala.xml.parsing._
 import scala.xml._
 
 object ModelLoader {
