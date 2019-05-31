@@ -101,7 +101,7 @@ object SymbolConverters {
 
   val pascalToCamel: Converter = {
     case name: String =>
-      if (name.length > 1)
+      if (name.length > 0)
         name.substring(0, 1).toLowerCase + name.substring(1)
       else
         name
@@ -109,7 +109,7 @@ object SymbolConverters {
 
   val camelToPascal: Converter = {
     case name: String =>
-      if (name.length > 1)
+      if (name.length > 0)
         name.substring(0, 1).toUpperCase + name.substring(1)
       else
         name
