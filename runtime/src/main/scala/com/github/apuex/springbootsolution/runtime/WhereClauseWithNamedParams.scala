@@ -95,13 +95,15 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
             s"${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
+                .getOrElse("")
             }"
           } else {
             s"(${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
+                .getOrElse("")
             })"
           }
         }
@@ -113,13 +115,15 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
             s"${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}OR ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}OR ${y}")
+                .getOrElse("")
             }"
           } else {
             s"(${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}OR ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}OR ${y}")
+                .getOrElse("")
             })"
           }
         }

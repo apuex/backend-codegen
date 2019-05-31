@@ -96,13 +96,15 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
             s"${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
+                .getOrElse("")
             }"
           } else {
             s"(${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
-                .reduce((x, y) => s"${x}\n${indenting}AND ${y}")
+                .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
+                .getOrElse("")
             })"
           }
         }
@@ -113,7 +115,8 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
           s"(${
             connection.getPredicatesList.asScala
               .map(x => toSql(q, x, indent + 2))
-              .reduce((x, y) => s"${x}\n${indenting}OR ${y}")
+              .reduceOption((x, y) => s"${x}\n${indenting}OR ${y}")
+              .getOrElse("")
           })"
         }
       case _ => throw new IllegalArgumentException(connection.toString)
@@ -190,7 +193,9 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
       Seq()
     } else {
       connection.getPredicatesList.asScala
-        .map(x => toUnnamedParams(x, params, m)).reduce((x, y) => x ++ y)
+        .map(x => toUnnamedParams(x, params, m))
+        .reduceOption((x, y) => x ++ y)
+        .getOrElse(Seq())
     }
   }
 
@@ -219,6 +224,7 @@ class WhereClauseWithUnnamedParams(c: SymbolConverter) {
   private def toPlaceHolders(json: String): String = {
     (0 until gson.fromJson(json, classOf[Array[String]]).length)
       .map(_ => "?")
-      .reduce((x, y) => "%s,%s".format(x, y))
+      .reduceOption((x, y) => "%s,%s".format(x, y))
+      .getOrElse("")
   }
 }

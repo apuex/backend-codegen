@@ -8,10 +8,12 @@ object TextUtils {
       if(indentFirstLine) {
         lines.split("[\n|\r]")
           .map(l => "%s%s".format(indenting, l))
-          .reduce((x, y) => "%s\n%s".format(x, y))
+          .reduceOption((x, y) => "%s\n%s".format(x, y))
+          .getOrElse("")
       } else {
         lines.split("[\n|\r]")
-          .reduce((x, y) => "%s\n%s%s".format(x, indenting, y))
+          .reduceOption((x, y) => "%s\n%s%s".format(x, indenting, y))
+          .getOrElse("")
       }
     }
   }
