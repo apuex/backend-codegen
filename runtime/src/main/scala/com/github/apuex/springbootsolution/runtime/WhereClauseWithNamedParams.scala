@@ -12,6 +12,7 @@ object WhereClauseWithNamedParams {
 
 class WhereClauseWithNamedParams(c: SymbolConverter) {
   val gson = new Gson()
+
   /**
     * Generate SQL WHERE clause from query command.
     *
@@ -67,6 +68,7 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     *
     * Some database system cannot accept root level filter predicates parenthesized,
     * therefore, predicates cannot be parenthesized by default for simplicity.
+    *
     * @param q
     * @param connection
     * @return true if it is root level.
@@ -91,7 +93,7 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
         if (connection.getPredicatesList.isEmpty) {
           ""
         } else {
-          if(isRoot(q, connection)) {
+          if (isRoot(q, connection)) {
             s"${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
@@ -111,7 +113,7 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
         if (connection.getPredicatesList.isEmpty) {
           ""
         } else {
-          if(isRoot(q, connection)) {
+          if (isRoot(q, connection)) {
             s"${
               connection.getPredicatesList.asScala
                 .map(x => toSql(q, x, indent + 2))
@@ -154,17 +156,17 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     case _ => throw new IllegalArgumentException(predicate.toString)
   }
 
-  def toNamedParams(criteria: FilterPredicate, params: Map[String, String]): Seq[(String, String, String)] = {
-  if (criteria.hasConnection) {
-    toNamedParams(criteria.getConnection, params)
-  } else if (criteria.hasPredicate) {
-    toNamedParams(criteria.getPredicate, params)
-  } else {
-  throw new IllegalArgumentException(criteria.toString)
-  }
+  def toNamedParams(criteria: FilterPredicate, params: Map[String, String]): Seq[(String, String, Any)] = {
+    if (criteria.hasConnection) {
+      toNamedParams(criteria.getConnection, params)
+    } else if (criteria.hasPredicate) {
+      toNamedParams(criteria.getPredicate, params)
+    } else {
+      throw new IllegalArgumentException(criteria.toString)
+    }
   }
 
-  def toNamedParams(predicate: LogicalPredicateVo, params: Map[String, String]): Seq[(String, String, String)] = predicate.getPredicateType match {
+  def toNamedParams(predicate: LogicalPredicateVo, params: Map[String, String]): Seq[(String, String, Any)] = predicate.getPredicateType match {
     case EQ => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
     case NE => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
     case LT => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
@@ -179,16 +181,16 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     case LIKE => Seq((predicate.getFieldName, predicate.getParamNames(0), s"%${params(predicate.getParamNames(0))}%"))
     case IS_NULL => Seq()
     case IS_NOT_NULL => Seq()
-    case IN =>  Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case NOT_IN =>  Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
+    case IN => Seq((predicate.getFieldName, predicate.getParamNames(0), parseStringArray(params(predicate.getParamNames(0)))))
+    case NOT_IN => Seq((predicate.getFieldName, predicate.getParamNames(0), parseStringArray(params(predicate.getParamNames(0)))))
     case _ => throw new IllegalArgumentException(predicate.toString)
   }
 
-  def toNamedParams(connection: LogicalConnectionVo, params: Map[String, String]): Seq[(String, String, String)] = connection.getLogicalConnectionType match {
+  def toNamedParams(connection: LogicalConnectionVo, params: Map[String, String]): Seq[(String, String, Any)] = connection.getLogicalConnectionType match {
     case AND =>
-      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, String)]())((x, y) => x ++ y)
+      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
     case OR =>
-      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, String)]())((x, y) => x ++ y)
+      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
     case _ => throw new IllegalArgumentException(connection.toString)
   }
 
