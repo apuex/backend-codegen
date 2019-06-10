@@ -1,4 +1,5 @@
 import sbt._
+import scalapb.compiler.Version.scalapbVersion
 
 object Dependencies {
   lazy val scalaVersionNumber    = "2.12.8"
@@ -13,6 +14,8 @@ object Dependencies {
   lazy val cassandraDriver  = "com.datastax.cassandra"    %   "cassandra-driver-core"              % "3.6.0"
   lazy val protobufJava     = "com.google.protobuf"       %   "protobuf-java"                      % "3.6.1"
   lazy val protobufJavaUtil = "com.google.protobuf"       %   "protobuf-java-util"                 % "3.6.1"
+  lazy val scalapbRuntime   = "com.thesamet.scalapb"      %% "scalapb-runtime"                     % scalapbVersion
+  lazy val scalapbJson4s    = "com.thesamet.scalapb"      %% "scalapb-json4s"                      % "0.9.0-M1"
   lazy val jodaTime         = "joda-time"                 %   "joda-time"                          % "2.9.9"
   lazy val mysqlDriver      = "mysql"                     %   "mysql-connector-java"               % "6.0.6"
   lazy val mssqlDriver      = "com.microsoft.sqlserver"   %   "mssql-jdbc"                         % "7.0.0.jre8"
