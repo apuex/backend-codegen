@@ -8,16 +8,16 @@ version      := artifactVersionNumber
 lazy val root = (project in file("."))
   .aggregate(
     codegen,
-    runtime,
+    `java-runtime`,
     `scala-runtime`,
     util,
   )
 
 lazy val codegen = (project in file("codegen"))
-    .dependsOn(runtime)
+    .dependsOn(`java-runtime`)
     .enablePlugins(GraalVMNativeImagePlugin)
 
-lazy val runtime = (project in file("runtime"))
+lazy val `java-runtime` = (project in file("java-runtime"))
   .dependsOn(util)
   .enablePlugins(ProtobufPlugin)
 

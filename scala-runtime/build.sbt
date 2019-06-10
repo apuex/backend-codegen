@@ -13,8 +13,6 @@ libraryDependencies ++= Seq(
   scalaTest      % Test
 )
 
-PB.protoSources in Compile := Seq(baseDirectory.value / "../runtime/src/main/protobuf")
-
 PB.targets in Compile := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value
 )

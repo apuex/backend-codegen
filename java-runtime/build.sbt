@@ -2,7 +2,7 @@ import java.io.File
 
 import Dependencies._
 
-name := "runtime"
+name := "java-runtime"
 scalaVersion := scalaVersionNumber
 organization := artifactGroupName
 version      := artifactVersionNumber
