@@ -5,15 +5,15 @@ object TextUtils {
     if(null == lines) null
     else {
       val indenting = s"${(0 until spaces).map(_ => " ").foldLeft("")(_ + _)}"
+      val indented = lines.split("[\n|\r]")
+        .map(l => "%s%s".format(indenting, l))
+        .map(x => if("" == x.trim) "" else x)
+        .reduceOption((x, y) => "%s\n%s".format(x, y))
+        .getOrElse("")
       if(indentFirstLine) {
-        lines.split("[\n|\r]")
-          .map(l => "%s%s".format(indenting, l))
-          .reduceOption((x, y) => "%s\n%s".format(x, y))
-          .getOrElse("")
+        indented
       } else {
-        lines.split("[\n|\r]")
-          .reduceOption((x, y) => "%s\n%s%s".format(x, indenting, y))
-          .getOrElse("")
+        indented.substring(spaces)
       }
     }
   }
