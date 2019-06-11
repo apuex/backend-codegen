@@ -5,6 +5,7 @@ import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.AND
 import org.scalatest.{FlatSpec, Matchers}
 import scalapb.json4s.JsonFormat.GenericCompanion
 import scalapb.json4s.{Parser, Printer, TypeRegistry}
+import org.json4s.jackson.JsonMethods._
 
 class QueryCommandJsonSpec extends FlatSpec with Matchers {
   val messagesCompanions = MessagesProto.messagesCompanions
@@ -50,10 +51,32 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
       )
     )
 
-    println(printer.print(queryCommand))
-    printer.print(queryCommand) should be (
+    //println(pretty(printer.toJson(queryCommand)))
+    pretty(printer.toJson(queryCommand)) should be (
       s"""
-         |{"predicate":{"connection":{"predicates":[{"predicate":{"predicateType":"EQ","fieldName":"col1","paramNames":["col1"]}},{"predicate":{"predicateType":"EQ","fieldName":"col2","paramNames":["col2"]}}]}},"params":{"col1":"col1 value","col2":"col2 value"}}
+         |{
+         |  "predicate" : {
+         |    "connection" : {
+         |      "predicates" : [ {
+         |        "predicate" : {
+         |          "predicateType" : "EQ",
+         |          "fieldName" : "col1",
+         |          "paramNames" : [ "col1" ]
+         |        }
+         |      }, {
+         |        "predicate" : {
+         |          "predicateType" : "EQ",
+         |          "fieldName" : "col2",
+         |          "paramNames" : [ "col2" ]
+         |        }
+         |      } ]
+         |    }
+         |  },
+         |  "params" : {
+         |    "col1" : "col1 value",
+         |    "col2" : "col2 value"
+         |  }
+         |}
        """.stripMargin.trim)
   }
 

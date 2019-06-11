@@ -18,7 +18,7 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    println(JsonFormat.printer().print(q))
+    // println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q) should be("WHERE Name = ?")
@@ -39,10 +39,10 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    println(JsonFormat.printer().print(q))
+    // println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
-    println(whereClause.toWhereClause(q, 2))
+    // println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
       """  WHERE Id = ?
         |  AND Name = ?""".stripMargin)
@@ -68,10 +68,10 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    println(JsonFormat.printer().print(q))
+    // println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
-    println(whereClause.toWhereClause(q, 2))
+    // println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
       """  WHERE Type = ?
         |  AND (Id = ?
@@ -91,10 +91,10 @@ class WhereClauseWithUnnamedParamsSpec extends FlatSpec with Matchers {
       .putAllParams(params)
       .build()
 
-    println(JsonFormat.printer().print(q))
+    // println(JsonFormat.printer().print(q))
 
     val whereClause = WhereClauseWithUnnamedParams(new CamelToPascalConverter())
-    println(whereClause.toWhereClause(q, 2))
+    // println(whereClause.toWhereClause(q, 2))
     whereClause.toWhereClause(q, 2) should be(
       """  WHERE Id IN (?,?)""".stripMargin)
     val expected = new util.ArrayList[String]()
