@@ -13,7 +13,8 @@ object TextUtils {
       if(indentFirstLine) {
         indented
       } else {
-        indented.substring(spaces)
+        if(indented.length > spaces) indented.substring(spaces)
+        else indented
       }
     }
   }
