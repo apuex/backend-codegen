@@ -40,6 +40,21 @@ object TypeConverters {
     case _ => "int" // enum type
   }
 
+  def isJdbcType(typeName: String): Boolean = typeName match {
+    case "bool" => true
+    case "short" => true
+    case "byte" => true
+    case "int" => true
+    case "long" => true
+    case "decimal" => true
+    case "string" => true
+    case "timestamp" => true
+    case "float" => true
+    case "double" => true
+    case "blob" => true
+    case _ => false
+  }
+
   def toCqlType(typeName: String): String = typeName match {
     case "bool" => "bool"
     case "short" => "short"
