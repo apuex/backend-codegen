@@ -7,6 +7,8 @@ version      := artifactVersionNumber
 
 libraryDependencies ++= Seq(
   protobufJavaUtil,
+  scalapbRuntime % "protobuf",
+  scalapbJson4s,
   jodaTime,
   slf4jApi % Test,
   slf4jSimple % Test,

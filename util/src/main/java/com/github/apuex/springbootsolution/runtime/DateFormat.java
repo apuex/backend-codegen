@@ -1,6 +1,7 @@
 package com.github.apuex.springbootsolution.runtime;
 
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.timestamp.Timestamp$;
 import org.joda.time.DateTime;
 import scala.Option;
 
@@ -64,6 +65,13 @@ public class DateFormat {
         .build();
   }
 
+  public static com.google.protobuf.timestamp.Timestamp toScalapbTimestamp(Date d) {
+    if(null == d) return null;
+    long seconds = d.getTime() / 1000;
+    long nanos = (d.getTime() - seconds * 1000) * 1000000;
+    return Timestamp$.MODULE$.apply(seconds, (int)nanos);
+  }
+
   public static String formatTimestamp(Timestamp d) {
     if(null == d) return null;
     final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
@@ -104,4 +112,7 @@ public class DateFormat {
     return toTimestamp(parseTimestamp(str));
   }
 
+  public static com.google.protobuf.timestamp.Timestamp  parseScalapbTimestamp(String str) {
+    return toScalapbTimestamp(parseTimestamp(str));
+  }
 }
