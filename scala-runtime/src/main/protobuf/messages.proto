@@ -87,3 +87,7 @@ message PagingStateVo {
   bool hasMore = 1;
   string pagingState = 2;
 }
+
+message RetrieveByRowidCmd {
+  string rowid = 1;
+}
