@@ -12,7 +12,7 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
   val registry: TypeRegistry = messagesCompanions
     .foldLeft(TypeRegistry())((r, mc) => r.addMessageByCompanion(mc.asInstanceOf[GenericCompanion]))
   val printer = new Printer().withTypeRegistry(registry)
-  val parser = new Parser().withTypeRegistry(registry)
+  val parser = new scalapb.json4s.Parser().withTypeRegistry(registry)
 
   "A QueryCommand" should "serialize 'and eq' to json" in {
     val queryCommand = QueryCommand(

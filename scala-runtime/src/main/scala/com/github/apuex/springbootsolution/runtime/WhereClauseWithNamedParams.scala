@@ -1,10 +1,8 @@
 package com.github.apuex.springbootsolution.runtime
 
-import com.github.apuex.springbootsolution.runtime.PredicateType._
-import com.github.apuex.springbootsolution.runtime.LogicalConnectionType._
+import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.{AND, OR}
+import com.github.apuex.springbootsolution.runtime.PredicateType.{BETWEEN, EQ, GE, GT, IN, IS_NOT_NULL, IS_NULL, LE, LIKE, LT, NE, NOT_IN}
 import com.google.gson.Gson
-
-import scala.collection.JavaConverters._
 
 object WhereClauseWithNamedParams {
   def apply(convert: SymbolConverter): WhereClauseWithNamedParams = new WhereClauseWithNamedParams(convert)
@@ -54,9 +52,9 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     * @return A compound predicates for SQL WHERE clause
     */
   def toSql(q: QueryCommand, criteria: FilterPredicate, indent: Int): String = {
-    if (criteria.hasConnection) {
+    if (criteria.clause.isConnection) {
       s"${toSql(q, criteria.getConnection, indent)}"
-    } else if (criteria.hasPredicate) {
+    } else if (criteria.clause.isPredicate) {
       s"${toSql(q, criteria.getPredicate, indent)}"
     } else {
       throw new IllegalArgumentException(criteria.toString)
@@ -75,7 +73,7 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     */
   private def isRoot(q: QueryCommand, connection: LogicalConnectionVo): Boolean = {
     q.getPredicate != null &&
-      q.getPredicate.hasConnection &&
+      q.getPredicate.clause.isConnection &&
       q.getPredicate.getConnection.equals(connection)
   }
 
@@ -88,21 +86,21 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     */
   private def toSql(q: QueryCommand, connection: LogicalConnectionVo, indent: Int): String = {
     val indenting = s"${(0 until indent).map(_ => " ").foldLeft("")(_ + _)}"
-    connection.getLogicalConnectionType match {
+    connection.logicalConnectionType match {
       case AND =>
-        if (connection.getPredicatesList.isEmpty) {
+        if (connection.predicates.isEmpty) {
           ""
         } else {
           if (isRoot(q, connection)) {
             s"${
-              connection.getPredicatesList.asScala
+              connection.predicates
                 .map(x => toSql(q, x, indent + 2))
                 .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
                 .getOrElse("")
             }"
           } else {
             s"(${
-              connection.getPredicatesList.asScala
+              connection.predicates
                 .map(x => toSql(q, x, indent + 2))
                 .reduceOption((x, y) => s"${x}\n${indenting}AND ${y}")
                 .getOrElse("")
@@ -110,19 +108,19 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
           }
         }
       case OR =>
-        if (connection.getPredicatesList.isEmpty) {
+        if (connection.predicates.isEmpty) {
           ""
         } else {
           if (isRoot(q, connection)) {
             s"${
-              connection.getPredicatesList.asScala
+              connection.predicates
                 .map(x => toSql(q, x, indent + 2))
                 .reduceOption((x, y) => s"${x}\n${indenting}OR ${y}")
                 .getOrElse("")
             }"
           } else {
             s"(${
-              connection.getPredicatesList.asScala
+              connection.predicates
                 .map(x => toSql(q, x, indent + 2))
                 .reduceOption((x, y) => s"${x}\n${indenting}OR ${y}")
                 .getOrElse("")
@@ -140,57 +138,57 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     * @param indent    indent count, in blank space character.
     * @return A predicate for SQL WHERE clause
     */
-  private def toSql(q: QueryCommand, predicate: LogicalPredicateVo, indent: Int): String = predicate.getPredicateType match {
-    case EQ => s"${c.convert(predicate.getFieldName)} = {${predicate.getParamNames(0)}}"
-    case NE => s"${c.convert(predicate.getFieldName)} <> {${predicate.getParamNames(0)}}"
-    case LT => s"${c.convert(predicate.getFieldName)} < {${predicate.getParamNames(0)}}"
-    case GT => s"${c.convert(predicate.getFieldName)} > {${predicate.getParamNames(0)}}"
-    case LE => s"${c.convert(predicate.getFieldName)} <= {${predicate.getParamNames(0)}}"
-    case GE => s"${c.convert(predicate.getFieldName)} >= {${predicate.getParamNames(0)}}"
-    case BETWEEN => s"${c.convert(predicate.getFieldName)} BETWEEN {${predicate.getParamNames(0)}} AND {${predicate.getParamNames(1)}}"
-    case LIKE => s"${c.convert(predicate.getFieldName)} LIKE {${predicate.getParamNames(0)}}"
-    case IS_NULL => s"${c.convert(predicate.getFieldName)} IS NULL"
-    case IS_NOT_NULL => s"${c.convert(predicate.getFieldName)} IS NOT NULL"
-    case IN => s"${c.convert(predicate.getFieldName)} IN ({${predicate.getParamNames(0)}})"
-    case NOT_IN => s"${c.convert(predicate.getFieldName)} NOT IN ({${predicate.getParamNames(0)}})"
+  private def toSql(q: QueryCommand, predicate: LogicalPredicateVo, indent: Int): String = predicate.predicateType match {
+    case EQ => s"${c.convert(predicate.fieldName)} = {${predicate.paramNames(0)}}"
+    case NE => s"${c.convert(predicate.fieldName)} <> {${predicate.paramNames(0)}}"
+    case LT => s"${c.convert(predicate.fieldName)} < {${predicate.paramNames(0)}}"
+    case GT => s"${c.convert(predicate.fieldName)} > {${predicate.paramNames(0)}}"
+    case LE => s"${c.convert(predicate.fieldName)} <= {${predicate.paramNames(0)}}"
+    case GE => s"${c.convert(predicate.fieldName)} >= {${predicate.paramNames(0)}}"
+    case BETWEEN => s"${c.convert(predicate.fieldName)} BETWEEN {${predicate.paramNames(0)}} AND {${predicate.paramNames(1)}}"
+    case LIKE => s"${c.convert(predicate.fieldName)} LIKE {${predicate.paramNames(0)}}"
+    case IS_NULL => s"${c.convert(predicate.fieldName)} IS NULL"
+    case IS_NOT_NULL => s"${c.convert(predicate.fieldName)} IS NOT NULL"
+    case IN => s"${c.convert(predicate.fieldName)} IN ({${predicate.paramNames(0)}})"
+    case NOT_IN => s"${c.convert(predicate.fieldName)} NOT IN ({${predicate.paramNames(0)}})"
     case _ => throw new IllegalArgumentException(predicate.toString)
   }
 
   def toNamedParams(criteria: FilterPredicate, params: Map[String, String]): Seq[(String, String, Any)] = {
-    if (criteria.hasConnection) {
+    if (criteria.clause.isConnection) {
       toNamedParams(criteria.getConnection, params)
-    } else if (criteria.hasPredicate) {
+    } else if (criteria.clause.isPredicate) {
       toNamedParams(criteria.getPredicate, params)
     } else {
       throw new IllegalArgumentException(criteria.toString)
     }
   }
 
-  def toNamedParams(predicate: LogicalPredicateVo, params: Map[String, String]): Seq[(String, String, Any)] = predicate.getPredicateType match {
-    case EQ => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case NE => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case LT => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case GT => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case LE => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
-    case GE => Seq((predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))))
+  def toNamedParams(predicate: LogicalPredicateVo, params: Map[String, String]): Seq[(String, String, Any)] = predicate.predicateType match {
+    case EQ => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
+    case NE => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
+    case LT => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
+    case GT => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
+    case LE => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
+    case GE => Seq((predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))))
     case BETWEEN =>
       Seq(
-        (predicate.getFieldName, predicate.getParamNames(0), params(predicate.getParamNames(0))),
-        (predicate.getFieldName, predicate.getParamNames(1), params(predicate.getParamNames(1)))
+        (predicate.fieldName, predicate.paramNames(0), params(predicate.paramNames(0))),
+        (predicate.fieldName, predicate.paramNames(1), params(predicate.paramNames(1)))
       )
-    case LIKE => Seq((predicate.getFieldName, predicate.getParamNames(0), s"%${params(predicate.getParamNames(0))}%"))
+    case LIKE => Seq((predicate.fieldName, predicate.paramNames(0), s"%${params(predicate.paramNames(0))}%"))
     case IS_NULL => Seq()
     case IS_NOT_NULL => Seq()
-    case IN => Seq((predicate.getFieldName, predicate.getParamNames(0), parseStringArray(params(predicate.getParamNames(0)))))
-    case NOT_IN => Seq((predicate.getFieldName, predicate.getParamNames(0), parseStringArray(params(predicate.getParamNames(0)))))
+    case IN => Seq((predicate.fieldName, predicate.paramNames(0), parseStringArray(params(predicate.paramNames(0)))))
+    case NOT_IN => Seq((predicate.fieldName, predicate.paramNames(0), parseStringArray(params(predicate.paramNames(0)))))
     case _ => throw new IllegalArgumentException(predicate.toString)
   }
 
-  def toNamedParams(connection: LogicalConnectionVo, params: Map[String, String]): Seq[(String, String, Any)] = connection.getLogicalConnectionType match {
+  def toNamedParams(connection: LogicalConnectionVo, params: Map[String, String]): Seq[(String, String, Any)] = connection.logicalConnectionType match {
     case AND =>
-      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
+      connection.predicates.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
     case OR =>
-      connection.getPredicatesList.asScala.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
+      connection.predicates.map(x => toNamedParams(x, params)).foldLeft(Seq[(String, String, Any)]())((x, y) => x ++ y)
     case _ => throw new IllegalArgumentException(connection.toString)
   }
 

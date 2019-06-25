@@ -42,4 +42,19 @@ object QueryCommandMethods {
     case x: timestamp.Timestamp => Timestamps.toString(timestamp.Timestamp.toJavaProto(x))
     case x => x.toString
   }
+
+  def createConnection(connectionType: LogicalConnectionType, predicates: Seq[FilterPredicate]): FilterPredicate = {
+    val connectionVo = LogicalConnectionVo(connectionType, predicates)
+
+    FilterPredicate(FilterPredicate.Clause.Connection(connectionVo))
+  }
+
+  def createPredicate(predicateType: PredicateType, name: String, value: String): (FilterPredicate, Map[String, String]) = {
+    val paramNames = Seq(name)
+    val params = Map(name -> value)
+
+    val predicateVo = LogicalPredicateVo(predicateType, name, paramNames)
+
+    (FilterPredicate(FilterPredicate.Clause.Predicate(predicateVo)), params)
+  }
 }
