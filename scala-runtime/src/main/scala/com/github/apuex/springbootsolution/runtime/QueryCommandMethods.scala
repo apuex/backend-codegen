@@ -46,7 +46,7 @@ object QueryCommandMethods {
   def createConnection(connectionType: LogicalConnectionType, predicates: Seq[FilterPredicate]): FilterPredicate = {
     val connectionVo = LogicalConnectionVo(connectionType, predicates)
 
-    FilterPredicate(FilterPredicate.Clause.Connection(connectionVo))
+    FilterPredicate(Connection(connectionVo))
   }
 
   def createPredicate(predicateType: PredicateType, name: String, value: String): (FilterPredicate, Map[String, String]) = {
@@ -55,6 +55,6 @@ object QueryCommandMethods {
 
     val predicateVo = LogicalPredicateVo(predicateType, name, paramNames)
 
-    (FilterPredicate(FilterPredicate.Clause.Predicate(predicateVo)), params)
+    (FilterPredicate(Predicate(predicateVo)), params)
   }
 }
