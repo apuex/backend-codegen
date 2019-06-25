@@ -37,8 +37,10 @@ object Parser {
   }
 
   case class EnumParser[E<: GeneratedEnum](companion: GeneratedEnumCompanion[E]) extends Parser[E] {
-    override def parse(s: String): E = companion.fromName(s).get
+    override def parse(s: String): E = if(isDigit(s)) companion.fromValue(s.toInt) else companion.fromName(s).get
   }
+
+  def isDigit(s: String): Boolean = s forall Character.isDigit
 }
 
 sealed trait Parser[T] {
