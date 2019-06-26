@@ -55,6 +55,26 @@ class TextUtilsSpec extends FlatSpec with Matchers{
     val indentFirst = indentWithLeftMargin(lines, 2, true)
 
     indentSkipFirst should be(
+      s"""|hello,
+          ||  world!""".stripMargin
+    )
+    indentFirst should be(
+      s"""||  hello,
+          ||  world!""".stripMargin
+    )
+  }
+
+  "A indentWithLeftMarginForBlockQuote function" should "indent lines" in {
+    val lines =
+      s"""
+         |hello,
+         |world!
+       """.stripMargin.trim
+
+    val indentSkipFirst = indentWithLeftMarginForQuote(lines, 2)
+    val indentFirst = indentWithLeftMarginForQuote(lines, 2, true)
+
+    indentSkipFirst should be(
       s"""||hello,
           ||  |world!""".stripMargin
     )
