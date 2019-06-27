@@ -115,4 +115,13 @@ public class DateFormat {
   public static com.google.protobuf.timestamp.Timestamp  parseScalapbTimestamp(String str) {
     return toScalapbTimestamp(parseTimestamp(str));
   }
+
+  public static Date scalapbToDate(com.google.protobuf.timestamp.Timestamp d) {
+    if(null == d) return null;
+    return new Date(d.seconds() * 1000 + d.nanos() / 1000000);
+  }
+
+  public static Option<Date> scalapbToDate(Option<com.google.protobuf.timestamp.Timestamp> d) {
+    return d.map(x -> scalapbToDate(x));
+  }
 }
