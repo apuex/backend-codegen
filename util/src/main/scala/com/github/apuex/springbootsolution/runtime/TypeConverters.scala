@@ -36,7 +36,7 @@ object TypeConverters {
     case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
-    case "blob" => "Bytes"
+    case "blob" => "Blob"
     case _ => "int" // enum type
   }
 

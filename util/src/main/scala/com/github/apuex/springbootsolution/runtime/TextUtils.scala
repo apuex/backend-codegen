@@ -76,7 +76,7 @@ object TextUtils {
   def blockQuote(lines: String, spaces: Int, indentFirstLine: Boolean = false): String = {
     s"""
        |s\"\"\"
-       |   ${indentWithLeftMarginForQuote(indent(lines, spaces, indentFirstLine), 3)}
+       |  ${indentWithLeftMarginForQuote(indent(lines, spaces, indentFirstLine), 3)}
        | \"\"\".stripMargin.trim
      """.stripMargin.trim
   }
