@@ -66,10 +66,13 @@ object SymbolConverters {
   }
 
   val cToPascal: Converter = {
-    case name: String => name.split("_").map(
-      x => {
-        x.substring(0, 1).toUpperCase() + x.substring(1)
-    }).foldLeft("")(_ + _)
+    case name: String => name
+      .split("_")
+      .filter(!_.isEmpty)
+      .map(
+        x => {
+          x.substring(0, 1).toUpperCase() + x.substring(1)
+        }).foldLeft("")(_ + _)
   }
 
   val cToCamel: Converter = {
@@ -77,7 +80,11 @@ object SymbolConverters {
   }
 
   val cToShell: Converter = {
-    case name => name.replace("_", "-")
+    case name => name
+      .split("_")
+      .filter(!_.isEmpty)
+      .reduceOption((l, r) => s"${l}-${r}")
+      .getOrElse("")
   }
 
   val camelToShell: Converter = {
@@ -96,7 +103,7 @@ object SymbolConverters {
   }
 
   val pascalToC: Converter = {
-    case name => pascalToCamel(name).replace("-", "_")
+    case name => camelToC(pascalToCamel(name))
   }
 
   val pascalToCamel: Converter = {
