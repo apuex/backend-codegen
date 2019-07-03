@@ -1,5 +1,6 @@
 package com.github.apuex.springbootsolution.runtime;
 
+import com.datastax.driver.core.utils.UUIDs;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.timestamp.Timestamp$;
 import org.joda.time.DateTime;
@@ -8,6 +9,8 @@ import scala.Option;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by wangxy on 17-8-28.
@@ -123,5 +126,14 @@ public class DateFormat {
 
   public static Option<Date> scalapbToDate(Option<com.google.protobuf.timestamp.Timestamp> d) {
     return d.map(x -> scalapbToDate(x));
+  }
+
+  public static UUID timeBased() {
+    return timeBased(System.currentTimeMillis());
+  }
+
+  public static UUID timeBased(long userProvidedTimestamp) {
+    Random random = new Random();
+    return new UUID(UUIDs.startOf(userProvidedTimestamp).getMostSignificantBits(), random.nextLong());
   }
 }

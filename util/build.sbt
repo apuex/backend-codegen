@@ -6,6 +6,7 @@ organization := artifactGroupName
 version      := artifactVersionNumber
 
 libraryDependencies ++= Seq(
+  cassandraDriver,
   protobufJavaUtil,
   scalapbRuntime % "protobuf",
   scalapbJson4s,
