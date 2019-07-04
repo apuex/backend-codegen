@@ -95,10 +95,10 @@ class TextUtilsSpec extends FlatSpec with Matchers{
     val indentFirst = blockQuote(lines, 2, true)
 
     indentSkipFirst should be(
-      "s\"\"\"\n   |hello,\n   |  world!\n \"\"\".stripMargin.trim"
+      "s\"\"\"\n  |hello,\n  |  world!\n \"\"\".stripMargin.trim"
     )
     indentFirst should be(
-      "s\"\"\"\n   |  hello,\n   |  world!\n \"\"\".stripMargin.trim"
+      "s\"\"\"\n  |  hello,\n  |  world!\n \"\"\".stripMargin.trim"
     )
   }
 }
