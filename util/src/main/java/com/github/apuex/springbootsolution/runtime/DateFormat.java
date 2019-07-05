@@ -81,6 +81,10 @@ public class DateFormat {
     return timestampFormat.format(toDate(d));
   }
 
+  public static String formatTimestamp(com.google.protobuf.timestamp.Timestamp d) {
+    return formatTimestamp(scalapbToDate(d));
+  }
+
   public static Date parseTimestamp(String str) {
     try {
       final SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_PATTERN);
