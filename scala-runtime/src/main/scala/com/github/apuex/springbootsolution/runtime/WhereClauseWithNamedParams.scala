@@ -195,4 +195,16 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
   def parseStringArray(json: String): Array[String] = {
     gson.fromJson(json, classOf[Array[String]])
   }
+
+  def orderBy(orderBys: Seq[OrderBy], alias: String=""): String = {
+    val aliasPrefix = if("" == alias.trim) "" else s"${alias}."
+    orderBys
+      .map(x => {
+        s"""
+           |${aliasPrefix}${x.fieldName} ${x.order.name}
+         """.stripMargin.trim
+      })
+      .reduceOption((l, r) => s"${l},\n${r}")
+      .getOrElse("")
+  }
 }
