@@ -81,7 +81,7 @@ object TypeConverters {
     case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
-    case "blob" => "Bytes"
+    case "blob" => "ByteString"
     case x =>
       cToPascal(x)
   }
