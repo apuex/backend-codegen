@@ -14,7 +14,7 @@ lazy val root = (project in file("."))
   )
 
 lazy val codegen = (project in file("codegen"))
-    .dependsOn(`java-runtime`)
+    .dependsOn(`util`)
     .enablePlugins(GraalVMNativeImagePlugin)
 
 lazy val `java-runtime` = (project in file("java-runtime"))
