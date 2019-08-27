@@ -17,6 +17,7 @@ object TypeConverters {
     case "long" => v => v.toLong
     case "decimal" => v => BigDecimal.apply(v)
     case "string" => v => v
+    case "text" => v => v
     case "timestamp" => v => toDate(Timestamps.parse(v))
     case "float" => v => v.toFloat
     case "double" => v => v.toDouble
@@ -33,6 +34,7 @@ object TypeConverters {
     case "long" => "long"
     case "decimal" => "BigDecimal"
     case "string" => "String"
+    case "text" => "String"
     case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
@@ -48,6 +50,7 @@ object TypeConverters {
     case "long" => true
     case "decimal" => true
     case "string" => true
+    case "text" => true
     case "timestamp" => true
     case "float" => true
     case "double" => true
@@ -63,6 +66,7 @@ object TypeConverters {
     case "long" => "long"
     case "decimal" => "BigDecimal"
     case "string" => "String"
+    case "text" => "String"
     case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
@@ -78,6 +82,7 @@ object TypeConverters {
     case "long" => "long"
     case "decimal" => "BigDecimal"
     case "string" => "String"
+    case "text" => "String"
     case "timestamp" => "Timestamp"
     case "float" => "float"
     case "double" => "double"
@@ -95,6 +100,7 @@ object TypeConverters {
     case "long" => "number"
     case "decimal" => "number"
     case "string" => typeName
+    case "text" => "string"
     case "timestamp" => "Date"
     case "float" => "number"
     case "double" => "number"
@@ -112,6 +118,7 @@ object TypeConverters {
     case "long" => true
     case "decimal" => true
     case "string" => true
+    case "text" => true
     case "timestamp" => true
     case "float" => true
     case "double" => true
@@ -128,6 +135,7 @@ object TypeConverters {
     case "long" => "int64"
     case "decimal" => "double"
     case "string" => typeName
+    case "text" => "string"
     case "timestamp" => "google.protobuf.Timestamp"
     case "float" => typeName
     case "double" => typeName
