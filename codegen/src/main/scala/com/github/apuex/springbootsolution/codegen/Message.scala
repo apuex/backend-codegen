@@ -93,6 +93,10 @@ object Message extends App {
         |message Retrieve${cToPascal(entityName)}Cmd {
         |  ${indent(fields(columns.filter(f => pkColumns.contains(f._2))), 2)};
         |}
+        |
+        |message Retrieve${cToPascal(entityName)}ByRowidCmd {
+        |  string rowid = 1;
+        |}
         |""".stripMargin
 
     printWriter.print(crud)

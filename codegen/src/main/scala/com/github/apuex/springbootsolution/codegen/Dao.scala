@@ -70,7 +70,7 @@ object Dao extends App {
          |    return ${create(model, entity)}
          |  }
          |
-         |  public ${cToPascal(entityName)}Vo retrieveByRowId(Retrieve${cToPascal(entityName)}${cToPascal("by_rowid")}Cmd c) {
+         |  public ${cToPascal(entityName)}Vo retrieveByRowid(Retrieve${cToPascal(entityName)}${cToPascal("by_rowid")}Cmd c) {
          |    ${retrieveByRowid(model, entity)}
          |  }
          |
@@ -216,9 +216,9 @@ object Dao extends App {
       .reduceOption((x, y) => "%s,%s".format(x, y))
       .getOrElse("").trim
       if(joinParams == "") 
-        "rowId"
+        "c.getRowid()"
       else
-        ", rowId"
+        ", c.getRowid()"
     }
 
     val entityNames = extendedEntityNames(model, entity)
