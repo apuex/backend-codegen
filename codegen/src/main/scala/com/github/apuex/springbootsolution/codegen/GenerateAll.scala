@@ -7,7 +7,6 @@ object GenerateAll extends App {
   Controller.main(args)
   ApiList.main(args)
   Dao.main(args)
-  Integration.main(args)
   Message.main(args)
   Service.main(args)
 }

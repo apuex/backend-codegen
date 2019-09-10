@@ -70,7 +70,7 @@ object Dao extends App {
          |    return ${create(model, entity)}
          |  }
          |
-         |  public ${cToPascal(entityName)}Vo retrieveByRowid(Retrieve${cToPascal(entityName)}${cToPascal("by_rowid")}Cmd c) {
+         |  public ${cToPascal(entityName)}Vo retrieveByRowid(Retrieve${cToPascal("by_rowid")}Cmd c) {
          |    ${retrieveByRowid(model, entity)}
          |  }
          |

@@ -61,7 +61,7 @@ object Service extends App {
          |  }
          |
          |  @Transactional
-         |  public ${cToPascal(entityName)}Vo retrieveByRowid(Retrieve${cToPascal(entityName)}ByRowidCmd c, Principal p, URI u) {
+         |  public ${cToPascal(entityName)}Vo retrieveByRowid(RetrieveByRowidCmd c, Principal p, URI u) {
          |    eventSourceAdapter.publish(c, p, u);
          |    return ${cToCamel(entityName)}DAO.retrieveByRowid(c);
          |  }
