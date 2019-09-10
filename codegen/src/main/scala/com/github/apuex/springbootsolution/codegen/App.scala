@@ -318,11 +318,6 @@ object App extends App {
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
          |    <dependency>
-         |      <groupId>${modelPackage}</groupId>
-         |      <artifactId>${cToShell(modelName)}-integration</artifactId>
-         |      <version>1.0-SNAPSHOT</version>
-         |    </dependency>
-         |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-jta-atomikos</artifactId>
          |    </dependency>
