@@ -10,7 +10,7 @@ object Project extends App {
   val xml = ModelLoader(args(0)).xml
   val modelName = xml.\@("name")
   val modelPackage = xml.\@("package")
-  val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
+  val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}"
 
   new File(projectDir).mkdirs()

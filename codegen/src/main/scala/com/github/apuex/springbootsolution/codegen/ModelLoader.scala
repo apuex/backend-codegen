@@ -17,7 +17,7 @@ object ModelLoader {
 class ModelLoader(val xml: Node) {
   val modelName = xml.\@("name")
   val modelPackage = xml.\@("package")
-  val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
+  val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   def projectDir(name: String) = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-${name}"
   def srcDir(name: String) = s"${projectDir(name)}/src/main/java/${modelPackage.replace('.', '/')}/${name}"
   val symboConverter = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}")

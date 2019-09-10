@@ -11,7 +11,7 @@ object ApiList extends App {
   val xml = ModelLoader(args(0)).xml
   val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
   val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
-  val projectRoot = s"${System.getProperty("project.root", "target/generated")}"
+  val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   val docsDir = s"${projectRoot}/${cToShell(modelName)}/docs"
   val hyphen = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}") "" else "-"
 
