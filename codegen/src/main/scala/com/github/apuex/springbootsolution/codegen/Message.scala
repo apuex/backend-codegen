@@ -32,6 +32,10 @@ object Message extends App {
       |option java_outer_classname = "${cToPascal(modelName)}";
       |option java_multiple_files = true;
       |
+      |import "scalapb/scalapb.proto";
+      |option (scalapb.options) = {
+      |  flat_package: true
+      |};
       |""".stripMargin
 
   printWriter.print(prelude)
