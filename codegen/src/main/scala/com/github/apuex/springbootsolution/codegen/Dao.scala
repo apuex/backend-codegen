@@ -13,6 +13,7 @@ object Dao extends App {
   val xml = ModelLoader(args(0)).xml
   val modelName = xml.\@("name")
   val modelPackage = xml.\@("package")
+  val dbSchema = xml.\@("dbSchema")
   val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
@@ -105,7 +106,7 @@ object Dao extends App {
   }
 
   private def create(model: Node, entity: Node): String = {
-    val entityName = entity.\@("name")
+    val entityName = s"${dbSchema}.${entity.\@("name")}"
     val persistColumns = persistentColumns(entity)
       .filter(f => f.\@("type") != "identity")
     val skipColumns = persistentColumns(entity)
@@ -131,7 +132,7 @@ object Dao extends App {
   }
 
   private def update(model: Node, entity: Node): String = {
-    val entityName = entity.\@("name")
+    val entityName = s"${dbSchema}.${entity.\@("name")}"
 
     val pkFields = primaryKeyFields(entity)
 
@@ -158,7 +159,7 @@ object Dao extends App {
   }
 
   private def delete(model: Node, entity: Node): String = {
-    val entityName = entity.\@("name")
+    val entityName = s"${dbSchema}.${entity.\@("name")}"
 
     val pkFields = primaryKeyFields(entity)
 
@@ -222,6 +223,7 @@ object Dao extends App {
     }
 
     val entityNames = extendedEntityNames(model, entity)
+      .map(x => s"${dbSchema}.${x}")
       .reduceOption((x, y) => "%s, %s".format(x, y))
       .getOrElse("")
 
@@ -251,6 +253,7 @@ object Dao extends App {
       .getOrElse("")
 
     val entityNames = extendedEntityNames(model, entity)
+      .map(x => s"${dbSchema}.${x}")
       .reduceOption((x, y) => "%s, %s".format(x, y))
       .getOrElse("")
 
@@ -272,6 +275,7 @@ object Dao extends App {
       .getOrElse("")
 
     val entityNames = extendedEntityNames(model, entity)
+      .map(x => s"${dbSchema}.${x}")
       .reduceOption((x, y) => "%s, %s".format(x, y))
       .getOrElse("")
 
