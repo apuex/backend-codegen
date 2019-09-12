@@ -68,7 +68,12 @@ object Dao extends App {
          |  }
          |
          |  public int create(Create${cToPascal(entityName)}Cmd c) {
-         |    return ${create(model, entity)}
+         |    int rowsAffected = ${update(model, entity)}
+         |    if(rowsAffected > 0) {
+         |      return rowsAffected;
+         |    } else {
+         |      return ${create(model, entity)}
+         |    }
          |  }
          |
          |  public ${cToPascal(entityName)}Vo retrieveByRowid(Retrieve${cToPascal("by_rowid")}Cmd c) {
