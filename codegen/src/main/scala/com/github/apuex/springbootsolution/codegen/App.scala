@@ -60,8 +60,8 @@ object App extends App {
          |  <Resource name="jdbc/example"
          |            type="javax.sql.DataSource"
          |            auth="Container"
-         |            driverClassName="net.sourceforge.jtds.jdbc.Driver"
-         |            url="jdbc:jtds:sqlserver://192.168.0.38:1433/example"
+         |            driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+         |            url="jdbc:sqlserver://192.168.0.89;databaseName=example"
          |            username="sa"
          |            password=""
          |            validationQuery="SELECT 1"
@@ -103,7 +103,7 @@ object App extends App {
          |  <context:annotation-config />
          |  <context:component-scan base-package="${modelPackage}" />
          |
-         |  <bean id="dbDataSource" class="net.sourceforge.jtds.jdbcx.JtdsDataSource">
+         |  <bean id="dbDataSource" class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
          |    <property name="serverName" value="192.168.0.38"/>
          |    <property name="portNumber" value="1433"/>
          |    <property name="databaseName" value="${cToCamel(modelName)}"/>
@@ -336,6 +336,12 @@ object App extends App {
          |      <artifactId>spring-boot-starter-tomcat</artifactId>
          |      <version>2.0.3.RELEASE</version>
          |      <scope>provided</scope>
+         |    </dependency>
+         |    <dependency>
+         |      <groupId>com.microsoft.sqlserver</groupId>
+         |      <artifactId>mssql-jdbc</artifactId>
+         |      <version>7.0.0.jre8</version>
+         |      <scope>test</scope>
          |    </dependency>
          |    <dependency>
          |      <groupId>com.github.apuex.jms</groupId>

@@ -199,7 +199,8 @@ object Message extends App {
   }
 
   def scalapb: Unit = {
-    val is = getClass.getResourceAsStream("scalapb/scalapb.proto")
+    val is = getClass.getResourceAsStream("/scalapb/scalapb.proto")
+    new File(s"${projectDir}/src/main/proto/scalapb/").mkdirs()
     val pw = new PrintWriter(s"${projectDir}/src/main/proto/scalapb/scalapb.proto", "utf-8")
 
     Source.fromInputStream(is, "utf-8")

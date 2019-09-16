@@ -488,16 +488,6 @@ object Dao extends App {
          |      <version>5.0.7.RELEASE</version>
          |    </dependency>
          |    <dependency>
-         |      <groupId>mysql</groupId>
-         |      <artifactId>mysql-connector-java</artifactId>
-         |      <version>8.0.11</version>
-         |    </dependency>
-         |    <dependency>
-         |      <groupId>net.sourceforge.jtds</groupId>
-         |      <artifactId>jtds</artifactId>
-         |      <version>1.3.1</version>
-         |    </dependency>
-         |    <dependency>
          |      <groupId>org.slf4j</groupId>
          |      <artifactId>slf4j-api</artifactId>
          |      <version>1.7.25</version>
