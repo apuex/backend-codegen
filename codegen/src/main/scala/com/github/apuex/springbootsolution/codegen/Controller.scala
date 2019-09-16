@@ -63,7 +63,7 @@ object Controller extends App {
       |    service.create(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
       |
-      |  @RequestMapping(value="${cToShell("%s%s%s%s%s".format("retrieve", hyphen, cToShell(entityName), hyphen, cToShell("by_rowid")))}/{rowid}", produces="application/json")
+      |  @RequestMapping(value="${cToShell("%s%s%s%s%s".format("retrieve", hyphen, cToShell(entityName), hyphen, cToShell("by_rowid")))}", produces="application/json")
       |  public ${cToPascal(entityName)}Vo retrieveByRowid(@RequestBody RetrieveByRowidCmd c, HttpServletRequest r) throws URISyntaxException {
       |    return service.retrieveByRowid(c, r.getUserPrincipal(), new URI(r.getRequestURI()));
       |  }
