@@ -1,13 +1,14 @@
 package com.github.apuex.springbootsolution.codegen
 
-import java.io.{File, PrintWriter}
+import java.io._
 
 import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
-import com.github.apuex.springbootsolution.runtime.TypeConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
+import com.github.apuex.springbootsolution.runtime.TypeConverters._
 
-import scala.xml.{Node, Text}
+import scala.io.Source
+import scala.xml.Node
 
 object Message extends App {
   val xml = ModelLoader(args(0)).xml
@@ -20,6 +21,7 @@ object Message extends App {
   new File(srcDir).mkdirs()
 
   project
+  scalapb
 
   val printWriter = new PrintWriter(s"${srcDir}/${cToShell(modelName)}.proto", "utf-8")
 
@@ -194,5 +196,17 @@ object Message extends App {
     printWriter.print(source)
 
     printWriter.close()
+  }
+
+  def scalapb: Unit = {
+    val is = getClass.getResourceAsStream("scalapb/scalapb.proto")
+    val pw = new PrintWriter(s"${projectDir}/src/main/proto/scalapb/scalapb.proto", "utf-8")
+
+    Source.fromInputStream(is, "utf-8")
+        .getLines()
+        .foreach(l => pw.println(l))
+
+    is.close()
+    pw.close()
   }
 }
