@@ -81,7 +81,7 @@ object DumpOracleSchema extends App {
            |ORDER BY tc.column_id ASC
          """.stripMargin
       val rs = stmt.executeQuery(sql);
-      printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
+      printf("  <entity name=\"%s\" aggregateRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
       while(rs.next()) {
         val fieldId = rs.getInt("column_id")
         val fieldName = rs.getString("column_name").toLowerCase()

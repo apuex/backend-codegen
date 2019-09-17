@@ -19,7 +19,7 @@ object ModelUtils {
       .getOrElse(false)
 
   def isAggregationRoot(entity: Node): Boolean =
-    entity.attribute("aggregationRoot")
+    entity.attribute("aggregateRoot")
       .map(x => {
         x.filter(n => n.isInstanceOf[Text])
           .map(n => n.asInstanceOf[Text].data == "true")

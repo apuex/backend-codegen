@@ -20,7 +20,7 @@ object ApiList extends App {
   val printWriter = new PrintWriter(s"${docsDir}/api-list.csv", "utf-8")
 
   xml.child.filter(x => x.label == "entity")
-    .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+    .filter(x => x.attribute("aggregateRoot") == Some(Text("true")))
     .foreach(x => apiForEntity(modelPackage, x))
 
   printWriter.close()

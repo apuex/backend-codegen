@@ -24,7 +24,7 @@ object Integration extends App {
 
   def integrations(modelPackage: String, xml: Node): Unit = {
     xml.child.filter(x => x.label == "entity")
-      .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+      .filter(x => x.attribute("aggregateRoot") == Some(Text("true")))
       .foreach(x => integrationForEntity(xml, modelPackage, x))
   }
 

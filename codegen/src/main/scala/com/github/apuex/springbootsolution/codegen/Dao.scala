@@ -17,6 +17,9 @@ object Dao extends App {
   val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/dao"
+  val fieldNameConverter = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}")
+    cToPascal else identity
+
   val symboConverter = if ("microsoft" == s"${System.getProperty("symbol.naming", "microsoft")}")
     "new IdentityConverter()" else "new CamelToCConverter()"
 
@@ -387,7 +390,7 @@ object Dao extends App {
     val joinColumns = joinColumnsForExtension(model, entity)
     val columns = persistentColumnsExtended(model, entity)
       .map(f => (f.\@("name"), f.\@("type")))
-      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), cToPascal(joinColumns.getOrElse(f._1, f._1)))))
+      .map(f => (f._1, f._2, "rs.get%s(\"%s\")".format(cToPascal(toJdbcType(f._2)), fieldNameConverter(joinColumns.getOrElse(f._1, f._1)))))
       .map(f => "%sbuilder.set%s(%s);".format(emptyTest(f._2, f._3), cToPascal(joinColumns.getOrElse(f._1, f._1)), convertToColumn(f._2, f._3)))
       .reduceOption((x, y) => "%s\n    %s".format(x, y))
       .getOrElse("")

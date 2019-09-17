@@ -48,7 +48,7 @@ object DumpSchema extends App {
     val rs = stmt.executeQuery(String.format("SELECT top(1) * FROM %s.%s", schema, table));
     val rsMeta = rs.getMetaData()
 
-    printf("  <entity name=\"%s\" aggregationRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
+    printf("  <entity name=\"%s\" aggregateRoot=\"false\" enum=\"false\" generate=\"true\">\n", table)
     (1 to rsMeta.getColumnCount).foreach(i => {
       printf("    <field no=\"%s\" name=\"%s\" type=\"%s\" %srequired=\"%s\"/>\n",
         i,

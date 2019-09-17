@@ -26,7 +26,7 @@ object Controller extends App {
 
   def controllers(modelPackage: String, xml: Node): Unit = {
     xml.child.filter(x => x.label == "entity")
-      .filter(x => x.attribute("aggregationRoot") == Some(Text("true")))
+      .filter(x => x.attribute("aggregateRoot") == Some(Text("true")))
       .foreach(x => controllerForEntity(modelPackage, x))
   }
 

@@ -7,6 +7,8 @@ object GenerateAll extends App {
   Controller.main(args)
   ApiList.main(args)
   Dao.main(args)
+  CassandraDao.main(args)
+  MysqlSchemaGenerator.main(args)
   Message.main(args)
   Service.main(args)
 }
