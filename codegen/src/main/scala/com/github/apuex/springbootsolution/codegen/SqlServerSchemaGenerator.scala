@@ -108,6 +108,13 @@ class SqlServerSchemaGenerator(modelLoader: ModelLoader) {
        """.stripMargin.trim
     )
 
+    val finish = Seq(
+      s"""
+         |PRINT "Finished."
+         |GO
+       """.stripMargin.trim
+    )
+
     val tables = entities
       .map(x => {
         val keyFieldNames = x.primaryKey.fields
@@ -164,7 +171,8 @@ class SqlServerSchemaGenerator(modelLoader: ModelLoader) {
     (prelude ++
       tables ++
       primaryKeys ++
-      foreignKeys)
+      foreignKeys ++
+      finish)
       .reduceOption((l, r) => s"${l}\n\n${r}")
       .getOrElse("")
   }
