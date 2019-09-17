@@ -103,7 +103,7 @@ object App extends App {
          |  <context:annotation-config />
          |  <context:component-scan base-package="${modelPackage}" />
          |
-         |  <bean id="dbDataSource" class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
+         |  <bean id="dataSource" class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
          |    <property name="serverName" value="192.168.0.38"/>
          |    <property name="portNumber" value="1433"/>
          |    <property name="databaseName" value="${cToCamel(modelName)}"/>
@@ -111,6 +111,13 @@ object App extends App {
          |    <property name="password" value=""/>
          |  </bean>
          |
+         |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+         |    <property name="dataSource" ref="dataSource"/>
+         |  </bean>
+         |
+         |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.EventSourceAdapter.NullAdapter"/>
+         |
+         |  <!--
          |  <bean id="dataSource"
          |        class="com.atomikos.jdbc.AtomikosDataSourceBean"
          |        init-method="init" destroy-method="close">
@@ -167,10 +174,6 @@ object App extends App {
          |
          |  <tx:annotation-driven transaction-manager="transactionManager"/>
          |
-         |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-         |    <property name="dataSource" ref="dataSource"/>
-         |  </bean>
-         |
          |  <bean id="${cToCamel(modelName)}EventNotifyTopic" class="com.sun.messaging.BasicTopic">
          |    <constructor-arg value="${modelName.toUpperCase(Locale.ENGLISH)}_EVENT_NOTIFY_TOPIC"/>
          |  </bean>
@@ -220,6 +223,7 @@ object App extends App {
          |    <property name="subscriptionDurable" value="true"/>
          |    <property name="subscriptionShared" value="true"/>
          |  </bean>
+         |  -->
          |</beans>
          |""".stripMargin
 
@@ -317,10 +321,12 @@ object App extends App {
          |      <artifactId>${cToShell(modelName)}-controller</artifactId>
          |      <version>1.0-SNAPSHOT</version>
          |    </dependency>
+         |    <!--
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-jta-atomikos</artifactId>
          |    </dependency>
+         |    -->
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -341,8 +347,8 @@ object App extends App {
          |      <groupId>com.microsoft.sqlserver</groupId>
          |      <artifactId>mssql-jdbc</artifactId>
          |      <version>7.0.0.jre8</version>
-         |      <scope>test</scope>
          |    </dependency>
+         |    <!--
          |    <dependency>
          |      <groupId>com.github.apuex.jms</groupId>
          |      <artifactId>imq-patch</artifactId>
@@ -358,6 +364,7 @@ object App extends App {
          |      <artifactId>event-source-jms</artifactId>
          |      <version>1.0.1</version>
          |    </dependency>
+         |    -->
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
          |      <artifactId>spring-boot-starter-test</artifactId>
