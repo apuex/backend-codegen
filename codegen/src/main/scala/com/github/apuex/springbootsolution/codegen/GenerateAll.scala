@@ -8,6 +8,7 @@ object GenerateAll extends App {
   ApiList.main(args)
   Dao.main(args)
   CassandraDao.main(args)
+  SqlServerSchemaGenerator.main(args)
   MysqlSchemaGenerator.main(args)
   Message.main(args)
   Service.main(args)
