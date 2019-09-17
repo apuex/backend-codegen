@@ -50,15 +50,15 @@ class SqlServerSchemaGenerator(modelLoader: ModelLoader) {
          |
          |CREATE DATABASE [${modelDbSchema}] ON
          |  PRIMARY (
-         |    NAME       = 'matrix_data',
+         |    NAME       = '${modelDbSchema}_data',
          |    FILENAME   = '/var/opt/mssql/data/${modelDbSchema}_data.mdf',
          |    SIZE       = 10MB,
          |    MAXSIZE    = UNLIMITED,
          |    FILEGROWTH = 10MB
          |  )
          |  LOG ON (
-         |    NAME       = 'matrix_log',
-         |    FILENAME   = '/var/opt/mssql/log/${modelDbSchema}_log.ldf',
+         |    NAME       = '${modelDbSchema}_log',
+         |    FILENAME   = '/var/opt/mssql/data/${modelDbSchema}_log.ldf',
          |    SIZE       = 10MB,
          |    MAXSIZE    = UNLIMITED,
          |    FILEGROWTH = 10MB
