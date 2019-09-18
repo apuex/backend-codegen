@@ -4,11 +4,8 @@ import scalapb.compiler.Version.scalapbVersion
 object Dependencies {
   lazy val scalaVersionNumber    = "2.12.8"
   lazy val akkaVersion           = "2.5.22"
-  lazy val artifactVersionNumber = "1.0.9"
+  lazy val artifactVersionNumber = "1.0.10"
   lazy val artifactGroupName     = "com.github.apuex.springbootsolution"
-  lazy val sprayVersion          = "1.3.3"
-  lazy val playVersion           = "2.6.9"
-  lazy val playSilhouetteVersion = "5.0.3"
 
   lazy val scalaXml         = "org.scala-lang.modules"    %%  "scala-xml"                          % "1.0.6"
   lazy val cassandraDriver  = "com.datastax.cassandra"    %   "cassandra-driver-core"              % "3.6.0"
