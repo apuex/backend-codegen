@@ -3,9 +3,18 @@ package com.github.apuex.springbootsolution.runtime
 import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.AND
 import com.github.apuex.springbootsolution.runtime.PredicateType.EQ
 import com.github.apuex.springbootsolution.runtime.QueryCommandMethods._
-import org.scalatest._
+import org.json4s.jackson.JsonMethods._
+import org.scalatest.{FlatSpec, Matchers}
+import scalapb.json4s.JsonFormat.GenericCompanion
+import scalapb.json4s._
 
 class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
+  val messagesCompanions = MessagesProto.messagesCompanions
+  val registry: TypeRegistry = messagesCompanions
+    .foldLeft(TypeRegistry())((r, mc) => r.addMessageByCompanion(mc.asInstanceOf[GenericCompanion]))
+  val printer = new Printer().withTypeRegistry(registry)
+  val parser = new scalapb.json4s.Parser().withTypeRegistry(registry)
+
   "A WhereClauseWithNamedParams" should "generate single field filter predicate" in {
     val (predicate: FilterPredicate, params: Map[String, String]) = createPredicate(EQ, "name", "value")
 
@@ -31,7 +40,7 @@ class WhereClauseWithNamedParamsSpec extends FlatSpec with Matchers {
     val connection = createConnection(AND, predicates)
     val q = QueryCommand(Some(connection), params)
 
-    // println(JsonFormat.printer().print(q))
+    println(pretty(printer.toJson(q)))
 
     val whereClause = WhereClauseWithNamedParams(new CamelToPascalConverter())
     whereClause.toWhereClause(q, 2) should be(

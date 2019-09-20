@@ -4,7 +4,7 @@ import com.github.apuex.springbootsolution.runtime.FilterPredicate.Clause.{Conne
 import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.AND
 import org.scalatest.{FlatSpec, Matchers}
 import scalapb.json4s.JsonFormat.GenericCompanion
-import scalapb.json4s.{Parser, Printer, TypeRegistry}
+import scalapb.json4s._
 import org.json4s.jackson.JsonMethods._
 
 class QueryCommandJsonSpec extends FlatSpec with Matchers {
@@ -51,7 +51,7 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
       )
     )
 
-    //println(pretty(printer.toJson(queryCommand)))
+    println(pretty(printer.toJson(queryCommand)))
     pretty(printer.toJson(queryCommand)) should be (
       s"""
          |{
