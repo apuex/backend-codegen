@@ -188,7 +188,7 @@ object Controller extends App {
          |    <dependency>
          |      <groupId>com.github.apuex.springbootsolution</groupId>
          |      <artifactId>java-runtime_2.12</artifactId>
-         |      <version>1.0.9</version>
+         |      <version>1.0.10</version>
          |    </dependency>
          |    <dependency>
          |      <groupId>org.springframework.boot</groupId>
