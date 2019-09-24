@@ -9,8 +9,9 @@ import scala.xml.{Node, Text}
 
 object App extends App {
   val xml = ModelLoader(args(0)).xml
-  val modelName = xml.attribute("name").asInstanceOf[Some[Text]].get.data
-  val modelPackage = xml.attribute("package").asInstanceOf[Some[Text]].get.data
+  val modelName = xml.\@("name")
+  val modelPackage = xml.\@("package")
+  val dbSchema = xml.\@("dbSchema")
   val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
   val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-app"
   val srcDir = s"${projectDir}/src/main/java/${modelPackage.replace('.', '/')}/app"
@@ -55,7 +56,7 @@ object App extends App {
 
     val source =
       s"""<?xml version="1.0" encoding="UTF-8"?>
-         |<Context antiJARLocking="true" path="" reloadable="true" crossContext="true">
+         |<Context antiJARLocking="true" path="/${cToShell(modelName)}-app" reloadable="true" crossContext="true">
          |
          |  <Resource name="jdbc/example"
          |            type="javax.sql.DataSource"
