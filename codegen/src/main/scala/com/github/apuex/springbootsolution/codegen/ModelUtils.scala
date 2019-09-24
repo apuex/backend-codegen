@@ -110,10 +110,14 @@ object ModelUtils {
   def joinColumnsForExtension(model: Node, entity: Node): Map[String, String] = {
     val parentEntityName = parentName(entity)
     val parent = parentEntityName.map(x => joinColumnsForExtension(model, entityFor(model, x))).getOrElse(Map())
-    val extended = entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => (f.\@("name"), f.\@("refField")))
-      .toMap
+    val extended = if(parentEntityName.isDefined) {
+      entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
+        .flatMap(k => k.child.filter(x => x.label == "field"))
+        .map(f => (f.\@("name"), f.\@("refField")))
+        .toMap
+    } else {
+      Map()
+    }
     return parent ++ extended
   }
 
