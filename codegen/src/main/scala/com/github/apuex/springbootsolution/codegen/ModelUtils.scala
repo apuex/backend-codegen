@@ -43,10 +43,18 @@ object ModelUtils {
   def persistentColumnsExtended(model: Node, entity: Node): Seq[Node] = {
     val parentEntityName = parentName(entity)
     val parent = parentEntityName.map(x => persistentColumnsExtended(model, entityFor(model, x))).getOrElse(Seq())
-    val fkColumnsNames = entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
-      .flatMap(k => k.child.filter(x => x.label == "field"))
-      .map(f => (f.\@("name"), f.\@("refField")))
-      .toMap
+    val fkColumnsNames = if(parentEntityName.isDefined) {
+      entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
+        .flatMap(k => k.child.filter(x => x.label == "field"))
+        .map(f => (f.\@("name"), f.\@("refField")))
+        .toMap
+    } else {
+      entity.child.filter(x => x.label == "foreignKey")
+        .flatMap(k => k.child.filter(x => x.label == "field"))
+        .map(f => (f.\@("name"), f.\@("refField")))
+        .toMap
+    }
+
     val pkFkColumnsNames = entity.child.filter(x => x.label == "primaryKey")
       .flatMap(k => k.child.filter(x => x.label == "field"))
       .map(f => f.\@("name"))
