@@ -4,55 +4,33 @@ import scala.xml.{Node, Text}
 
 object ModelUtils {
   def isEnum(model: Node, name: String): Boolean = {
-    !(model.child.filter(x => x.label == "entity")
+    !(model.child
+      .filter(x => x.label == "entity")
       .filter(x => isEnum(x) && x.\@("name") == name)
       .isEmpty)
   }
 
   def isEnum(entity: Node): Boolean =
-    entity.attribute("enum")
-      .map(x => {
-        x.filter(n => n.isInstanceOf[Text])
-          .map(n => n.asInstanceOf[Text].data == "true")
-          .foldLeft(false)(_ || _)
-      })
-      .getOrElse(false)
+    entity.\@("enum") == "true"
 
   def isAggregationRoot(entity: Node): Boolean =
-    entity.attribute("aggregateRoot")
-      .map(x => {
-        x.filter(n => n.isInstanceOf[Text])
-          .map(n => n.asInstanceOf[Text].data == "true")
-          .foldLeft(false)(_ || _)
-      })
-      .getOrElse(false)
+    entity.\@("aggregateRoot") == "true"
 
   def persistentColumns(entity: Node): Seq[Node] = {
     entity.child.filter(x => x.label == "field")
-      .filter(f => {
-        !(f.attribute("transient")
-          .map(x => {
-            x.filter(n => n.isInstanceOf[Text])
-              .map(n => n.asInstanceOf[Text].data == "true")
-              .foldLeft(false)(_ || _)
-          })
-          .getOrElse(false))
-      })
+      .filter(f => f.\@("transient") != "true")
   }
 
   def persistentColumnsExtended(model: Node, entity: Node): Seq[Node] = {
     val parentEntityName = parentName(entity)
     val parent = parentEntityName.map(x => persistentColumnsExtended(model, entityFor(model, x))).getOrElse(Seq())
-    val fkColumnsNames = if(parentEntityName.isDefined) {
+    val fkColumnsNames: Map[String, String] = if(parentEntityName.isDefined) {
       entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
         .flatMap(k => k.child.filter(x => x.label == "field"))
         .map(f => (f.\@("name"), f.\@("refField")))
         .toMap
     } else {
-      entity.child.filter(x => x.label == "foreignKey")
-        .flatMap(k => k.child.filter(x => x.label == "field"))
-        .map(f => (f.\@("name"), f.\@("refField")))
-        .toMap
+      Map()
     }
 
     val pkFkColumnsNames = entity.child.filter(x => x.label == "primaryKey")
@@ -61,15 +39,7 @@ object ModelUtils {
       .filter(f => fkColumnsNames.contains(f))
       .toSet
     val extended = entity.child.filter(x => x.label == "field")
-      .filter(f => {
-        !(f.attribute("transient")
-          .map(x => {
-            x.filter(n => n.isInstanceOf[Text])
-              .map(n => n.asInstanceOf[Text].data == "true")
-              .foldLeft(false)(_ || _)
-          })
-          .getOrElse(false))
-      })
+      .filter(f => f.\@("transient") != "true")
       .filter(f => !pkFkColumnsNames.contains(f.\@("name")))
     return parent ++ extended
   }
@@ -93,16 +63,13 @@ object ModelUtils {
   def primaryKeyColumns(model: Node, entity: Node):Seq[Node] = {
     val parentEntityName = parentName(entity)
     val parent = parentEntityName.map(x => primaryKeyColumns(model, entityFor(model, x))).getOrElse(Seq())
-    val fkColumnsNames = if(parentEntityName.isDefined) {
+    val fkColumnsNames: Map[String, String] = if(parentEntityName.isDefined) {
       entity.child.filter(x => x.label == "foreignKey" && parentEntityName.map(n => n == x.\@("refEntity")).get)
         .flatMap(k => k.child.filter(x => x.label == "field"))
         .map(f => (f.\@("name"), f.\@("refField")))
         .toMap
     } else {
-      entity.child.filter(x => x.label == "foreignKey")
-        .flatMap(k => k.child.filter(x => x.label == "field"))
-        .map(f => (f.\@("name"), f.\@("refField")))
-        .toMap
+      Map()
     }
     val pkColumnsNames = entity.child.filter(x => x.label == "primaryKey")
       .flatMap(k => k.child.filter(x => x.label == "field"))
