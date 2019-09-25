@@ -13,7 +13,7 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
 
   import modelLoader._
   def generate(): Unit = {
-    val daoMysqlResDir = s"${Dao.projectDir}/src/main/resources"
+    val daoMysqlResDir = s"${DaoSqlServer.projectDir}/src/main/resources"
     save(s"${cToShell(modelDbSchema)}-db-mysql-schema.ddl",
       generateDaoContent(xml),
       daoMysqlResDir)
@@ -41,21 +41,22 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
          | *****************************************************/
          |
          |DROP USER IF EXISTS '${modelDbSchema}';
-         |DROP DATABASE IF EXISTS ${modelDbSchema};
+         |DROP DATABASE IF EXISTS `${modelDbSchema}`;
          |
-         |CREATE DATABASE ${modelDbSchema} DEFAULT CHARACTER SET 'UTF8' DEFAULT COLLATE utf8_unicode_ci;
+         |CREATE DATABASE `${modelDbSchema}` DEFAULT CHARACTER SET 'UTF8' DEFAULT COLLATE utf8_unicode_ci;
          |
          |CREATE USER '${modelDbSchema}' IDENTIFIED BY 'password';
-         |GRANT ALL PRIVILEGES ON *.* TO '${modelDbSchema}' WITH GRANT OPTION;
+         |ALTER USER '${modelDbSchema}' IDENTIFIED WITH mysql_native_password BY 'password';
+         |GRANT ALL PRIVILEGES ON `${modelDbSchema}`.* TO '${modelDbSchema}' WITH GRANT OPTION;
          |
-         |USE ${modelDbSchema};
+         |USE `${modelDbSchema}`;
        """.stripMargin.trim
     )
 
     val tables = entities
       .map(x => {
         s"""
-           |CREATE TABLE ${modelDbSchema}.${x.name} (
+           |CREATE TABLE `${modelDbSchema}`.`${x.name}` (
            |  ${indent(defTableFields(x.fields), 2)}
            |) ENGINE=InnoDB DEFAULT CHARSET=utf8;
          """.stripMargin.trim
@@ -64,16 +65,16 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
     val primaryKeys = entities
       .map(x => {
         val keyFieldNames = x.primaryKey.fields
-          .map(_.name)
+          .map(x => s"`${x.name}`")
           .reduceOption((l, r) => s"${l}, ${r}")
           .getOrElse("")
         if (x.primaryKey.generated)
           s"""
-             |ALTER TABLE ${modelDbSchema}.${x.name} ADD INDEX ${x.primaryKey.name}(${keyFieldNames}), MODIFY ${keyFieldNames} BIGINT NOT NULL AUTO_INCREMENT;
+             |ALTER TABLE `${modelDbSchema}`.`${x.name}` ADD INDEX `${x.primaryKey.name}`(${keyFieldNames}), MODIFY ${keyFieldNames} BIGINT NOT NULL AUTO_INCREMENT;
          """.stripMargin.trim
         else
           s"""
-             |ALTER TABLE ${modelDbSchema}.${x.name} ADD CONSTRAINT ${x.primaryKey.name} PRIMARY KEY(${keyFieldNames});
+             |ALTER TABLE `${modelDbSchema}`.`${x.name}` ADD CONSTRAINT `${x.primaryKey.name}` PRIMARY KEY(${keyFieldNames});
          """.stripMargin.trim
       })
 
@@ -81,16 +82,16 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
       .map(x => {
         x.foreignKeys.map(k => {
           val keyFieldNames = k.fields
-            .map(_.name)
+            .map(x => s"`${x.name}`")
             .reduceOption((l, r) => s"${l}, ${r}")
             .getOrElse("")
           val refFieldNames = k.fields
-            .map(_.refField)
+            .map(x => s"`${x.refField}`")
             .reduceOption((l, r) => s"${l}, ${r}")
             .getOrElse("")
 
           s"""
-             |ALTER TABLE ${modelDbSchema}.${x.name} ADD CONSTRAINT ${k.name} FOREIGN KEY(${keyFieldNames}) REFERENCES ${modelDbSchema}.${k.refEntity}(${refFieldNames});
+             |ALTER TABLE `${modelDbSchema}`.`${x.name}` ADD CONSTRAINT `${k.name}` FOREIGN KEY(${keyFieldNames}) REFERENCES `${modelDbSchema}`.`${k.refEntity}`(${refFieldNames});
          """.stripMargin.trim
         })
       })
@@ -112,7 +113,7 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
         val fieldType = toMysqlType(x._type, x.length, x.scale)
         val nullOpt = if (x.required) "NOT NULL" else ""
         s"""
-           |${x.name} ${fieldType} ${nullOpt}
+           |`${x.name}` ${fieldType} ${nullOpt}
          """.stripMargin.trim
       })
       .reduceOption((l, r) => s"${l},\n${r}")

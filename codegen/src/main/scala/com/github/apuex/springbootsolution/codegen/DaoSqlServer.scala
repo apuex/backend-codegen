@@ -9,7 +9,7 @@ import com.github.apuex.springbootsolution.runtime.TextUtils._
 
 import scala.xml.{Node, Text}
 
-object Dao extends App {
+object DaoSqlServer extends App {
   val xml = ModelLoader(args(0)).xml
   val modelName = xml.\@("name")
   val modelPackage = xml.\@("package")

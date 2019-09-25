@@ -6,7 +6,7 @@ object GenerateAll extends App {
   App.main(args)
   Controller.main(args)
   ApiList.main(args)
-  Dao.main(args)
+  DaoSqlServer.main(args)
   CassandraDao.main(args)
   SqlServerSchemaGenerator.main(args)
   MysqlSchemaGenerator.main(args)
