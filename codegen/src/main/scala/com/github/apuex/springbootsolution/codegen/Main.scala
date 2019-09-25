@@ -15,7 +15,7 @@ object Main extends App {
       case "generate-controller" => Controller.main(args.drop(1))
       case "generate-api-list" => ApiList.main(args.drop(1))
       case "generate-sqlserver-dao" => DaoSqlServer.main(args.drop(1))
-      case "generate-mysql-dao" => DaoSqlServer.main(args.drop(1))
+      case "generate-mysql-dao" => DaoMysql.main(args.drop(1))
       case "generate-cassandra-dao" => CassandraDao.main(args.drop(1))
       case "generate-sqlserver-ddl" => SqlServerSchemaGenerator.main(args.drop(1))
       case "generate-mysql-ddl" => MysqlSchemaGenerator.main(args.drop(1))

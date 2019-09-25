@@ -2,6 +2,7 @@ package com.github.apuex.springbootsolution.runtime
 
 import com.github.apuex.springbootsolution.runtime.FilterPredicate.Clause.{Connection, Predicate}
 import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.AND
+import com.github.apuex.springbootsolution.runtime.OrderType._
 import org.scalatest.{FlatSpec, Matchers}
 import scalapb.json4s.JsonFormat.GenericCompanion
 import scalapb.json4s._
@@ -78,6 +79,65 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
          |  }
          |}
        """.stripMargin.trim)
+  }
+
+  it should "serialize query command with pagination" in {
+    val queryCommand = QueryCommand(
+      Some(
+        FilterPredicate(
+          Connection(
+            LogicalConnectionVo(
+              AND,
+              Seq(
+                FilterPredicate(
+                  Predicate(
+                    LogicalPredicateVo(
+                      PredicateType.EQ,
+                      "name",
+                      Seq("name")
+                    )
+                  )
+                ),
+              )
+            )
+          )
+        )
+      ),
+      Map(
+        "name" -> "user"
+      ),
+      1,
+      10,
+      Seq(
+        OrderBy("name", ASC)
+      )
+    )
+
+    println(pretty(printer.toJson(queryCommand)))
+    pretty(printer.toJson(queryCommand)) should be (
+    s"""
+       |{
+       |  "predicate" : {
+       |    "connection" : {
+       |      "predicates" : [ {
+       |        "predicate" : {
+       |          "predicateType" : "EQ",
+       |          "fieldName" : "name",
+       |          "paramNames" : [ "name" ]
+       |        }
+       |      } ]
+       |    }
+       |  },
+       |  "params" : {
+       |    "name" : "user"
+       |  },
+       |  "pageNumber" : 1,
+       |  "rowsPerPage" : 10,
+       |  "orderBy" : [ {
+       |    "fieldName" : "name"
+       |  } ]
+       |}
+     """.stripMargin.trim)
   }
 
 }

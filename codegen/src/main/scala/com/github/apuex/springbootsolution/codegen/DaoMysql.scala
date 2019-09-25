@@ -4,12 +4,12 @@ import java.io.{File, PrintWriter}
 
 import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
-import com.github.apuex.springbootsolution.runtime.TypeConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
+import com.github.apuex.springbootsolution.runtime.TypeConverters._
 
-import scala.xml.{Node, Text}
+import scala.xml.Node
 
-object DaoSqlServer extends App {
+object DaoMysql extends App {
   val xml = ModelLoader(args(0)).xml
   val modelName = xml.\@("name")
   val modelPackage = xml.\@("package")
@@ -303,22 +303,18 @@ object DaoSqlServer extends App {
          |          .map(x -> String.format("%s %s", x.getFieldName(), x.getOrder()))
          |          .reduce((x, y) -> String.format("%s, %s", x, y))
          |          .get();
-         |      String sql = String.format("WITH Paginated${entityName} AS ("
-         |          + "SELECT ROW_NUMBER() OVER (ORDER BY %s) AS RowNumber, "
-         |          + "${columns} "
+         |      String sql = String.format("SELECT ${columns} "
          |          + "FROM ${entityNames} %s ${joinPredicate}"
-         |          + ")"
-         |          + "SELECT ${columns} "
-         |          + "FROM Paginated${entityName} "
-         |          + "WHERE RowNumber > ? AND RowNumber <= ?",
-         |          orderBy,
-         |          where.toWhereClause(q));
+         |          + "ORDER BY %s "
+         |          + "LIMIT ? OFFSET ?",
+         |          where.toWhereClause(q),
+         |          orderBy);
          |      List<Object> params = new LinkedList<>(where.toUnnamedParamList(q, paramMapper));
          |      Integer beginRow = Integer.valueOf((q.getPageNumber() - 1) * q.getRowsPerPage());
          |      Integer endRow = Integer.valueOf(q.getPageNumber() * q.getRowsPerPage());
          |      List<Object> moreParams = new LinkedList<>(params);
+         |      params.add(q.getRowsPerPage());
          |      params.add(beginRow);
-         |      params.add(endRow);
          |      moreParams.add(endRow);
          |      moreParams.add(endRow + 1);
          |      logger.info(sql);
