@@ -3,6 +3,7 @@ package com.github.apuex.springbootsolution.runtime
 import com.github.apuex.springbootsolution.runtime.FilterPredicate.Clause.{Connection, Predicate}
 import com.github.apuex.springbootsolution.runtime.LogicalConnectionType.AND
 import com.github.apuex.springbootsolution.runtime.OrderType._
+import com.google.gson.Gson
 import org.scalatest.{FlatSpec, Matchers}
 import scalapb.json4s.JsonFormat.GenericCompanion
 import scalapb.json4s._
@@ -137,6 +138,67 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
        |    "fieldName" : "name"
        |  } ]
        |}
+     """.stripMargin.trim)
+  }
+
+  it should "serialize query command with 'in' predicate and pagination" in {
+    val gson = new Gson()
+
+    val queryCommand = QueryCommand(
+      Some(
+        FilterPredicate(
+          Connection(
+            LogicalConnectionVo(
+              AND,
+              Seq(
+                FilterPredicate(
+                  Predicate(
+                    LogicalPredicateVo(
+                      PredicateType.IN,
+                      "name",
+                      Seq("name")
+                    )
+                  )
+                ),
+              )
+            )
+          )
+        )
+      ),
+      Map(
+        "name" -> gson.toJson(Array("bill", "gates", "steve", "jobs"))
+      ),
+      1,
+      10,
+      Seq(
+        OrderBy("name", ASC)
+      )
+    )
+
+    println(pretty(printer.toJson(queryCommand)))
+    pretty(printer.toJson(queryCommand)) should be (
+      s"""
+         |{
+         |  "predicate" : {
+         |    "connection" : {
+         |      "predicates" : [ {
+         |        "predicate" : {
+         |          "predicateType" : "IN",
+         |          "fieldName" : "name",
+         |          "paramNames" : [ "name" ]
+         |        }
+         |      } ]
+         |    }
+         |  },
+         |  "params" : {
+         |    "name" : "[\\"bill\\",\\"gates\\",\\"steve\\",\\"jobs\\"]"
+         |  },
+         |  "pageNumber" : 1,
+         |  "rowsPerPage" : 10,
+         |  "orderBy" : [ {
+         |    "fieldName" : "name"
+         |  } ]
+         |}
      """.stripMargin.trim)
   }
 
