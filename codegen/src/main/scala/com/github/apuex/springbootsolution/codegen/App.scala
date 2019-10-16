@@ -104,12 +104,13 @@ object App extends App {
          |  <context:annotation-config />
          |  <context:component-scan base-package="${modelPackage}" />
          |
-         |  <bean id="dataSource" class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
-         |    <property name="serverName" value="192.168.0.38"/>
-         |    <property name="portNumber" value="1433"/>
-         |    <property name="databaseName" value="${cToCamel(modelName)}"/>
-         |    <property name="user" value="sa"/>
-         |    <property name="password" value=""/>
+         |  <bean id="dataSource" class="com.mysql.cj.jdbc.MysqlDataSource">
+         |      <property name="serverName" value="mysql"/>
+         |      <property name="portNumber" value="3306"/>
+         |      <property name="serverTimezone" value="UTC"/>
+         |      <property name="databaseName" value="${cToCamel(modelName)}"/>
+         |      <property name="user" value="${cToCamel(modelName)}"/>
+         |      <property name="password" value="password"/>
          |  </bean>
          |
          |  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
@@ -119,6 +120,14 @@ object App extends App {
          |  <bean id="eventSourceAdapter" class="com.github.apuex.eventsource.EventSourceAdapter.NullAdapter"/>
          |
          |  <!--
+         |  <bean id="dataSource" class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
+         |    <property name="serverName" value="mssqlserver"/>
+         |    <property name="portNumber" value="1433"/>
+         |    <property name="databaseName" value="${cToCamel(modelName)}"/>
+         |    <property name="user" value="sa"/>
+         |    <property name="password" value=""/>
+         |  </bean>
+         |
          |  <bean id="dataSource"
          |        class="com.atomikos.jdbc.AtomikosDataSourceBean"
          |        init-method="init" destroy-method="close">
@@ -345,11 +354,16 @@ object App extends App {
          |      <scope>provided</scope>
          |    </dependency>
          |    <dependency>
+         |      <groupId>mysql</groupId>
+         |      <artifactId>mysql-connector-java</artifactId>
+         |     <version>8.0.15</version>
+         |    </dependency>
+         |    <!--
+         |    <dependency>
          |      <groupId>com.microsoft.sqlserver</groupId>
          |      <artifactId>mssql-jdbc</artifactId>
          |      <version>7.0.0.jre8</version>
          |    </dependency>
-         |    <!--
          |    <dependency>
          |      <groupId>com.github.apuex.jms</groupId>
          |      <artifactId>imq-patch</artifactId>
