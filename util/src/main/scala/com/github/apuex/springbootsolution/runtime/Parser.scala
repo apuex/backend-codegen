@@ -1,6 +1,6 @@
 package com.github.apuex.springbootsolution.runtime
 
-import java.util.Date
+import java.util.{Date, UUID}
 
 import com.google.protobuf.timestamp.Timestamp
 import scalapb.{GeneratedEnum, GeneratedEnumCompanion}
@@ -30,6 +30,10 @@ object Parser {
 
   case object TimestampParser extends Parser[Timestamp] {
     override def parse(s: String): Timestamp = DateFormat.parseScalapbTimestamp(s)
+  }
+
+  case object UUIDParser extends Parser[UUID] {
+    override def parse(s: String): UUID = UUID.fromString(s)
   }
 
   case object DateParser extends Parser[Date] {
