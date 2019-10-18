@@ -39,6 +39,8 @@ object TypeConverters {
     case "float" => "float"
     case "double" => "double"
     case "blob" => "Blob"
+    case "uuid" => "UUID"
+    case "timeuuid" => "UUID"
     case _ => "int" // enum type
   }
 
@@ -55,6 +57,8 @@ object TypeConverters {
     case "float" => true
     case "double" => true
     case "blob" => true
+    case "uuid" => true
+    case "timeuuid" => true
     case _ => false
   }
 
@@ -71,6 +75,8 @@ object TypeConverters {
     case "float" => "float"
     case "double" => "double"
     case "blob" => "Bytes"
+    case "uuid" => "Uuid"
+    case "timeuuid" => "TimeUuid"
     case _ => "int" // enum type
   }
 
@@ -87,6 +93,8 @@ object TypeConverters {
     case "float" => "float"
     case "double" => "double"
     case "blob" => "ByteString"
+    case "uuid" => "UUID"
+    case "timeuuid" => "UUID"
     case x =>
       cToPascal(x)
   }
@@ -105,6 +113,8 @@ object TypeConverters {
     case "float" => "number"
     case "double" => "number"
     case "blob" => "number[]"
+    case "uuid" => "UUID"
+    case "timeuuid" => "UUID"
     case x =>
       cToPascal(x)
   }
@@ -123,6 +133,8 @@ object TypeConverters {
     case "float" => true
     case "double" => true
     case "blob" => true
+    case "uuid" => true
+    case "timeuuid" => true
     case _ => false
   }
 
@@ -140,6 +152,8 @@ object TypeConverters {
     case "float" => typeName
     case "double" => typeName
     case "blob" => "bytes"
+    case "uuid" => "string"
+    case "timeuuid" => "string"
     case x =>
       cToPascal(x)
   }
@@ -160,6 +174,8 @@ object TypeConverters {
     case "float" => "double"
     case "double" => "double"
     case "image" => "blob"
+    case "uuid" => "uuid"
+    case "timeuuid" => "timeuuid"
     case x =>
       pascalToC(x)
   }
