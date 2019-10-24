@@ -16,6 +16,16 @@ class QueryCommandJsonSpec extends FlatSpec with Matchers {
   val printer = new Printer().withTypeRegistry(registry)
   val parser = new scalapb.json4s.Parser().withTypeRegistry(registry)
 
+  "A QueryCommand" should "serialize no filter predicate to json" in {
+    val queryCommand = QueryCommand()
+
+    println(pretty(printer.toJson(queryCommand)))
+    pretty(printer.toJson(queryCommand)) should be (
+      s"""
+         |{ }
+       """.stripMargin.trim)
+  }
+
   "A QueryCommand" should "serialize 'and eq' to json" in {
     val queryCommand = QueryCommand(
       Some(

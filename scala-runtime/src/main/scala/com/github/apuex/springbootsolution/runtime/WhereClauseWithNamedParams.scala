@@ -29,7 +29,9 @@ class WhereClauseWithNamedParams(c: SymbolConverter) {
     * @return
     */
   def toWhereClause(q: QueryCommand, indent: Int): String = {
-    toWhereClause(q, q.getPredicate, indent)
+    q.predicate
+      .map(p => toWhereClause(q, p, indent))
+      .getOrElse("")
   }
 
   /**
