@@ -105,6 +105,12 @@ public class DateFormat {
     }
   }
 
+  public static String formatDate(Date d) {
+    if(null == d) return null;
+    final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
+    return dateFormat.format(d);
+  }
+
   public static Date parseDatetime(String str) {
     try {
       final SimpleDateFormat datetimeFormat = new SimpleDateFormat(DATETIME_PATTERN);
