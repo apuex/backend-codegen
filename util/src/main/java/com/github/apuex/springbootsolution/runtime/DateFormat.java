@@ -111,6 +111,12 @@ public class DateFormat {
     return dateFormat.format(d);
   }
 
+  public static String formatDatetime(Date d) {
+    if(null == d) return null;
+    final SimpleDateFormat datetimeFormat = new SimpleDateFormat(DATETIME_PATTERN);
+    return datetimeFormat.format(d);
+  }
+
   public static Date parseDatetime(String str) {
     try {
       final SimpleDateFormat datetimeFormat = new SimpleDateFormat(DATETIME_PATTERN);
