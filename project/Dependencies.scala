@@ -7,7 +7,7 @@ object Dependencies {
   lazy val artifactVersionNumber = "1.0.10"
   lazy val artifactGroupName     = "com.github.apuex.springbootsolution"
 
-  lazy val scalaXml         = "org.scala-lang.modules"    %%  "scala-xml"                          % "1.0.6"
+  lazy val scalaXml         = "org.scala-lang.modules"    %%  "scala-xml"                          % "1.2.0"
   lazy val cassandraDriver  = "com.datastax.cassandra"    %   "cassandra-driver-core"              % "3.6.0"
   lazy val protobufJava     = "com.google.protobuf"       %   "protobuf-java"                      % "3.6.1"
   lazy val protobufJavaUtil = "com.google.protobuf"       %   "protobuf-java-util"                 % "3.6.1"
