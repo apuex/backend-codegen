@@ -10,6 +10,8 @@ resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-relea
 
 libraryDependencies ++= Seq(
   scalaXml,
+  mssqlDriver,
+  mysqlDriver,
   slf4jApi % Test,
   slf4jSimple % Test,
   scalaTest % Test

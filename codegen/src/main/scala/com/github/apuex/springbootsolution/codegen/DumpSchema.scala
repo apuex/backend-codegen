@@ -78,6 +78,7 @@ object DumpSchema extends App {
     case "bigint" => "long"
     case "decimal" => "decimal"
     case "char" => "string"
+    case "nchar" => "string"
     case "varchar" => "string"
     case "nvarchar" => "string"
     case "ntext" => "string"
@@ -100,6 +101,7 @@ object DumpSchema extends App {
     case "bigint" => ""
     case "decimal" => ""
     case "char" => "length=\"%d\" ".format(length)
+    case "nchar" => "length=\"%d\" ".format(length)
     case "varchar" => "length=\"%d\" ".format(length)
     case "nvarchar" => "length=\"%d\" ".format(length)
     case "ntext" => ""
