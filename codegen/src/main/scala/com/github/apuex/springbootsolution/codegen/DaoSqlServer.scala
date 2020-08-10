@@ -4,10 +4,10 @@ import java.io.{File, PrintWriter}
 
 import com.github.apuex.springbootsolution.codegen.ModelUtils._
 import com.github.apuex.springbootsolution.runtime.SymbolConverters._
-import com.github.apuex.springbootsolution.runtime.TypeConverters._
 import com.github.apuex.springbootsolution.runtime.TextUtils._
+import com.github.apuex.springbootsolution.runtime.TypeConverters._
 
-import scala.xml.{Node, Text}
+import scala.xml.Node
 
 object DaoSqlServer extends App {
   val xml = ModelLoader(args(0)).xml

@@ -13,7 +13,9 @@ class MysqlSchemaGenerator(modelLoader: ModelLoader) {
 
   import modelLoader._
   def generate(): Unit = {
-    val daoMysqlResDir = s"${DaoSqlServer.projectDir}/src/main/resources"
+    val projectRoot = s"${System.getProperty("output.dir", "target/generated")}"
+    val projectDir = s"${projectRoot}/${cToShell(modelName)}/${cToShell(modelName)}-dao"
+    val daoMysqlResDir = s"${projectDir}/src/main/resources"
     save(s"${cToShell(modelDbSchema)}-db-mysql-schema.ddl",
       generateDaoContent(xml),
       daoMysqlResDir)
